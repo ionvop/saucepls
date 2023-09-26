@@ -1,0 +1,22 @@
+{
+    "users": [
+        {
+            "id": "user1234",
+            "username": "test",
+            "email": "test@example.com",
+            "hash": "test",
+            "avatar": "default.jpg",
+            "type": "member",
+            "description": "Hello, world!",
+            "time": 1234
+        }
+    ],
+    "sessions": [
+        {
+            "id": "session1234",
+            "userid": "user1234",
+            "expiry": 1234,
+            "time": 1234
+        }
+    ]
+}
