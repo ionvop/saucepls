@@ -30,13 +30,20 @@ Debug();
 
             .upload-form__container {
                 display: grid;
-                grid-template-columns: 30% 1fr;
+                grid-template-columns: 40% 1fr;
+                padding: 3rem;
+                background-color: #111;
+                border-radius: 3rem;
             }
 
             .upload-form__info {
-                padding: 1rem;
-                height: 50rem;
+                padding: 3rem;
+                height: 30rem;
                 overflow-y: auto;
+            }
+
+            .upload-form__info__text {
+                margin-top: 3rem;
             }
 
             .upload-form__info__tags {
@@ -44,13 +51,17 @@ Debug();
             }
 
             .upload-form__image {
-                padding: 5rem;
+                padding: 3rem;
             }
 
             .upload-form__image img {
                 max-width: 100%;
-                max-height: 50rem;
+                max-height: 30rem;
                 border-radius: 1rem;
+            }
+
+            .upload-form__details {
+                padding: 5rem;
             }
         </style>
     </head>
@@ -70,13 +81,13 @@ Debug();
                                         <label for="text">
                                             Text:
                                         </label>
-                                        <textarea name="text" class="-textarea"></textarea>
+                                        <textarea name="text" class="-textarea -script__textarea--dynamic" placeholder="what women think we want what we really want"></textarea>
                                     </div>
                                     <div class="upload-form__info__tags">
                                         <label for="tags">
                                             Tags:
                                         </label>
-                                        <textarea name="tags" class="-textarea"></textarea>
+                                        <textarea name="tags" class="-textarea -script__textarea--dynamic" placeholder="meme 1girl black lace trimmed bra panties"></textarea>
                                     </div>
                                 </div>
                                 <div class="upload-form__image -center">
@@ -85,6 +96,17 @@ Debug();
                                         <img src="assets/image.png" onclick="btnUpload()">
                                     </div>
                                 </div>
+                            </div>
+                            <div class="upload-form__details">
+                                <label for="details">
+                                    Details:
+                                </label>
+                                <textarea name="details" class="-textarea -script__textarea--dynamic"></textarea>
+                            </div>
+                            <div class="upload-form__submit -center">
+                                <button name="method" value="upload" class="-button">
+                                    Upload
+                                </button>
                             </div>
                         </form>
                     </div>
