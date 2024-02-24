@@ -13,6 +13,8 @@ if (isset($_POST["method"])) {
             break;
         case "logout":
             Logout();
+        case "edit_profile":
+            EditProfile();
         case "upload":
             Upload();
         default:
@@ -63,9 +65,7 @@ function Register() {
         Alert("Email is empty.");
     }
 
-    $userIndex = FindIndex($data["users"], "username", $_POST["username"]);
-
-    if ($userIndex != -1) {
+    if (FindIndex($data["users"], "username", $_POST["username"]) != -1) {
         Alert("Username already taken.");
     }
 
@@ -87,6 +87,8 @@ function Register() {
         "hash" => "",
         "email" => $_POST["email"],
         "avatar" => "default.jpg",
+        "type" => "member",
+        "description" => "Hello, world!",
         "time" => time()
     ];
 
@@ -104,6 +106,69 @@ function Register() {
 function Logout() {
     setcookie("session", "", time()-3600);
     header("Location: ./");
+}
+
+function EditProfile() {
+    $data = GetSiteData();
+    $userIndex = GetUserData(true);
+
+    if ($userIndex == false) {
+        Alert("Session expired.");
+    }
+
+    $user = $data["users"][$userIndex];
+
+    if ($_POST["username"] != $user["username"]) {
+        if (FindIndex($data["users"], "username", $_POST["username"]) != -1) {
+            Alert("Username already taken.");
+        }
+
+        $user["username"] = $_POST["username"];
+    }
+
+    if ($_POST["password"] != "") {
+        if (PasswordStretch($user["id"], $_POST["password"]) != $user["hash"]) {
+            Alert("Invalid credentials");
+        }
+
+        if (strlen($_POST["newpassword"]) < 4) {
+            Alert("Your password is too short. Please have at least 4 characters.");
+        }
+
+        if ($_POST["newpassword"] != $_POST["repassword"]) {
+            Alert("Your passwords do not match.");
+        }
+
+        $user["hash"] = PasswordStretch($user["id"], $_POST["newpassword"]);
+    }
+
+    if ($_FILES["avatar"]["error"] != 4) {
+        if ($_FILES["avatar"]["size"] > 2000000) {
+            Alert("Your image file is too big. It won't fit in me, onii-chan <3 ~\\n\\nMax filesize: 2MB");
+        }
+    
+        if ($_FILES["avatar"]["error"] != 0) {
+            Alert("Your file is too dirty, onii-chan. You can't put it in yet <3 ~");
+        }
+
+        $filename = RenameFile($_FILES["avatar"]["name"], uniqid("avatar"));
+
+        if (move_uploaded_file($_FILES["avatar"]["tmp_name"], "uploads/avatar/" . $filename) == false) {
+            Alert("There was an oopsy woopsy, a little fucky wucky uploading your avatar. Please try again.");
+        }
+
+        $user["avatar"] = $filename;
+    }
+
+    $user["description"] = $_POST["description"];
+    $user["email"] = $_POST["email"];
+    $data["users"][$userIndex] = $user;
+
+    if (SetSiteData($data) == false) {
+        Alert("There was an oopsy woopsy, a little fucky wucky processing the data. Pls check if you typed any invalid characters.");
+    }
+
+    header("Location: user/?id=" . $user["username"]);
 }
 
 function Upload() {

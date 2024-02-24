@@ -9,7 +9,7 @@ function Debug() {
 function Breakpoint($message) {
     header("Content-type: application/json");
     print_r($message);
-    exit();
+    exit(200);
 }
 
 function Alert($message, $redirect = "") {
@@ -34,7 +34,7 @@ function Alert($message, $redirect = "") {
         </script>
     HTML;
 
-    exit();
+    exit(400);
 }
 
 function SetHeader() {
@@ -228,7 +228,7 @@ function AuthenticateUser($sessionId) {
     return $user["id"];
 }
 
-function GetUserData() {
+function GetUserData($index = false) {
     $data = GetSiteData();
 
     if (isset($_COOKIE["session"]) == false) {
@@ -247,6 +247,21 @@ function GetUserData() {
 
     if ($userIndex == -1) {
         setcookie("session", "", time()-3600);
+        return false;
+    }
+
+    if ($index == true) {
+        return $userIndex;
+    }
+
+    return $data["users"][$userIndex];
+}
+
+function GetOtherUserData($username) {
+    $data = GetSiteData();
+    $userIndex = FindIndex($data["users"], "username", $username);
+
+    if ($userIndex == -1) {
         return false;
     }
 
