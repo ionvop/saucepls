@@ -16,31 +16,19 @@ Debug();
                 grid-template-columns: 1fr 1fr;
             }
 
-            .popular__likes {
-                padding: 1rem;
-            }
-
             .popular__likes__title {
                 padding: 1rem;
-                font-size: 2rem;
-            }
-
-            .popular__trending {
-                padding: 1rem;
+                font-size: 3rem;
             }
 
             .popular__trending__title {
                 padding: 1rem;
-                font-size: 2rem;
-            }
-
-            .recent {
-                padding: 1rem;
+                font-size: 3rem;
             }
 
             .recent__title {
                 padding: 1rem;
-                font-size: 2rem;
+                font-size: 3rem;
             }
         </style>
     </head>
