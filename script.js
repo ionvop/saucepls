@@ -1,22 +1,53 @@
-function q(query) {
-    return document.querySelector(query);
+function btnHeaderTitle(element) {
+    location.href = "./";
 }
 
-function btnLogout() {
-    if (confirm("Are you sure you want to logout?")) {
-        EraseCookie("sessionid");
-        location.reload();
+function btnHeaderLogin(element) {
+    location.href = "login/";
+}
+
+function btnHeaderRegister(element) {
+    location.href = "register/";
+}
+
+function btnHeaderSearch(element) {
+    element.parentElement.querySelector(".-header__search__button > form > input[name='q']").value = element.parentElement.parentElement.querySelector(".-header__search__input > input").value;
+    element.parentElement.querySelector(".-header__search__button > form").submit();
+}
+
+function btnHeaderUpload(element) {
+    location.href = "upload/";
+}
+
+function btnHeaderProfile(element) {
+    formSubmit("user/", "get", {
+        id: element.getAttribute("value")
+    });
+}
+
+function btnHeaderLogout(element) {
+    formSubmit("server.php", "post", {
+        method: "logout"
+    })
+}
+
+function formSubmit(url, method, data) {
+    let form = document.createElement('form');
+    form.style.display = "none";
+    form.action = url;
+    form.method = method;
+
+    if (method == "post") {
+        form.enctype = 'multipart/form-data';
     }
-}
 
-function EraseCookie(name) {   
-    document.cookie = name +'=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-}
-
-for (let element of document.querySelectorAll(".-script__textarea--dynamic")) {
-    element.oninput = () => {
-        element.style.resize = "none";
-        element.style.height = "";
-        element.style.height = element.scrollHeight + "px"
+    for (let key in data) {
+        let input = document.createElement("input");
+        input.name = key;
+        input.value = data[key];
+        form.appendChild(input);
     }
+
+    document.body.appendChild(form);
+    form.submit();
 }
