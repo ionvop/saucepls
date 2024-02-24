@@ -1,1 +1,51 @@
-{"users":[{"id":"user1234","username":"test","email":"test@example.com","hash":"test","avatar":"default.jpg","type":"member","description":"Hello, world!","time":1234},{"id":"user6512d9ece1931","username":"ionvop","email":"ionvop@gmail.com","hash":"cipV&72_)Y*>iix|2p:-bt,hg`h!l(Q6(IN[rGYyvylBCLUPeFB*T5hMNKFmSr$4hE~X ]qQ10tE7'?.xU\"=$(G6';JU!_?:0%!J>k3+{)%8|;BR;tyZcrJjgiepzzOn,Gl&sH0lIEy<EM3PfZ4(IX]PMI73","avatar":"default.jpg","type":"member","description":"Hello, world!","time":1695734252}],"sessions":[{"id":"session1234","userid":"user1234","expiry":1234,"time":1234},{"id":"session6512cd812981c","userid":"user6512a6b443978","expiry":1695817473,"time":1695731073},{"id":"session6512d6daef68f","userid":"user6512d68ec5bbb","expiry":1695819866,"time":1695733466},{"id":"session65d9678af2068","userid":"user6512d9ece1931","expiry":1708833034,"time":1708746634}]}
+{
+    "users": [
+        {
+            "id": "user1234",
+            "username": "test",
+            "hash": "test",
+            "email": "test@example.com",
+            "avatar": "default.jpg",
+            "time": 1234
+        },
+        {
+            "id": "user65d89a701e66a",
+            "username": "ionvop",
+            "hash": "adWX9NulMcTjcY31MZDDEgz5aYWT9cuwMMTWcU32MNDmEEz=",
+            "email": "ionvop@gmail.com",
+            "avatar": "default.jpg",
+            "time": 1708694128
+        }
+    ],
+    "sessions": [
+        {
+            "id": "session1234",
+            "userid": "user1234",
+            "expiry": 1234,
+            "time": 1234
+        },
+        {
+            "id": "session65a92606276c3",
+            "userid": "user65a8fbd4ce22e",
+            "expiry": 1705670534,
+            "time": 1705584134
+        },
+        {
+            "id": "session65d96b994cd88",
+            "userid": "user65d89a701e66a",
+            "expiry": 1708834073,
+            "time": 1708747673
+        }
+    ],
+    "posts": [
+        {
+            "id": "post1234",
+            "uploader": "user1234",
+            "file": "test.png",
+            "text": "test",
+            "tags": "test",
+            "description": "test",
+            "time": 1234
+        }
+    ]
+}

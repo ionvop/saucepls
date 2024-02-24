@@ -4,128 +4,174 @@ chdir("../");
 include("common.php");
 Debug();
 
+$user = GetUserData();
+
+if ($user == false) {
+    Alert("Session expired.");
+}
+
 ?>
 
 <html>
     <head>
-        <title>
-            Upload | SaucePls
-        </title>
         <base href="../">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
         <link rel="stylesheet" href="style.css">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <style>
-            label {
-                font-size: 2rem;
+            .panel {
+                padding: 1rem;
             }
 
-            .-textarea {
-                margin-top: 1rem;
-            }
-
-            .upload-form {
-                margin-top: 3rem;
-            }
-
-            .upload-form__container {
+            .panel__container {
                 display: grid;
-                grid-template-columns: 40% 1fr;
-                padding: 3rem;
+                grid-template-columns: max-content 1fr 1fr;
+            }
+
+            .panel__tabs {
+                display: grid;
+                grid-template-rows: max-content max-content max-content 1fr max-content;
                 background-color: #111;
-                border-radius: 3rem;
+                padding-top: 1rem;
             }
 
-            .upload-form__info {
-                padding: 3rem;
-                height: 30rem;
-                overflow-y: auto;
+            .panel__tabs__text {
+                padding: 1rem;
             }
 
-            .upload-form__info__text {
-                margin-top: 3rem;
+            .panel__tabs__tags {
+                padding: 1rem;
             }
 
-            .upload-form__info__tags {
-                margin-top: 3rem;
+            .panel__tabs__description {
+                padding: 1rem;
             }
 
-            .upload-form__image {
-                padding: 3rem;
+            .panel__tab {
+                font-size: 2rem;
+                background-color: #111;
+                transition-duration: 0.1s;
+                user-select: none;
+                cursor: pointer;
             }
 
-            .upload-form__image img {
-                max-width: 100%;
-                max-height: 30rem;
+            .panel__tab:hover {
+                background-color: #222;
+            }
+
+            .panel__sections {
+                padding: 1rem;
                 border-radius: 1rem;
+                overflow: hidden;
+                background-color: #222;
             }
 
-            .upload-form__details {
-                padding: 5rem;
+            .panel__section > textarea {
+                height: 30rem;
+            }
+
+            .panel__image {
+                padding: 1rem;
+            }
+
+            .panel__image > img {
+                width: 100%;
+                cursor: pointer;
+                border-radius: 1rem;
             }
         </style>
     </head>
     <body>
         <div class="main__upload">
             <?=SetHeader()?>
-            <div class="-content">
-                <div class="-content__page">
-                    <div class="-title -center">
-                        Upload
+            <div class="panel">
+                <div class="panel__container">
+                    <div class="panel__tabs">
+                        <div class="panel__tabs__text panel__tab" onclick="btnTab(this)" value="text">
+                            Text
+                        </div>
+                        <div class="panel__tabs__tags panel__tab" onclick="btnTab(this)" value="tags">
+                            Tags
+                        </div>
+                        <div class="panel__tabs__description panel__tab" onclick="btnTab(this)" value="description">
+                            Description
+                        </div>
+                        <div></div>
+                        <div class="panel__tabs__upload -center">
+                            <button class="-button" onclick="btnSubmit(this)">
+                                Upload
+                            </button>
+                        </div>
                     </div>
-                    <div class="upload-form">
-                        <form action="server.php" method="post" enctype="multipart/form-data">
-                            <div class="upload-form__container">
-                                <div class="upload-form__info">
-                                    <div class="upload-form__info__text">
-                                        <label for="text">
-                                            Text:
-                                        </label>
-                                        <textarea name="text" class="-textarea -script__textarea--dynamic" placeholder="what women think we want what we really want"></textarea>
-                                    </div>
-                                    <div class="upload-form__info__tags">
-                                        <label for="tags">
-                                            Tags:
-                                        </label>
-                                        <textarea name="tags" class="-textarea -script__textarea--dynamic" placeholder="meme 1girl black lace trimmed bra panties"></textarea>
-                                    </div>
-                                </div>
-                                <div class="upload-form__image -center">
-                                    <input type="file" name="image" accept=".jpg, .png" onchange="UpdatePreview()" style="display: none;" class="-input">
-                                    <div class="image__preview">
-                                        <img src="assets/image.png" onclick="btnUpload()">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="upload-form__details">
-                                <label for="details">
-                                    Details:
-                                </label>
-                                <textarea name="details" class="-textarea -script__textarea--dynamic"></textarea>
-                            </div>
-                            <div class="upload-form__submit -center">
-                                <button name="method" value="upload" class="-button">
-                                    Upload
-                                </button>
-                            </div>
-                        </form>
+                    <div class="panel__sections">
+                        <div class="panel__sections__text panel__section">
+                            <textarea class="-textarea" placeholder="Enter text that the image may contain..."></textarea>
+                        </div>
+                        <div class="panel__sections__tags panel__section">
+                            <textarea class="-textarea" placeholder="Enter tags that the image may contain..."></textarea>
+                        </div>
+                        <div class="panel__sections__description panel__section">
+                            <textarea class="-textarea" placeholder="Enter additional information that you may know about the image..."></textarea>
+                        </div>
+                    </div>
+                    <div class="panel__image">
+                        <img src="assets/image2.png" onclick="btnUpload(this)">
                     </div>
                 </div>
             </div>
         </div>
+        <form action="server.php" method="post" enctype="multipart/form-data" style="display: none;">
+            <textarea name="text"></textarea>
+            <textarea name="tags"></textarea>
+            <textarea name="description"></textarea>
+            <input type="file" accept="image/*" name="image">
+            <input name="method" value="upload">
+        </form>
     </body>
     <script src="script.js"></script>
     <script>
-        function btnUpload() {
-            q("input[name=\"image\"]").click();
+        document.querySelector(".panel__tabs__text").click();
+
+        function btnTab(element) {
+            for (let el of document.querySelectorAll(".panel__section")) {
+                el.style.display = "none";
+            }
+
+            for (let el of document.querySelectorAll(".panel__tab")) {
+                el.style.backgroundColor = "";
+            }
+
+            element.style.backgroundColor = "#222";
+
+            switch (element.getAttribute("value")) {
+                case "text":
+                    document.querySelector(".panel__sections__text").style.display = "";
+                    break;
+                case "tags":
+                    document.querySelector(".panel__sections__tags").style.display = "";
+                    break;
+                case "description":
+                    document.querySelector(".panel__sections__description").style.display = "";
+                    break;
+            }
         }
 
-        function UpdatePreview() {
-            let output = q(".image__preview img");
-            output.src = URL.createObjectURL(event.target.files[0]);
+        function btnSubmit(element) {
+            document.querySelector("body > form > textarea[name='text']").value = document.querySelector(".panel__sections__text > textarea").value;
+            document.querySelector("body > form > textarea[name='tags']").value = document.querySelector(".panel__sections__tags > textarea").value;
+            document.querySelector("body > form > textarea[name='description']").value = document.querySelector(".panel__sections__description > textarea").value;
+            document.querySelector("body > form").submit();
+        }
 
-            output.onload = () => {
-                URL.revokeObjectURL(output.src) // free memory
+        function btnUpload(element) {
+            document.querySelector("body > form > input[name='image']").click();
+
+            document.querySelector("body > form > input[name='image']").onchange = () => {
+                document.querySelector(".panel__image > img").src = URL.createObjectURL(event.target.files[0]);
+
+                document.querySelector(".panel__image > img").onload = () => {
+                    URL.revokeObjectURL(document.querySelector(".panel__image > img").src);
+                }
             }
         }
     </script>
