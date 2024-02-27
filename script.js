@@ -31,6 +31,12 @@ function btnHeaderLogout(element) {
     })
 }
 
+function btnPostItem(element) {
+    formSubmit("post/", "get", {
+        id: element.getAttribute("value")
+    });
+}
+
 function formSubmit(url, method, data) {
     let form = document.createElement('form');
     form.style.display = "none";
