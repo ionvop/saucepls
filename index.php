@@ -2,6 +2,8 @@
 
 include("common.php");
 Debug();
+$data = GetSiteData();
+$recentPosts = SortArray($data["posts"], "time", true);
 
 ?>
 
@@ -18,17 +20,17 @@ Debug();
 
             .popular__likes__title {
                 padding: 1rem;
-                font-size: 3rem;
+                font-size: 2rem;
             }
 
             .popular__trending__title {
                 padding: 1rem;
-                font-size: 3rem;
+                font-size: 2rem;
             }
 
             .recent__title {
                 padding: 1rem;
-                font-size: 3rem;
+                font-size: 2rem;
             }
         </style>
     </head>
@@ -41,121 +43,11 @@ Debug();
                         Popular unsolved:
                     </div>
                     <div class="-posts__render">
-                        <div class="item">
-                            <div class="item__container">
-                                <div class="item__image">
-                                    <img src="uploads/default.jpg">
-                                </div>
-                                <div class="item__info">
-                                    <div class="item__info__text">
-                                        The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog!
-                                    </div>
-                                    <div class="item__info__tags">
-                                        The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog!
-                                    </div>
-                                    <div class="item__info__details">
-                                        2024-02-23 | Uploaded by: ionvop
-                                    </div>
-                                </div>
-                                <div class="item__status--solved -center--flex">
-                                    <span class="material-symbols-rounded">
-                                        done
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="item">
-                            <div class="item__container">
-                                <div class="item__image">
-                                    <img src="uploads/default.jpg">
-                                </div>
-                                <div class="item__info">
-                                    <div class="item__info__text">
-                                        The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog!
-                                    </div>
-                                    <div class="item__info__tags">
-                                        The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog!
-                                    </div>
-                                    <div class="item__info__details">
-                                        2024-02-23 | Uploaded by: ionvop
-                                    </div>
-                                </div>
-                                <div class="item__status--unsolved -center--flex">
-                                    <span class="material-symbols-rounded">
-                                        close
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="item">
-                            <div class="item__container">
-                                <div class="item__image">
-                                    <img src="uploads/default.jpg">
-                                </div>
-                                <div class="item__info">
-                                    <div class="item__info__text">
-                                        The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog!
-                                    </div>
-                                    <div class="item__info__tags">
-                                        The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog!
-                                    </div>
-                                    <div class="item__info__details">
-                                        2024-02-23 | Uploaded by: ionvop
-                                    </div>
-                                </div>
-                                <div class="item__status--solved -center--flex">
-                                    <span class="material-symbols-rounded">
-                                        done
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="item">
-                            <div class="item__container">
-                                <div class="item__image">
-                                    <img src="uploads/default.jpg">
-                                </div>
-                                <div class="item__info">
-                                    <div class="item__info__text">
-                                        The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog!
-                                    </div>
-                                    <div class="item__info__tags">
-                                        The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog!
-                                    </div>
-                                    <div class="item__info__details">
-                                        2024-02-23 | Uploaded by: ionvop
-                                    </div>
-                                </div>
-                                <div class="item__status--unsolved -center--flex">
-                                    <span class="material-symbols-rounded">
-                                        close
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="item">
-                            <div class="item__container">
-                                <div class="item__image">
-                                    <img src="uploads/default.jpg">
-                                </div>
-                                <div class="item__info">
-                                    <div class="item__info__text">
-                                        The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog!
-                                    </div>
-                                    <div class="item__info__tags">
-                                        The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog!
-                                    </div>
-                                    <div class="item__info__details">
-                                        2024-02-23 | Uploaded by: ionvop
-                                    </div>
-                                </div>
-                                <div class="item__status--solved -center--flex">
-                                    <span class="material-symbols-rounded">
-                                        done
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
+                        <?php
+                            foreach ($recentPosts as $key => $value) {
+                                echo RenderItem($value);
+                            }
+                        ?>
                     </div>
                     <div class="popular__likes__more -center">
                         <button class="-button">
@@ -168,121 +60,11 @@ Debug();
                         Trending unsolved:
                     </div>
                     <div class="-posts__render">
-                        <div class="item">
-                            <div class="item__container">
-                                <div class="item__image">
-                                    <img src="uploads/default.jpg">
-                                </div>
-                                <div class="item__info">
-                                    <div class="item__info__text">
-                                        The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog!
-                                    </div>
-                                    <div class="item__info__tags">
-                                        The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog!
-                                    </div>
-                                    <div class="item__info__details">
-                                        2024-02-23 | Uploaded by: ionvop
-                                    </div>
-                                </div>
-                                <div class="item__status--solved -center--flex">
-                                    <span class="material-symbols-rounded">
-                                        done
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="item">
-                            <div class="item__container">
-                                <div class="item__image">
-                                    <img src="uploads/default.jpg">
-                                </div>
-                                <div class="item__info">
-                                    <div class="item__info__text">
-                                        The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog!
-                                    </div>
-                                    <div class="item__info__tags">
-                                        The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog!
-                                    </div>
-                                    <div class="item__info__details">
-                                        2024-02-23 | Uploaded by: ionvop
-                                    </div>
-                                </div>
-                                <div class="item__status--unsolved -center--flex">
-                                    <span class="material-symbols-rounded">
-                                        close
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="item">
-                            <div class="item__container">
-                                <div class="item__image">
-                                    <img src="uploads/default.jpg">
-                                </div>
-                                <div class="item__info">
-                                    <div class="item__info__text">
-                                        The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog!
-                                    </div>
-                                    <div class="item__info__tags">
-                                        The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog!
-                                    </div>
-                                    <div class="item__info__details">
-                                        2024-02-23 | Uploaded by: ionvop
-                                    </div>
-                                </div>
-                                <div class="item__status--solved -center--flex">
-                                    <span class="material-symbols-rounded">
-                                        done
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="item">
-                            <div class="item__container">
-                                <div class="item__image">
-                                    <img src="uploads/default.jpg">
-                                </div>
-                                <div class="item__info">
-                                    <div class="item__info__text">
-                                        The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog!
-                                    </div>
-                                    <div class="item__info__tags">
-                                        The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog!
-                                    </div>
-                                    <div class="item__info__details">
-                                        2024-02-23 | Uploaded by: ionvop
-                                    </div>
-                                </div>
-                                <div class="item__status--unsolved -center--flex">
-                                    <span class="material-symbols-rounded">
-                                        close
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="item">
-                            <div class="item__container">
-                                <div class="item__image">
-                                    <img src="uploads/default.jpg">
-                                </div>
-                                <div class="item__info">
-                                    <div class="item__info__text">
-                                        The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog!
-                                    </div>
-                                    <div class="item__info__tags">
-                                        The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog!
-                                    </div>
-                                    <div class="item__info__details">
-                                        2024-02-23 | Uploaded by: ionvop
-                                    </div>
-                                </div>
-                                <div class="item__status--solved -center--flex">
-                                    <span class="material-symbols-rounded">
-                                        done
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
+                        <?php
+                            foreach ($recentPosts as $key => $value) {
+                                echo RenderItem($value);
+                            }
+                        ?>
                     </div>
                     <div class="popular__trending__more -center">
                         <button class="-button">
@@ -296,121 +78,11 @@ Debug();
                     Recent posts:
                 </div>
                 <div class="-posts__render">
-                    <div class="item">
-                        <div class="item__container">
-                            <div class="item__image">
-                                <img src="uploads/default.jpg">
-                            </div>
-                            <div class="item__info">
-                                <div class="item__info__text">
-                                    The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog!
-                                </div>
-                                <div class="item__info__tags">
-                                    The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog!
-                                </div>
-                                <div class="item__info__details">
-                                    2024-02-23 | Uploaded by: ionvop
-                                </div>
-                            </div>
-                            <div class="item__status--solved -center--flex">
-                                <span class="material-symbols-rounded">
-                                    done
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <div class="item__container">
-                            <div class="item__image">
-                                <img src="uploads/default.jpg">
-                            </div>
-                            <div class="item__info">
-                                <div class="item__info__text">
-                                    The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog!
-                                </div>
-                                <div class="item__info__tags">
-                                    The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog!
-                                </div>
-                                <div class="item__info__details">
-                                    2024-02-23 | Uploaded by: ionvop
-                                </div>
-                            </div>
-                            <div class="item__status--unsolved -center--flex">
-                                <span class="material-symbols-rounded">
-                                    close
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <div class="item__container">
-                            <div class="item__image">
-                                <img src="uploads/default.jpg">
-                            </div>
-                            <div class="item__info">
-                                <div class="item__info__text">
-                                    The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog!
-                                </div>
-                                <div class="item__info__tags">
-                                    The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog!
-                                </div>
-                                <div class="item__info__details">
-                                    2024-02-23 | Uploaded by: ionvop
-                                </div>
-                            </div>
-                            <div class="item__status--solved -center--flex">
-                                <span class="material-symbols-rounded">
-                                    done
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <div class="item__container">
-                            <div class="item__image">
-                                <img src="uploads/default.jpg">
-                            </div>
-                            <div class="item__info">
-                                <div class="item__info__text">
-                                    The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog!
-                                </div>
-                                <div class="item__info__tags">
-                                    The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog!
-                                </div>
-                                <div class="item__info__details">
-                                    2024-02-23 | Uploaded by: ionvop
-                                </div>
-                            </div>
-                            <div class="item__status--unsolved -center--flex">
-                                <span class="material-symbols-rounded">
-                                    close
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <div class="item__container">
-                            <div class="item__image">
-                                <img src="uploads/default.jpg">
-                            </div>
-                            <div class="item__info">
-                                <div class="item__info__text">
-                                    The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog!
-                                </div>
-                                <div class="item__info__tags">
-                                    The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog! The quick brown fox, jumps over the lazy dog!
-                                </div>
-                                <div class="item__info__details">
-                                    2024-02-23 | Uploaded by: ionvop
-                                </div>
-                            </div>
-                            <div class="item__status--solved -center--flex">
-                                <span class="material-symbols-rounded">
-                                    done
-                                </span>
-                            </div>
-                        </div>
-                    </div>
+                    <?php
+                        foreach ($recentPosts as $key => $value) {
+                            echo RenderItem($value);
+                        }
+                    ?>
                 </div>
                 <div class="recent__more -center">
                     <button class="-button">

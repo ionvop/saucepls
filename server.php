@@ -192,7 +192,7 @@ function Upload() {
     if (move_uploaded_file($_FILES["image"]["tmp_name"], "uploads/posts/" . $filename) == false) {
         Alert("There was an oopsy woopsy, a little fucky wucky uploading your image. Please try again.");
     }
-
+    
     $newPost = [
         "id" => uniqid("post"),
         "uploader" => $user["id"],

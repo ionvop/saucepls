@@ -116,6 +116,42 @@ function SetHeader() {
     HTML;
 }
 
+function RenderItem($post) {
+    $postId = htmlentities($post["id"]);
+    $thumbnail = htmlentities($post["file"]);
+    $text = htmlentities($post["text"]);
+    $tags = htmlentities($post["tags"]);
+    $date = htmlentities(date("Y-m-d", $post["time"]));
+    $uploader = GetUserDataById($post["uploader"]);
+    $uploader = htmlentities($uploader["username"]);
+
+    return <<<HTML
+        <div class="item" onclick="btnPostItem(this)" value="{$postId}">
+            <div class="item__container">
+                <div class="item__image">
+                    <img src="uploads/posts/{$thumbnail}">
+                </div>
+                <div class="item__info">
+                    <div class="item__info__text">
+                        {$text}
+                    </div>
+                    <div class="item__info__tags">
+                        {$tags}
+                    </div>
+                    <div class="item__info__details">
+                        {$date} | Uploaded by: {$uploader}
+                    </div>
+                </div>
+                <div class="item__status--unsolved -center--flex">
+                    <span class="material-symbols-rounded">
+                        close
+                    </span>
+                </div>
+            </div>
+        </div>
+    HTML;
+}
+
 function GetSiteData() {
     $data = file_get_contents("data.json");
     $data = json_decode($data, true);
@@ -260,6 +296,17 @@ function GetUserData($index = false) {
 function GetOtherUserData($username) {
     $data = GetSiteData();
     $userIndex = FindIndex($data["users"], "username", $username);
+
+    if ($userIndex == -1) {
+        return false;
+    }
+
+    return $data["users"][$userIndex];
+}
+
+function GetUserDataById($userId) {
+    $data = GetSiteData();
+    $userIndex = FindIndex($data["users"], "id", $userId);
 
     if ($userIndex == -1) {
         return false;
