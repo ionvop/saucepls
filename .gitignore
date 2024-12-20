@@ -1,0 +1,6 @@
+config.php
+data.json
+debug.php
+log/
+uploads/avatars/*
+!uploads/avatars/default.jpg
