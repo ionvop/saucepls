@@ -1,0 +1,168 @@
+@import url('https://fonts.googleapis.com/css2?family=Exo+2&display=swap');
+
+:root {
+    --theme__darker: #005;
+    --theme__dark: #449;
+    --theme: #55a;
+    --theme__light: #66b;
+    --theme__lighter: #aaf;
+}
+
+html {
+    font-size: 1vw;
+}
+
+body {
+    margin: 0rem;
+    padding: 0rem;
+    background-color: #111;
+    color: #fff;
+    font-size: 1.5rem;
+    font-family: 'Exo 2', sans-serif;
+}
+
+.-button {
+    padding: 1rem;
+    font-size: 1.5rem;
+    background-color: #fff;
+    font-family: 'Exo 2', sans-serif;
+    color: #000;
+    transition-duration: 0.1s;
+    border: none;
+    border-radius: 1rem;
+    cursor: pointer;
+}
+
+.-button:hover {
+    background-color: #000;
+    color: #fff;
+}
+
+.-form {
+    margin: 0rem;
+    margin-block-end: 0rem;
+}
+
+.-input {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.5rem;
+    background-color: #fff;
+    font-family: 'Exo 2', sans-serif;
+    color: #111;
+    border: none;
+    border-radius: 1rem;
+}
+
+.-center {
+    text-align: center;
+}
+
+.-center__flex {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.-title {
+    font-size: 2rem;
+}
+
+.-subtitle {
+    font-size: 1rem;
+    color: #aaa;
+}
+
+.-header {
+    display: grid;
+    grid-template-columns: max-content 5rem max-content 1fr max-content;
+    background-color: var(--theme);
+}
+
+.-header--user {
+    grid-template-columns: repeat(3, max-content) 1fr repeat(4, max-content);
+}
+
+.-header__tab {
+    padding: 1rem;
+    cursor: pointer;
+    transition-duration: 0.1s;
+    user-select: none;
+}
+
+.-header__tab:hover {
+    background-color: var(--theme__dark);
+}
+
+.-header__tab__content {
+    display: grid;
+    grid-template-columns: repeat(2, max-content);
+}
+
+.-header__tab__content__icon > svg {
+    width: 2rem;
+    height: 2rem;
+}
+
+.-header__tab__content__avatar > img {
+    width: 3rem;
+    height: 3rem;
+    object-fit: cover;
+    border-radius: 1rem;
+}
+
+.-header__tab__content__text {
+    padding-left: 1rem;
+}
+
+.-header__title {
+    padding: 1rem;
+    font-size: 3rem;
+    font-weight: bold;
+    cursor: pointer;
+    user-select: none;
+}
+
+.-header__new {
+    padding: 1rem;
+}
+
+.-header__new > button {
+    display: grid;
+    grid-template-columns: repeat(2, max-content);
+}
+
+.-header__new__text {
+    padding-left: 1rem;
+}
+
+.-header__new__icon > svg {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+.-header__search {
+    display: grid;
+    grid-template-columns: 1fr max-content;
+}
+
+.-header__search__input {
+    padding: 1rem;
+    width: 20rem;
+}
+
+.-header__search__button {
+    padding: 1rem;
+}
+
+.-header__search__button > button > svg {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+.-header__user__content__username {
+    display: flex;
+    align-items: center;
+    max-width: 20rem;
+    overflow: hidden;
+}
