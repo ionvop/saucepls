@@ -109,11 +109,32 @@ Debug();
                 overflow: hidden;
             }
 
-            .new__panels__tags__box__list__box {
+            .new__panels__tags__box__list__render {
                 padding: 1rem;
                 height: 90%;
                 border-radius: 1rem;
                 background-color: #111;
+            }
+
+            .new__panels__tags__box__list__render .item {
+                display: grid;
+                grid-template-columns: 1fr max-content;
+            }
+
+            .new__panels__tags__box__list__render .item__tag {
+                display: flex;
+                align-items: center;
+                padding: 1rem;
+            }
+
+            .new__panels__tags__box__list__render .item__remove {
+                padding: 1rem;
+            }
+
+            .new__panels__tags__box__list__render .item__remove > svg {
+                width: 2rem;
+                height: 2rem;
+                cursor: pointer;
             }
 
             .new__panels__description__box {
@@ -150,6 +171,7 @@ Debug();
             }
 
             .new__preview__box__submit {
+                visibility: hidden;
                 padding: 1rem;
             }
         </style>
@@ -158,7 +180,7 @@ Debug();
         <div class="main__new">
             <?=SetHeader()?>
             <div class="content">
-                <div class="new">
+                <form class="-form new" action="server.php" method="post" enctype="multipart/form-data">
                     <div class="new__tabs">
                         <div class="new__tabs__upload new__tab">
                             <div class="new__tabs__upload__box new__tab__box new__tab__box--active" onclick="btnTab(this)" data-tab="upload">
@@ -184,7 +206,7 @@ Debug();
                     <div class="new__panels">
                         <div class="new__panels__upload new__panel new__panel--active">
                             <div class="new__panels__upload__box new__panel__box -center__flex">
-                                <button class="-button">
+                                <button class="-button" type="button" onclick="btnUpload(this)">
                                     <div class="new__panels__upload__box__button__icon">
                                         <?=Icon("upload")?>
                                     </div>
@@ -192,7 +214,7 @@ Debug();
                                         Upload Image
                                     </div>
                                 </button>
-                                <input type="file" name="image" accept="image/*" style="display: none;">
+                                <input type="file" name="image" accept="image/*" style="display: none;" required>
                             </div>
                         </div>
                         <div class="new__panels__text new__panel">
@@ -201,7 +223,7 @@ Debug();
                                     Text:
                                 </div>
                                 <div class="new__panels__text__box__input new__panel__box__input">
-                                    <textarea name="text" class="-textarea" placeholder="What text does the image contain?"></textarea>
+                                    <textarea name="text" class="-textarea" placeholder="What text does the image contain?" maxlength="1000"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -212,16 +234,16 @@ Debug();
                                 </div>
                                 <div class="new__panels__tags__box__field">
                                     <div class="new__panels__tags__box__field__input">
-                                        <input class="-input" placeholder="Add a tag...">
+                                        <input class="-input" placeholder="Add a tag..." oninput="inputTagChange(this)" onkeydown="inputTagEnter(this, event)" maxlength="20">
                                     </div>
                                     <div class="new__panels__tags__box__field__button">
-                                        <button class="-button">
+                                        <button class="-button" type="button" onclick="btnAddTag(this)">
                                             Add
                                         </button>
                                     </div>
                                 </div>
                                 <div class="new__panels__tags__box__list">
-                                    <div class="new__panels__tags__box__list__box"></div>
+                                    <div class="new__panels__tags__box__list__render"></div>
                                 </div>
                             </div>
                         </div>
@@ -231,7 +253,7 @@ Debug();
                                     Description:
                                 </div>
                                 <div class="new__panels__description__box__input new__panel__box__input">
-                                    <textarea name="description" class="-textarea" placeholder="What can you say about this image?"></textarea>
+                                    <textarea name="description" class="-textarea" placeholder="What can you say about this image?" maxlength="1000"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -245,13 +267,13 @@ Debug();
                                 <img src="assets/image.png">
                             </div>
                             <div class="new__preview__box__submit -center">
-                                <button class="-button">
+                                <button class="-button" name="method" value="newRequest">
                                     Submit
                                 </button>
                             </div>
                         </div>
                     </div>
-                </div>
+                </form>
             </div>
         </div>
     </body>
@@ -272,6 +294,74 @@ Debug();
 
             element.classList.add("new__tab__box--active");
             document.querySelector(`.new__panels__${tab}`).classList.add("new__panel--active");
+        }
+
+        function btnUpload(element) {
+            let input = document.querySelector(".new__panels__upload__box > input");
+            input.click();
+
+            input.addEventListener("change", () => {
+                let preview = document.querySelector(".new__preview__box__image > img");
+                let submit = document.querySelector(".new__preview__box__submit");
+                preview.src = URL.createObjectURL(input.files[0]);
+                submit.style.visibility = "visible";
+            });
+        }
+
+        function btnAddTag(element) {
+            let input = document.querySelector(".new__panels__tags__box__field__input > input");
+            let list = document.querySelector(".new__panels__tags__box__list__render");
+
+            if (input.value == "") {
+                return;
+            }
+
+            let item = /* html */`
+                <div class="item">
+                    <div class="item__tag">
+                        ${input.value}
+                    </div>
+                    <div class="item__remove">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="currentColor" onclick="btnRemoveTag(this)">
+                            <path d="M240-440q-17 0-28.5-11.5T200-480q0-17 11.5-28.5T240-520h480q17 0 28.5 11.5T760-480q0 17-11.5 28.5T720-440H240Z"/>
+                        </svg>
+                    </div>
+                    <input type="hidden" name="tags[]" value="${input.value}">
+                </div>
+            `;
+
+            list.insertAdjacentHTML("beforeend", item);
+            let items = Array.from(list.querySelectorAll(".item"));
+
+            items.sort((a, b) => {
+                let tagA = a.querySelector(".item__tag").textContent.trim().toLowerCase();
+                let tagB = b.querySelector(".item__tag").textContent.trim().toLowerCase();
+                return tagA.localeCompare(tagB);
+            });
+
+            list.innerHTML = "";
+            items.forEach(item => list.appendChild(item));
+            input.value = "";
+        }
+
+        function btnRemoveTag(element) {
+            let item = element.parentElement.parentElement;
+            item.remove();
+        }
+
+        function inputTagChange(element) {
+            if (element.value.substring(0, 1) == "-") {
+                element.value = element.value.substring(1);
+            }
+
+            element.value = element.value.replace(/[^a-zA-Z0-9_-]/g, "");
+        }
+
+        function inputTagEnter(element, event) {
+            if (event.key == "Enter") {
+                event.preventDefault();
+                btnAddTag();
+            }
         }
     </script>
 </html>
