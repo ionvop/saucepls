@@ -49,6 +49,22 @@ function Icon($icon) {
             return <<<HTML
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="currentColor"><path d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm320-287q5 0 10.5-1.5T501-453l283-177q8-5 12-12.5t4-16.5q0-20-17-30t-35 1L480-520 212-688q-18-11-35-.5T160-659q0 10 4 17.5t12 11.5l283 177q5 3 10.5 4.5T480-447Z"/></svg>
             HTML;
+        case "heart_plus":
+            return <<<HTML
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="currentColor"><path d="M760-280q-17 0-28.5-11.5T720-320v-80h-80q-17 0-28.5-11.5T600-440q0-17 11.5-28.5T640-480h80v-80q0-17 11.5-28.5T760-600q17 0 28.5 11.5T800-560v80h80q17 0 28.5 11.5T920-440q0 17-11.5 28.5T880-400h-80v80q0 17-11.5 28.5T760-280ZM70-15v-152 152Zm370-132q-14 0-28-5t-25-16q-44-40-104-91T169-368.5Q115-427 77.5-491T40-621q0-94 63-156.5T260-840q52 0 99 21.5t81 61.5q34-40 81-61.5t99-21.5q63 0 111.5 29.5T808-736q11 19-3.5 38.5T763-680h-16q-85 0-156 68.5T520-440q0 42 13.5 79.5T576-292q11 12 9.5 28T572-237l-79 70q-11 11-25 15.5t-28 4.5Z"/></svg>
+            HTML;
+        case "flag":
+            return <<<HTML
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="currentColor"><path d="M280-400v240q0 17-11.5 28.5T240-120q-17 0-28.5-11.5T200-160v-600q0-17 11.5-28.5T240-800h287q14 0 25 9t14 23l10 48h184q17 0 28.5 11.5T800-680v320q0 17-11.5 28.5T760-320H553q-14 0-25-9t-14-23l-10-48H280Z"/></svg>
+            HTML;
+        case "settings":
+            return <<<HTML
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="currentColor"><path d="M433-80q-27 0-46.5-18T363-142l-9-66q-13-5-24.5-12T307-235l-62 26q-25 11-50 2t-39-32l-47-82q-14-23-8-49t27-43l53-40q-1-7-1-13.5v-27q0-6.5 1-13.5l-53-40q-21-17-27-43t8-49l47-82q14-23 39-32t50 2l62 26q11-8 23-15t24-12l9-66q4-26 23.5-44t46.5-18h94q27 0 46.5 18t23.5 44l9 66q13 5 24.5 12t22.5 15l62-26q25-11 50-2t39 32l47 82q14 23 8 49t-27 43l-53 40q1 7 1 13.5v27q0 6.5-2 13.5l53 40q21 17 27 43t-8 49l-48 82q-14 23-39 32t-50-2l-60-26q-11 8-23 15t-24 12l-9 66q-4 26-23.5 44T527-80h-94Zm49-260q58 0 99-41t41-99q0-58-41-99t-99-41q-59 0-99.5 41T342-480q0 58 40.5 99t99.5 41Z"/></svg>
+            HTML;
+        case "upload":
+            return <<<HTML
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="currentColor"><path d="M240-160q-33 0-56.5-23.5T160-240v-80q0-17 11.5-28.5T200-360q17 0 28.5 11.5T240-320v80h480v-80q0-17 11.5-28.5T760-360q17 0 28.5 11.5T800-320v80q0 33-23.5 56.5T720-160H240Zm200-486-75 75q-12 12-28.5 11.5T308-572q-11-12-11.5-28t11.5-28l144-144q6-6 13-8.5t15-2.5q8 0 15 2.5t13 8.5l144 144q12 12 11.5 28T652-572q-12 12-28.5 12.5T595-571l-75-75v286q0 17-11.5 28.5T480-320q-17 0-28.5-11.5T440-360v-286Z"/></svg>
+            HTML;
     }
 }
 
@@ -73,7 +89,7 @@ function SetHeader() {
                         <input type="text" class="-input">
                     </div>
                     <div class="-header__search__button -center__flex">
-                        <button class="-button">
+                        <button class="-button -button--active">
                             {$searchIcon}
                         </button>
                     </div>
@@ -99,7 +115,7 @@ function SetHeader() {
                 SaucePls
             </div>
             <div class="-header__new -center__flex">
-                <button class="-button -center__flex">
+                <button class="-button -button--active -center__flex -script__link" data-href="new/">
                     <div class="-header__new__icon -center__flex">
                         {$noteAddIcon}
                     </div>
@@ -113,7 +129,7 @@ function SetHeader() {
                     <input type="text" class="-input">
                 </div>
                 <div class="-header__search__button -center__flex">
-                    <button class="-button">
+                    <button class="-button -button--active">
                         {$searchIcon}
                     </button>
                 </div>
@@ -368,5 +384,41 @@ function GetUserData() {
         return false;
     }
 
-    return $data["users"][$userIndex];
+    $user = $data["users"][$userIndex];
+    $user["lastSeen"] = time();
+    $data["users"][$userIndex] = $user;
+
+    if (SetSiteData($data) == false) {
+        setcookie("session", "", time()-3600);
+        return false;
+    }
+
+    return $user;
+}
+
+function TimeAgo($timestamp) {
+    $now = time(); // Current Unix timestamp
+    $diff = $now - $timestamp; // Difference in seconds
+
+    if ($diff < 60) {
+        return "less than a minute ago";
+    } elseif ($diff < 3600) {
+        $minutes = floor($diff / 60);
+        return $minutes . " minute" . ($minutes > 1 ? "s" : "") . " ago";
+    } elseif ($diff < 86400) {
+        $hours = floor($diff / 3600);
+        return $hours . " hour" . ($hours > 1 ? "s" : "") . " ago";
+    } elseif ($diff < 604800) { // Less than 7 days
+        $days = floor($diff / 86400);
+        return $days . " day" . ($days > 1 ? "s" : "") . " ago";
+    } elseif ($diff < 2592000) { // Less than ~30 days (approx 1 month)
+        $weeks = floor($diff / 604800);
+        return $weeks . " week" . ($weeks > 1 ? "s" : "") . " ago";
+    } elseif ($diff < 31536000) { // Less than 1 year
+        $months = floor($diff / 2592000);
+        return $months . " month" . ($months > 1 ? "s" : "") . " ago";
+    } else {
+        $years = floor($diff / 31536000);
+        return $years . " year" . ($years > 1 ? "s" : "") . " ago";
+    }
 }
