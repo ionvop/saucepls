@@ -20,6 +20,9 @@ if (isset($_POST["method"])) {
         case "editProfile":
             EditProfile();
             break;
+        case "newRequest":
+            NewRequest();
+            break;
         default:
             DefaultMethod();
             break;
@@ -203,7 +206,7 @@ function EditProfile() {
         }
 
         $extension = pathinfo($_FILES["avatar"]["name"], PATHINFO_EXTENSION);
-        $filename = uniqid("avatar") . "." . $extension;
+        $filename = $user["id"] . "." . $extension;
 
         if (move_uploaded_file($_FILES["avatar"]["tmp_name"], "uploads/avatars/{$filename}") == false) {
             Alert("There was an error uploading your avatar.");
@@ -230,6 +233,65 @@ function EditProfile() {
     }
 
     header("Location: user/?id={$user['username']}");
+    exit();
+}
+
+function NewRequest() {
+    $data = GetSiteData();
+    $user = GetUserData();
+
+    if (strlen($_POST["text"]) > 2000) {
+        Alert("Your text must be less than 2000 characters long.");
+    }
+
+    if (strlen($_POST["description"]) > 2000) {
+        Alert("Your description must be less than 2000 characters long.");
+    }
+
+    $tags = "";
+
+    foreach ($_POST["tags"] as $tag) {
+        $tags .= "{$tag} ";
+    }
+
+    $tags = substr($tags, 0, -1);
+
+    if (strlen($tags) > 2000) {
+        Alert("Your tags must be less than 2000 characters long.");
+    }
+
+    if ($_FILES["image"]["error"] != 0) {
+        Alert("There was an error uploading your image.");
+    }
+
+    if ($_FILES["image"]["size"] > 2000000) {
+        Alert("Your image must be less than 2MB in size.");
+    }
+
+    $extension = pathinfo($_FILES["image"]["name"], PATHINFO_EXTENSION);
+    $filename = uniqid("request") . "." . $extension;
+
+    if (move_uploaded_file($_FILES["image"]["tmp_name"], "uploads/requests/{$filename}") == false) {
+        Alert("There was an error uploading your image.");
+    }
+
+    $request = [
+        "id" => uniqid("request"),
+        "author" => $user["id"],
+        "text" => $_POST["text"],
+        "tags" => $tags,
+        "description" => $_POST["description"],
+        "image" => $filename,
+        "time" => time()
+    ];
+
+    $data["requests"][] = $request;
+
+    if (SetSiteData($data) == false) {
+        Alert("There was an error creating your request.");
+    }
+
+    header("Location: request/?id={$request['id']}");
     exit();
 }
 
