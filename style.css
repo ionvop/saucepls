@@ -24,9 +24,9 @@ body {
 .-button {
     padding: 1rem;
     font-size: 1.5rem;
-    background-color: #fff;
+    background-color: var(--theme);
     font-family: 'Exo 2', sans-serif;
-    color: #000;
+    color: #fff;
     transition-duration: 0.1s;
     border: none;
     border-radius: 1rem;
@@ -34,8 +34,22 @@ body {
 }
 
 .-button:hover {
+    background-color: var(--theme__light);
+}
+
+.-button--active {
+    background-color: #fff;
+    color: #000;
+}
+
+.-button--active:hover {
     background-color: #000;
     color: #fff;
+}
+
+.-button > svg {
+    width: 1.5rem;
+    height: 1.5rem;
 }
 
 .-form {
@@ -52,6 +66,18 @@ body {
     color: #111;
     border: none;
     border-radius: 1rem;
+}
+
+.-textarea {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.5rem;
+    background-color: #fff;
+    font-family: 'Exo 2', sans-serif;
+    color: #111;
+    border: none;
+    border-radius: 1rem;
+    resize: vertical;
 }
 
 .-center {
@@ -153,11 +179,6 @@ body {
 
 .-header__search__button {
     padding: 1rem;
-}
-
-.-header__search__button > button > svg {
-    width: 1.5rem;
-    height: 1.5rem;
 }
 
 .-header__user__content__username {
