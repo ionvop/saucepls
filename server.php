@@ -17,6 +17,9 @@ if (isset($_POST["method"])) {
         case "logout":
             Logout();
             break;
+        case "editProfile":
+            EditProfile();
+            break;
         default:
             DefaultMethod();
             break;
@@ -98,11 +101,11 @@ function Register() {
     session_start();
 
     if (filter_var($_SESSION["verify"]["email"], FILTER_VALIDATE_EMAIL) == false) {
-        Alert("Your email is invalid.");
+        Alert("That email is invalid.");
     }
 
     if (FindIndex($data["users"], "email", $_SESSION["verify"]["email"]) != -1) {
-        Alert("Your email is already registered.");
+        Alert("That email is already registered.");
     }
 
     if (strlen($_POST["username"]) < 4) {
@@ -118,7 +121,7 @@ function Register() {
     }
 
     if (FindIndex($data["users"], "username", $_POST["username"]) != -1) {
-        Alert("Your username is already taken.");
+        Alert("That username is already taken.");
     }
 
     $user = [
@@ -126,7 +129,9 @@ function Register() {
         "username" => $_POST["username"],
         "email" => $_SESSION["verify"]["email"],
         "avatar" => "default.jpg",
-        "description" => "Hello, world",
+        "description" => "Hello, world!",
+        "type" => "member",
+        "lastSeen" => time(),
         "time" => time()
     ];
 
@@ -165,6 +170,66 @@ function Logout() {
 
     setcookie("session", "", time() - 3600);
     header("Location: ./");
+    exit();
+}
+
+function EditProfile() {
+    $data = GetSiteData();
+    $user = GetUserData();
+
+    if ($_POST["username"] != $user["username"]) {
+        if (strlen($_POST["username"]) < 4) {
+            Alert("Your username must be at least 4 characters long.");
+        }
+    
+        if (strlen($_POST["username"]) > 20) {
+            Alert("Your username must be less than 20 characters long.");
+        }
+    
+        if (preg_match("/^[a-zA-Z0-9_-]+$/", $_POST["username"]) == 0) {
+            Alert("Your username can only contain letters, numbers, underscores, and hyphens.");
+        }
+
+        if (FindIndex($data["users"], "username", $_POST["username"]) != -1) {
+            Alert("That username is already taken.");
+        }
+
+        $user["username"] = $_POST["username"];
+    }
+
+    if ($_FILES["avatar"]["error"] == 0) {
+        if ($_FILES["avatar"]["size"] > 2000000) {
+            Alert("Your avatar must be less than 2MB in size.");
+        }
+
+        $extension = pathinfo($_FILES["avatar"]["name"], PATHINFO_EXTENSION);
+        $filename = uniqid("avatar") . "." . $extension;
+
+        if (move_uploaded_file($_FILES["avatar"]["tmp_name"], "uploads/avatars/{$filename}") == false) {
+            Alert("There was an error uploading your avatar.");
+        }
+
+        $user["avatar"] = $filename;
+    }
+
+    if (strlen($_POST["description"]) > 10000) {
+        Alert("Your description must be less than 10000 characters long.");
+    }
+
+    $user["description"] = $_POST["description"];
+    $userIndex = FindIndex($data["users"], "id", $user["id"]);
+
+    if ($userIndex == -1) {
+        Alert("There was an error updating your profile.");
+    }
+
+    $data["users"][$userIndex] = $user;
+
+    if (SetSiteData($data) == false) {
+        Alert("There was an error updating your profile.");
+    }
+
+    header("Location: user/?id={$user['username']}");
     exit();
 }
 
