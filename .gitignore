@@ -4,3 +4,5 @@ debug.php
 log/
 uploads/avatars/*
 !uploads/avatars/default.jpg
+uploads/requests/*
+!uploads/requests/default.jpg
