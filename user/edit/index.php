@@ -203,16 +203,8 @@ if ($user == false) {
             input.click();
 
             input.addEventListener("change", () => {
-                if (input.files.length > 0) {
-                    let reader = new FileReader();
-
-                    reader.onload = function() {
-                        let preview = document.querySelector(".edit__info__box__avatar__preview > img");
-                        preview.src = reader.result;
-                    }
-
-                    reader.readAsDataURL(input.files[0]);
-                }
+                let preview = document.querySelector(".edit__info__box__avatar__preview > img");
+                preview.src = URL.createObjectURL(input.files[0]);
             });
         }
 
