@@ -251,6 +251,14 @@ function NewRequest() {
     $tags = "";
 
     foreach ($_POST["tags"] as $tag) {
+        if (substr($tag, 0, 1) == "-") {
+            continue;
+        }
+
+        if (preg_match("/^[a-zA-Z0-9_-]+$/", $tag) == 0) {
+            continue;
+        }
+
         $tags .= "{$tag} ";
     }
 
