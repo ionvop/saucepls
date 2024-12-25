@@ -21,6 +21,9 @@ Debug();
     <body>
         <div class="main">
             <?=SetHeader()?>
+            <div class="content">
+                
+            </div>
         </div>
     </body>
     <script src="script.js"></script>
