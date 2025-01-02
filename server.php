@@ -248,26 +248,6 @@ function NewRequest() {
         Alert("Your description must be less than 2000 characters long.");
     }
 
-    $tags = "";
-
-    foreach ($_POST["tags"] as $tag) {
-        if (substr($tag, 0, 1) == "-") {
-            continue;
-        }
-
-        if (preg_match("/^[a-zA-Z0-9_-]+$/", $tag) == 0) {
-            continue;
-        }
-
-        $tags .= "{$tag} ";
-    }
-
-    $tags = substr($tags, 0, -1);
-
-    if (strlen($tags) > 2000) {
-        Alert("Your tags must be less than 2000 characters long.");
-    }
-
     if ($_FILES["image"]["error"] != 0) {
         Alert("There was an error uploading your image.");
     }
@@ -287,13 +267,52 @@ function NewRequest() {
         "id" => uniqid("request"),
         "author" => $user["id"],
         "text" => $_POST["text"],
-        "tags" => $tags,
         "description" => $_POST["description"],
         "image" => $filename,
         "time" => time()
     ];
 
     $data["requests"][] = $request;
+
+    if (strlen(implode(", ", $_POST["tags"])) > 2000) {
+        Alert("Your tags must be less than 2000 characters long.");
+    }
+
+    foreach ($_POST["tags"] as $tag) {
+        if (substr($tag, 0, 1) == "-") {
+            continue;
+        }
+
+        if (preg_match("/^[a-zA-Z0-9_-]+$/", $tag) == 0) {
+            continue;
+        }
+
+        $tagIndex = FindIndex($data["tags"], "name", $tag);
+
+        if ($tagIndex == -1) {
+            $tagId = uniqid("tag");
+
+            $newTag = [
+                "id" => $tagId,
+                "name" => $tag,
+                "time" => time()
+            ];
+
+            $data["tags"][] = $newTag;
+        } else {
+            $tagData = $data["tags"][$tagIndex];
+            $tagId = $tagData["id"];
+        }
+
+        $requestTag = [
+            "id" => uniqid("requestTag"),
+            "requestId" => $request["id"],
+            "tagId" => $tagId,
+            "time" => time()
+        ];
+
+        $data["requestTags"][] = $requestTag;
+    }
 
     if (SetSiteData($data) == false) {
         Alert("There was an error creating your request.");
