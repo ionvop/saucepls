@@ -50,7 +50,6 @@ Debug();
 
             .new__panel__box {
                 padding: 1rem;
-                height: 40rem;
                 border-radius: 1rem;
                 background-color: #222;
             }
@@ -64,31 +63,11 @@ Debug();
             }
 
             .new__panel__box__input > textarea {
-                height: 100%;
+                height: 20rem;
             }
 
-            .new__panels__upload__box > button {
-                display: grid;
-                grid-template-columns: repeat(2, max-content);
-            }
-
-            .new__panels__upload__box__button__icon > svg {
-                width: 1.5rem;
-                height: 1.5rem;
-            }
-
-            .new__panels__upload__box__button__text {
-                padding-left: 1rem;
-            }
-
-            .new__panels__text__box {
-                display: grid;
-                grid-template-rows: max-content 1fr;
-            }
-
-            .new__panels__tags__box {
-                display: grid;
-                grid-template-rows: repeat(2, max-content) 1fr;
+            .new__panels__upload__box {
+                height: 20rem;
             }
 
             .new__panels__tags__box__field {
@@ -111,7 +90,7 @@ Debug();
 
             .new__panels__tags__box__list__render {
                 padding: 1rem;
-                height: 90%;
+                height: 20rem;
                 border-radius: 1rem;
                 background-color: #111;
             }
@@ -146,31 +125,22 @@ Debug();
                 padding: 1rem;
             }
 
-            .new__preview__box {
-                display: grid;
-                grid-template-rows: max-content 1fr max-content;
-                padding: 1rem;
-                height: 40rem;
-                border-radius: 1rem;
-                background-color: #222;
-            }
-
-            .new__preview__box__label {
+            .new__preview__label {
                 padding: 1rem;
             }
 
-            .new__preview__box__image {
+            .new__preview__image {
                 padding: 1rem;
                 overflow: hidden;
             }
 
-            .new__preview__box__image > img {
+            .new__preview__image > img {
                 width: 100%;
-                height: 100%;
+                height: 30rem;
                 object-fit: contain;
             }
 
-            .new__preview__box__submit {
+            .new__preview__submit {
                 visibility: hidden;
                 padding: 1rem;
             }
@@ -207,11 +177,13 @@ Debug();
                         <div class="new__panels__upload new__panel new__panel--active">
                             <div class="new__panels__upload__box new__panel__box -center__flex">
                                 <button class="-button" type="button" onclick="btnUpload(this)">
-                                    <div class="new__panels__upload__box__button__icon">
-                                        <?=Icon("upload")?>
-                                    </div>
-                                    <div class="new__panels__upload__box__button__text">
-                                        Upload Image
+                                    <div class="-iconlabel">
+                                        <div class="-iconlabel__icon">
+                                            <?=Icon("upload")?>
+                                        </div>
+                                        <div class="-iconlabel__text">
+                                            Upload Image
+                                        </div>
                                     </div>
                                 </button>
                                 <input type="file" name="image" accept="image/*" style="display: none;" required>
@@ -259,18 +231,16 @@ Debug();
                         </div>
                     </div>
                     <div class="new__preview">
-                        <div class="new__preview__box">
-                            <div class="new__preview__box__label">
-                                Preview:
-                            </div>
-                            <div class="new__preview__box__image">
-                                <img src="assets/image.png">
-                            </div>
-                            <div class="new__preview__box__submit -center">
-                                <button class="-button" name="method" value="newRequest">
-                                    Submit
-                                </button>
-                            </div>
+                        <div class="new__preview__label">
+                            Preview:
+                        </div>
+                        <div class="new__preview__image">
+                            <img src="assets/image.png">
+                        </div>
+                        <div class="new__preview__submit -center">
+                            <button class="-button" name="method" value="newRequest">
+                                Submit
+                            </button>
                         </div>
                     </div>
                 </form>
@@ -301,8 +271,8 @@ Debug();
             input.click();
 
             input.addEventListener("change", () => {
-                let preview = document.querySelector(".new__preview__box__image > img");
-                let submit = document.querySelector(".new__preview__box__submit");
+                let preview = document.querySelector(".new__preview__image > img");
+                let submit = document.querySelector(".new__preview__submit");
                 preview.src = URL.createObjectURL(input.files[0]);
                 submit.style.visibility = "visible";
             });
