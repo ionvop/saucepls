@@ -69,6 +69,14 @@ function Icon($icon) {
             return <<<HTML
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="currentColor"><path d="M240-440q-17 0-28.5-11.5T200-480q0-17 11.5-28.5T240-520h480q17 0 28.5 11.5T760-480q0 17-11.5 28.5T720-440H240Z"/></svg>
             HTML;
+        case "bookmark_border":
+            return <<<HTML
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="currentColor"><path d="m480-240-168 72q-40 17-76-6.5T200-241v-519q0-33 23.5-56.5T280-840h400q33 0 56.5 23.5T760-760v519q0 43-36 66.5t-76 6.5l-168-72Zm0-88 200 86v-518H280v518l200-86Zm0-432H280h400-200Z"/></svg>
+            HTML;
+        case "bookmark":
+            return <<<HTML
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="currentColor"><path d="m480-240-168 72q-40 17-76-6.5T200-241v-519q0-33 23.5-56.5T280-840h400q33 0 56.5 23.5T760-760v519q0 43-36 66.5t-76 6.5l-168-72Z"/></svg>
+            HTML;
     }
 }
 
@@ -84,7 +92,7 @@ function SetHeader() {
     if ($user == false) {
         return <<<HTML
             <div class="-header">
-                <div class="-header__title -script__link" data-href="./">
+                <div class="-header__title -center__flex -script__link" data-href="./">
                     SaucePls
                 </div>
                 <div></div>
@@ -115,16 +123,18 @@ function SetHeader() {
 
     return <<<HTML
         <div class="-header -header--user">
-            <div class="-header__title -script__link" data-href="./">
+            <div class="-header__title -center__flex -script__link" data-href="./">
                 SaucePls
             </div>
             <div class="-header__new -center__flex">
-                <button class="-button -button--active -center__flex -script__link" data-href="new/">
-                    <div class="-header__new__icon -center__flex">
-                        {$noteAddIcon}
-                    </div>
-                    <div class="-header__new__text -center__flex">
-                        Request
+                <button class="-button -button--active -script__link" data-href="new/">
+                    <div class="-iconlabel">
+                        <div class="-iconlabel__icon">
+                            {$noteAddIcon}
+                        </div>
+                        <div class="-iconlabel__text">
+                            Request
+                        </div>
                     </div>
                 </button>
             </div>
@@ -140,41 +150,41 @@ function SetHeader() {
             </form>
             <div></div>
             <div class="-header__notifications -header__tab -center__flex -script__link" data-href="notifications/">
-                <div class="-header__notifications__content -header__tab__content">
-                    <div class="-header__notifications__content__icon -header__tab__content__icon">
+                <div class="-iconlabel">
+                    <div class="-iconlabel__icon">
                         {$notificationsIcon}
                     </div>
-                    <div class="-header__notifications__content__text -header__tab__content__text">
+                    <div class="-iconlabel__text">
                         0
                     </div>
                 </div>
             </div>
             <div class="-header__mail -header__tab -center__flex -script__link" data-href="mail/">
-                <div class="-header__mail__content -header__tab__content">
-                    <div class="-header__mail__content__icon -header__tab__content__icon">
+                <div class="-iconlabel">
+                    <div class="-iconlabel__icon">
                         {$mailIcon}
                     </div>
-                    <div class="-header__mail__content__text -header__tab__content__text">
+                    <div class="-iconlabel__text">
                         0
                     </div>
                 </div>
             </div>
             <div class="-header__user -header__tab -center__flex -script__link" data-href="user/?id={$user['username']}">
-                <div class="-header__user__content -header__tab__content">
-                    <div class="-header__user__content__avatar -header__tab__content__avatar -center__flex">
+                <div class="-header__user__content">
+                    <div class="-header__user__content__avatar -center__flex">
                         <img src="uploads/avatars/{$user['avatar']}">
                     </div>
-                    <div class="-header__user__content__username -header__tab__content__text">
+                    <div class="-header__user__content__username">
                         {$user['username']}
                     </div>
                 </div>
             </div>
             <form class="-form -header__logout -header__tab -center__flex" action="server.php" method="post" enctype="multipart/form-data" onclick="if (confirm('Are you sure you want to logout?')) this.submit()">
-                <div class="-header__logout__content -header__tab__content">
-                    <div class="-header__logout__content__icon -header__tab__content__icon -center__flex">
+                <div class="-iconlabel">
+                    <div class="-iconlabel__icon">
                         {$logoutIcon}
                     </div>
-                    <div class="-header__logout__content__text -header__tab__content__text -center__flex">
+                    <div class="-iconlabel__text">
                         Logout
                     </div>
                 </div>
