@@ -8,22 +8,18 @@
     --theme__lighter: #aaf;
 }
 
-html {
-    font-size: 1vw;
-}
-
 body {
     margin: 0rem;
     padding: 0rem;
     background-color: #111;
     color: #fff;
-    font-size: 1.5rem;
+    font-size: 1rem;
     font-family: 'Exo 2', sans-serif;
 }
 
 .-button {
     padding: 1rem;
-    font-size: 1.5rem;
+    font-size: 1rem;
     background-color: var(--theme);
     font-family: 'Exo 2', sans-serif;
     color: #fff;
@@ -48,8 +44,8 @@ body {
 }
 
 .-button > svg {
-    width: 1.5rem;
-    height: 1.5rem;
+    width: 1rem;
+    height: 1rem;
 }
 
 .-form {
@@ -60,7 +56,7 @@ body {
 .-input {
     width: 100%;
     padding: 1rem;
-    font-size: 1.5rem;
+    font-size: 1rem;
     background-color: #fff;
     font-family: 'Exo 2', sans-serif;
     color: #111;
@@ -71,7 +67,7 @@ body {
 .-textarea {
     width: 100%;
     padding: 1rem;
-    font-size: 1.5rem;
+    font-size: 1rem;
     background-color: #fff;
     font-family: 'Exo 2', sans-serif;
     color: #111;
@@ -91,12 +87,30 @@ body {
 }
 
 .-title {
-    font-size: 2rem;
+    font-size: 1.5rem;
 }
 
 .-subtitle {
-    font-size: 1rem;
+    font-size: 0.7rem;
     color: #aaa;
+}
+
+.-iconlabel {
+    display: grid;
+    grid-template-columns: repeat(2, max-content);
+}
+
+.-iconlabel__icon > svg {
+    display: flex;
+    align-items: center;
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+.-iconlabel__text {
+    display: flex;
+    align-items: center;
+    padding-left: 1rem;
 }
 
 .-header {
@@ -120,30 +134,9 @@ body {
     background-color: var(--theme__dark);
 }
 
-.-header__tab__content {
-    display: grid;
-    grid-template-columns: repeat(2, max-content);
-}
-
-.-header__tab__content__icon > svg {
-    width: 2rem;
-    height: 2rem;
-}
-
-.-header__tab__content__avatar > img {
-    width: 3rem;
-    height: 3rem;
-    object-fit: cover;
-    border-radius: 1rem;
-}
-
-.-header__tab__content__text {
-    padding-left: 1rem;
-}
-
 .-header__title {
     padding: 1rem;
-    font-size: 3rem;
+    font-size: 2rem;
     font-weight: bold;
     cursor: pointer;
     user-select: none;
@@ -156,15 +149,6 @@ body {
 .-header__new > button {
     display: grid;
     grid-template-columns: repeat(2, max-content);
-}
-
-.-header__new__text {
-    padding-left: 1rem;
-}
-
-.-header__new__icon > svg {
-    width: 1.5rem;
-    height: 1.5rem;
 }
 
 .-header__search {
@@ -181,9 +165,22 @@ body {
     padding: 1rem;
 }
 
+.-header__user__content {
+    display: grid;
+    grid-template-columns: repeat(2, max-content);
+}
+
+.-header__user__content__avatar > img {
+    width: 2rem;
+    height: 2rem;
+    object-fit: cover;
+    border-radius: 1rem;
+}
+
 .-header__user__content__username {
     display: flex;
     align-items: center;
+    padding-left: 1rem;
     max-width: 20rem;
     overflow: hidden;
 }
