@@ -4,15 +4,13 @@ chdir("../");
 include("common.php");
 include("lib/Parsedown.php");
 Debug();
-$data = GetSiteData();
-$user = GetUserData();
-$targetIndex = FindIndex($data["users"], "username", $_GET["id"]);
+$user = GetUser();
+$target = GetTarget($_GET["id"]);
 
-if ($targetIndex == -1) {
-    Alert("The user does not exist.");
+if ($target == false) {
+    Alert("That user does not exist.");
 }
 
-$target = $data["users"][$targetIndex];
 $Parsedown = new Parsedown();
 
 switch ($target["type"]) {
@@ -118,7 +116,7 @@ switch ($target["type"]) {
                         </div>
                         <div class="user__panel__details -subtitle">
                             Member type: <?=$memberType?><br>
-                            Last seen: <?=TimeAgo($target["lastSeen"])?><br>
+                            Last seen: <?=TimeAgo($target["last_seen"])?><br>
                             Joined: <?=TimeAgo($target["time"])?>
                         </div>
                         <?php
