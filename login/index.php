@@ -59,13 +59,13 @@ Debug();
                 <div class="login">
                     <div></div>
                     <form class="-form login__box" action="server.php" method="post" enctype="multipart/form-data">
-                        <div class="login__box__title -center -title">
+                        <div class="login__box__title -title -center ">
                             Login / Register
                         </div>
                         <div class="login__box__label -center">
                             Enter your email:
                         </div>
-                        <div class="login__box__note -center -subtitle">
+                        <div class="login__box__note -subtitle -center">
                             A code will be sent to your email which will be<br>
                             used for logging in or for registering an account.
                         </div>
