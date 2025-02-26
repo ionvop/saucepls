@@ -69,7 +69,7 @@ Debug();
                             Don't forget to check your spam folder.
                         </div>
                         <div class="verify__box__input">
-                            <input class="-input" name="code" placeholder="Code...">
+                            <input class="-input" name="code" placeholder="Code..." required>
                         </div>
                         <div class="verify__box__button -center">
                             <button class="-button" name="method" value="verify">
