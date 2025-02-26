@@ -3,11 +3,10 @@
 chdir("../../");
 include("common.php");
 Debug();
-$data = GetSiteData();
-$user = GetUserData();
+$user = GetUser();
 
 if ($user == false) {
-    Alert("You are not logged in.");
+    Alert("Unauthorized.");
 }
 
 ?>
@@ -50,7 +49,7 @@ if ($user == false) {
 
             .edit__info__box__avatar {
                 display: grid;
-                grid-template-columns: 1fr repeat(2, max-content);
+                grid-template-columns: max-content 1fr;
                 padding: 1rem;
             }
 
@@ -58,19 +57,19 @@ if ($user == false) {
                 padding: 1rem;
             }
 
-            .edit__info__box__avatar__upload {
+            .edit__info__box__avatar__upload__preview {
                 padding: 1rem;
             }
 
-            .edit__info__box__avatar__preview {
-                padding: 1rem;
-            }
-
-            .edit__info__box__avatar__preview > img {
+            .edit__info__box__avatar__upload__preview > img {
                 width: 10rem;
                 height: 10rem;
                 object-fit: cover;
                 border-radius: 1rem;
+            }
+
+            .edit__info__box__avatar__upload__input {
+                padding: 1rem;
             }
 
             .edit__info__box__username {
@@ -144,14 +143,23 @@ if ($user == false) {
                                 <div class="edit__info__box__avatar__label -center__flex">
                                     Avatar:
                                 </div>
-                                <div class="edit__info__box__avatar__upload -center__flex">
-                                    <button class="-button" type="button" onclick="btnUpload(this)">
-                                        <?=Icon("upload")?>
-                                    </button>
-                                    <input type="file" name="avatar" accept="image/*" style="display: none;">
-                                </div>
-                                <div class="edit__info__box__avatar__preview -center__flex">
-                                    <img src="uploads/avatars/<?=$user["avatar"]?>">
+                                <div class="edit__info__box__avatar__upload">
+                                    <div class="edit__info__box__avatar__upload__preview -center">
+                                        <img src="uploads/avatars/<?=$user["avatar"]?>" id="preview">
+                                    </div>
+                                    <div class="edit__info__box__avatar__upload__input -center">
+                                        <button class="-button" type="button" id="upload">
+                                            <div class="-iconlabel">
+                                                <div class="-iconlabel__icon">
+                                                    <?=Icon("upload")?>
+                                                </div>
+                                                <div class="-iconlabel__text">
+                                                    Upload
+                                                </div>
+                                            </div>
+                                        </button>
+                                        <input type="file" name="avatar" accept="image/*" id="file" style="display: none;">
+                                    </div>
                                 </div>
                             </div>
                             <div class="edit__info__box__username">
@@ -164,7 +172,7 @@ if ($user == false) {
                             </div>
                             <div class="edit__info__box__actions -center">
                                 <div class="edit__info__box__actions__cancel -edit__info__box__action -center">
-                                    <button class="-button" type="button" onclick="btnCancel(this)">
+                                    <button class="-button" type="button" id="cancel">
                                         Cancel
                                     </button>
                                 </div>
@@ -198,20 +206,23 @@ if ($user == false) {
     </body>
     <script src="script.js"></script>
     <script>
-        function btnUpload(element) {
-            let input = document.querySelector(".edit__info__box__avatar__upload > input");
-            input.click();
+        let upload = document.getElementById("upload");
+        let file = document.getElementById("file");
+        let preview = document.getElementById("preview");
+        let cancel = document.getElementById("cancel");
 
-            input.addEventListener("change", () => {
-                let preview = document.querySelector(".edit__info__box__avatar__preview > img");
-                preview.src = URL.createObjectURL(input.files[0]);
+        upload.addEventListener("click", () => {
+            file.click();
+
+            file.addEventListener("change", () => {
+                preview.src = URL.createObjectURL(file.files[0]);
             });
-        }
+        });
 
-        function btnCancel(element) {
+        cancel.addEventListener("click", () => {
             if (confirm("Are you sure you want to cancel?")) {
                 window.history.back();
             }
-        }
+        });
     </script>
 </html>
