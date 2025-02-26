@@ -6,3 +6,4 @@ uploads/avatars/*
 !uploads/avatars/default.jpg
 uploads/requests/*
 !uploads/requests/default.jpg
+database.db
