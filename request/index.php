@@ -3,30 +3,35 @@
 chdir("../");
 include("common.php");
 Debug();
-$data = GetSiteData();
-$user = GetUserData();
-$requestIndex = FindIndex($data["requests"], "id", $_GET["id"]);
+$db = new SQLite3("database.db");
+$user = GetUser();
 
-if ($requestIndex == -1) {
-    Alert("The request does not exist.");
-}
+$query = <<<SQL
+    SELECT * FROM `requests` WHERE `id` = :id
+SQL;
 
-$request = $data["requests"][$requestIndex];
+$stmt = $db->prepare($query);
+$stmt->bindValue(":id", $_GET["id"]);
+$request = $stmt->execute()->fetchArray(SQLITE3_ASSOC);
 
-$requestTags = array_values(array_filter($data["requestTags"], function ($tag) use ($request) {
-    return $tag["requestId"] == $request["id"];
-}));
+$query = <<<SQL
+    SELECT * FROM `request_tags` WHERE `request_id` = :request_id
+SQL;
 
+$stmt = $db->prepare($query);
+$stmt->bindValue(":request_id", $request["id"]);
+$requestTags = $stmt->execute();
 $tags = [];
 
-foreach ($requestTags as $requestTag) {
-    $tagIndex = FindIndex($data["tags"], "id", $requestTag["tagId"]);
+while ($requestTag = $requestTags->fetchArray(SQLITE3_ASSOC)) {
+    $query = <<<SQL
+        SELECT * FROM `tags` WHERE `id` = :id
+    SQL;
 
-    if ($tagIndex == -1) {
-        continue;
-    }
+    $stmt = $db->prepare($query);
+    $stmt->bindValue(":id", $requestTag["tag_id"]);
+    $tag = $stmt->execute()->fetchArray(SQLITE3_ASSOC);
 
-    $tag = $data["tags"][$tagIndex];
     $tags[] = $tag["name"];
 }
 
