@@ -3,7 +3,6 @@
 chdir("../");
 include("common.php");
 Debug();
-$data = GetSiteData();
 
 ?>
 
@@ -73,7 +72,7 @@ $data = GetSiteData();
                             If you lose access to your email, you will not be able to recover it.
                         </div>
                         <div class="register__box__input">
-                            <input class="-input -script__alphanum" name="username" placeholder="Username..." maxlength="20">
+                            <input class="-input -script__alphanum" name="username" placeholder="Username..." maxlength="20" required>
                         </div>
                         <div class="register__box__button -center">
                             <button class="-button" name="method" value="register">
