@@ -81,7 +81,8 @@ function Icon($icon) {
 }
 
 function SetHeader() {
-    $user = GetUserData();
+    $db = new SQLite3("database.db");
+    $user = GetUser();
     $searchIcon = Icon("search");
     $loginIcon = Icon("login");
     $noteAddIcon = Icon("note_add");
@@ -92,64 +93,62 @@ function SetHeader() {
     if ($user == false) {
         return <<<HTML
             <div class="-header">
-                <div class="-header__title -center__flex -script__link" data-href="./">
+                <a class="-a -header__title -center__flex" href="./">
                     SaucePls
-                </div>
+                </a>
                 <div></div>
                 <form class="-form -header__search" action="search/" method="get">
                     <div class="-header__search__input">
-                        <input type="text" class="-input">
+                        <input type="text" class="-input" placeholder="Search...">
                     </div>
                     <div class="-header__search__button -center__flex">
-                        <button class="-button -button--active">
+                        <button class="-button">
                             {$searchIcon}
                         </button>
                     </div>
                 </form>
                 <div></div>
-                <div class="-header__login -header__tab -center__flex -script__link" data-href="login/">
-                    <div class="-header__login__content -header__tab__content">
-                        <div class="-header__login__content__icon -header__tab__content__icon">
+                <a class="-a -header__login -header__tab -center__flex" href="login/">
+                    <div class="-iconlabel">
+                        <div class="-iconlabel__icon">
                             {$loginIcon}
                         </div>
-                        <div class="-header__login__content__text -header__tab__content__text">
+                        <div class="-iconlabel__text">
                             Login
                         </div>
                     </div>
-                </div>
+                </a>
             </div>
         HTML;
     }
 
     return <<<HTML
         <div class="-header -header--user">
-            <div class="-header__title -center__flex -script__link" data-href="./">
+            <a class="-a -header__title -center__flex" href="./">
                 SaucePls
-            </div>
-            <div class="-header__new -center__flex">
-                <button class="-button -button--active -script__link" data-href="new/">
-                    <div class="-iconlabel">
-                        <div class="-iconlabel__icon">
-                            {$noteAddIcon}
-                        </div>
-                        <div class="-iconlabel__text">
-                            Request
-                        </div>
+            </a>
+            <a class="-a -header__new -header__tab -center__flex" href="new/">
+                <div class="-iconlabel">
+                    <div class="-iconlabel__icon">
+                        {$noteAddIcon}
                     </div>
-                </button>
-            </div>
+                    <div class="-iconlabel__text">
+                        Request
+                    </div>
+                </div>
+            </a>
             <form class="-form -header__search" action="search/" method="get">
                 <div class="-header__search__input">
                     <input type="text" class="-input">
                 </div>
                 <div class="-header__search__button -center__flex">
-                    <button class="-button -button--active">
+                    <button class="-button">
                         {$searchIcon}
                     </button>
                 </div>
             </form>
             <div></div>
-            <div class="-header__notifications -header__tab -center__flex -script__link" data-href="notifications/">
+            <a class="-a -header__notifications -header__tab -center__flex" href="notifications/">
                 <div class="-iconlabel">
                     <div class="-iconlabel__icon">
                         {$notificationsIcon}
@@ -158,8 +157,8 @@ function SetHeader() {
                         0
                     </div>
                 </div>
-            </div>
-            <div class="-header__mail -header__tab -center__flex -script__link" data-href="mail/">
+            </a>
+            <a class="-a -header__mail -header__tab -center__flex" href="mail/">
                 <div class="-iconlabel">
                     <div class="-iconlabel__icon">
                         {$mailIcon}
@@ -168,8 +167,8 @@ function SetHeader() {
                         0
                     </div>
                 </div>
-            </div>
-            <div class="-header__user -header__tab -center__flex -script__link" data-href="user/?id={$user['username']}">
+            </a>
+            <a class="-a -header__user -header__tab -center__flex" href="user/?id={$user['username']}">
                 <div class="-header__user__content">
                     <div class="-header__user__content__avatar -center__flex">
                         <img src="uploads/avatars/{$user['avatar']}">
@@ -178,7 +177,7 @@ function SetHeader() {
                         {$user['username']}
                     </div>
                 </div>
-            </div>
+            </a>
             <form class="-form -header__logout -header__tab -center__flex" action="server.php" method="post" enctype="multipart/form-data" onclick="if (confirm('Are you sure you want to logout?')) this.submit()">
                 <div class="-iconlabel">
                     <div class="-iconlabel__icon">
@@ -258,155 +257,52 @@ function Alert($message, $redirect = "") {
     exit();
 }
 
-function GetSiteData() {
-    if (file_exists("data.json") == false) {
-        file_put_contents("data.json", file_get_contents("data-template.json"));
-    }
-
-    $data = file_get_contents("data.json");
-    $data = json_decode($data, true);
-    return $data;
-}
-
-function SetSiteData($input) {
-    $input = json_encode($input, JSON_PRETTY_PRINT);
-
-    if ($input == false) {
-        return false;
-    }
-
-    if (file_exists("log") == false) {
-        mkdir("log");
-    }
-    
-    $date = date("Y-m-d H-i-s");
-
-    if (file_put_contents("log/{$date}.json", $input) == false) {
-        return false;
-    }
-
-    return file_put_contents("data.json", $input);
-}
-
-/**
- * Searches for the first occurrence of an item in an array based on a specific key-value pair and returns its index.
- *
- * @param array  $input The array to search within.
- * @param string $key   The key to look for in each item of the array.
- * @param mixed  $value The value to match against the specified key in each item.
- *
- * @return int The index of the first matching item if found; otherwise, -1.
- */
-function FindIndex($input, $key, $value) {
-    foreach ($input as $index => $item) {
-        if ($item[$key] == $value) {
-            return $index;
-        }
-    }
-
-    return -1;
-}
-
-function NewSession($userId) {
-    $data = GetSiteData();
-    $userIndex = FindIndex($data["users"], "id", $userId);
-    
-    if ($userIndex == -1) {
-        return false;
-    }
-
-    $user = $data["users"][$userIndex];
-
-    $newSession = [
-        "id" => uniqid("session"),
-        "userId" => $user["id"],
-        "expiry" => time() + 86400,
-        "time" => time()
-    ];
-    
-    $data["sessions"][] = $newSession;
-    
-    if (SetSiteData($data) == false) {
-        return false;
-    }
-
-    return $newSession["id"];
-}
-
-/**
- * Authenticates a user based on a provided session ID.
- *
- * This function checks if the session ID exists, is not expired, and corresponds to a valid user. 
- * If all checks pass, it returns the user's ID; otherwise, it returns false.
- *
- * @param string $sessionId The session ID to authenticate.
- *
- * @return mixed The user's ID (string) if authentication is successful; otherwise, false.
- */
-function AuthenticateUser($sessionId) {
-    $data = GetSiteData();
-    $sessionIndex = FindIndex($data["sessions"], "id", $sessionId);
-
-    if ($sessionIndex == -1) {
-        return false;
-    }
-
-    $session = $data["sessions"][$sessionIndex];
-    
-    if (time() > $session["expiry"]) {
-        return false;
-    }
-
-    $userIndex = FindIndex($data["users"], "id", $session["userId"]);
-
-    if ($userIndex == -1) {
-        return false;
-    }
-
-    $user = $data["users"][$userIndex];
-    return $user["id"];
-}
-
-/**
- * Retrieves the authenticated user's data based on the session cookie.
- *
- * This function checks for a valid session cookie, authenticates the user, and retrieves their data 
- * from the site's data store. If the user is not authenticated or the session is invalid, it clears 
- * the session cookie and returns false.
- *
- * @return mixed An associative array containing the user's data if authenticated; otherwise, false.
- */
-function GetUserData() {
-    $data = GetSiteData();
+function GetUser() {
+    $db = new SQLite3("database.db");
 
     if (isset($_COOKIE["session"]) == false) {
-        setcookie("session", "", time()-3600);
         return false;
     }
 
-    $userId = AuthenticateUser($_COOKIE["session"]);
+    $query = <<<SQL
+        SELECT * FROM `users` WHERE `session` = :session
+    SQL;
 
-    if ($userId == false) {
-        setcookie("session", "", time()-3600);
+    $stmt = $db->prepare($query);
+    $stmt->bindValue(":session", $_COOKIE["session"]);
+    $result = $stmt->execute();
+    $user = $result->fetchArray(SQLITE3_ASSOC);
+
+    if ($user == false) {
         return false;
     }
 
-    $userIndex = FindIndex($data["users"], "id", $userId);
-
-    if ($userIndex == -1) {
-        setcookie("session", "", time()-3600);
+    if ($user["session"] == null) {
         return false;
     }
 
-    $user = $data["users"][$userIndex];
-    $user["lastSeen"] = time();
-    $data["users"][$userIndex] = $user;
+    $query = <<<SQL
+        UPDATE `users` SET `last_seen` = :last_seen WHERE `id` = :id
+    SQL;
 
-    if (SetSiteData($data) == false) {
-        setcookie("session", "", time()-3600);
-        return false;
-    }
+    $stmt = $db->prepare($query);
+    $stmt->bindValue(":last_seen", time());
+    $stmt->bindValue(":id", $user["id"]);
+    $stmt->execute();
+    return $user;
+}
 
+function GetTarget($username) {
+    $db = new SQLite3("database.db");
+
+    $query = <<<SQL
+        SELECT * FROM `users` WHERE `username` = :username
+    SQL;
+
+    $stmt = $db->prepare($query);
+    $stmt->bindValue(":username", $username);
+    $result = $stmt->execute();
+    $user = $result->fetchArray(SQLITE3_ASSOC);
     return $user;
 }
 
