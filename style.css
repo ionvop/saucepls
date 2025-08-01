@@ -15,6 +15,8 @@ body {
     color: #fff;
     font-size: 1rem;
     font-family: 'Exo 2', sans-serif;
+    scrollbar-width: thin;
+    scrollbar-color: #333 #111;
 }
 
 .-a {
@@ -162,15 +164,27 @@ body {
 .-page {
     display: grid;
     grid-template-columns: max-content 1fr;
+    overflow: hidden;
 
     & > .content {
         overflow: auto;
+        scrollbar-width: none;
+
+        &:hover {
+            scrollbar-width: thin;
+        }
     }
 }
 
 .-navigation {
     border-right: 1px solid #555;
     background-color: #222;
+    overflow: auto;
+    scrollbar-width: none;
+
+    &:hover {
+        scrollbar-width: thin;
+    }
 
     & > .tab {
         border-bottom: 1px solid #555;
