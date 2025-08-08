@@ -16,6 +16,10 @@ include "common.php";
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style>
             body > .main {
+                display: grid;
+                grid-template-rows: max-content 1fr;
+                height: 100%;
+                
                 & > .content {
                     & > .register {
                         background-color: #222;
@@ -36,7 +40,7 @@ include "common.php";
         </style>
     </head>
     <body>
-        <div class="main -main">
+        <div class="main">
             <?=renderHeader()?>
             <div class="content -center__flex">
                 <form action="server.php" class="-form register -pad" method="post" enctype="multipart/form-data">
