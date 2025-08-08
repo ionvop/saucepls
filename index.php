@@ -19,11 +19,16 @@ include "common.php";
     </head>
     <body>
         <div class="main -main">
-            <?=renderHeader()?>
-            <div class="page -page">
-                <?=renderNavigation()?>
-                <div class="content">
-
+            <?=renderNavigation()?>
+            <div class="page">
+                <?=renderHeader()?>
+                <div class="content -pad">
+                    <div class="welcome -pad -title -center">
+                        Welcome to SaucePls
+                    </div>
+                    <div class="subtitle -pad -center">
+                        Upload images, anime screenshots, or manga panels and let the community help you find the source or artist!
+                    </div>
                 </div>
             </div>
         </div>
