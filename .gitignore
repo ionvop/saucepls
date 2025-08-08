@@ -2,6 +2,6 @@ config.php
 debug.php
 uploads/avatars/*
 !uploads/avatars/default.jpg
-uploads/requests/*
-!uploads/requests/default.jpg
+uploads/posts/*
+!uploads/posts/default.jpg
 database.db
