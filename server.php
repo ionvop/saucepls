@@ -13,6 +13,12 @@ if (isset($_POST["method"])) {
         case "register":
             register();
             break;
+        case "logout":
+            logout();
+            break;
+        case "upload":
+            upload();
+            break;
         default:
             defaultMethod();
             break;
@@ -151,6 +157,60 @@ function register() {
     session_destroy();
     setcookie("session", $session, time() + (86400 * 30));
     header("Location: ./");
+}
+
+function logout() {
+    $db = new SQLite3("database.db");
+    $user = getUser();
+
+    $query = <<<SQL
+        UPDATE `users` SET `session` = NULL WHERE `id` = :id
+    SQL;
+
+    $stmt = $db->prepare($query);
+    $stmt->bindValue(":id", $user["id"]);
+    $stmt->execute();
+    setcookie("session", "", time() - 3600);
+    header("Location: ./");
+    exit();
+}
+
+function upload() {
+    $db = new SQLite3("database.db");
+    $user = getUser();
+
+    if ($user == false) {
+        alert("You must be logged in to upload files.");
+    }
+
+    if ($_FILES["image"]["error"] != 0) {
+        alert("There was an error uploading your image.");
+    }
+
+    if ($_FILES["image"]["size"] > 4000000) {
+        alert("Your image was too large.\n\nMax size: 4MB.");
+    }
+
+    $filename = uniqid("post-") . "." . pathinfo($_FILES["image"]["name"], PATHINFO_EXTENSION);
+    
+    if (move_uploaded_file($_FILES["image"]["tmp_name"], "uploads/posts/{$filename}") == false) {
+        alert("There was an error uploading your image.");
+    }
+
+    $query = <<<SQL
+        INSERT INTO `posts` (`user_id`, `image`, `title`, `description`, `tags`, `text`)
+        VALUES (:user_id, :image, :title, :description, :tags, :text)
+    SQL;
+
+    $stmt = $db->prepare($query);
+    $stmt->bindValue(":user_id", $user["id"]);
+    $stmt->bindValue(":image", $filename);
+    $stmt->bindValue(":title", $_POST["title"]);
+    $stmt->bindValue(":description", $_POST["description"]);
+    $stmt->bindValue(":tags", $_POST["tags"]);
+    $stmt->bindValue(":text", $_POST["text"]);
+    $stmt->execute();
+    header("Location: post/?id={$db->lastInsertRowID()}");
 }
 
 function defaultMethod() {
