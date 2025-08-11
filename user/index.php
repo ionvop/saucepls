@@ -4,6 +4,7 @@ chdir("../");
 include "common.php";
 $user = getUser();
 $target = getUserByName($_GET["id"]);
+$comments = getUserComments($target["id"], $_GET["max"] ?? 10);
 
 ?>
 
@@ -55,15 +56,37 @@ $target = getUserByName($_GET["id"]);
                                 & > .box {
                                     background-color: #111;
                                     border-radius: 1rem;
-                                    white-space: pre-wrap;
                                 }
                             }
                         }
 
-                        & > .comments {
-                            & > .comment {
-                                display: grid;
-                                grid-template-columns: max-content 1fr max-content;
+                        & > .panel {
+                            & > .comments {
+                                & > .comment {
+                                    display: grid;
+                                    grid-template-columns: max-content 1fr max-content;
+                                    border-bottom: 1px solid #555;
+
+                                    & > .avatar {
+                                        & > img {
+                                            width: 3rem;
+                                            height: 3rem;
+                                            object-fit: cover;
+                                            border-radius: 50%;
+                                        }
+                                    }
+
+                                    & > .input {
+                                        & > textarea {
+                                            height: 5rem;
+                                        }
+                                    }
+
+                                    & > .send {
+                                        display: grid;
+                                        grid-template-rows: 1fr max-content;
+                                    }
+                                }
                             }
                         }
                     }
@@ -101,32 +124,40 @@ $target = getUserByName($_GET["id"]);
                             Following: 0 &nbsp; | &nbsp; Followers: 0
                         </div>
                         <div class="description -pad">
-                            <div class="box -pad"><?=htmlentities($target["description"])?></div>
+                            <div class="box -pad">
+                                <?=nl2br(htmlentities($target["description"]))?>
+                            </div>
                         </div>
                     </div>
-                    <div class="comments">
-                        <div class="title -pad -title">
-                            Comments
-                        </div>
-                        <form class="-form comment">
-                            <div class="avatar -pad">
-                                <img src="uploads/avatars/<?=$user["avatar"]?>">
+                    <div class="panel">
+                        <div class="comments">
+                            <div class="title -pad -title">
+                                Comments
                             </div>
-                            <div class="input -pad">
-                                <textarea name="comment" class="-textarea"></textarea>
-                            </div>
-                            <div class="send">
-                                <div></div>
-                                <div class="button -pad">
-                                    <button class="-button" name="method" value="comment">
-                                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="M176-183q-20 8-38-3.5T120-220v-180l320-80-320-80v-180q0-22 18-33.5t38-3.5l616 260q25 11 25 37t-25 37L176-183Z"/></svg>
-                                    </button>
+                            <form action="server.php" class="-form comment" method="post" enctype="multipart/form-data">
+                                <div class="avatar -pad">
+                                    <img src="uploads/avatars/<?=$user["avatar"]?>">
                                 </div>
+                                <div class="input -pad">
+                                    <textarea name="comment" class="-textarea" placeholder="Write a comment..."></textarea>
+                                </div>
+                                <div class="send">
+                                    <div></div>
+                                    <div class="button -pad">
+                                        <button class="-button" name="method" value="user_comment">
+                                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="M176-183q-20 8-38-3.5T120-220v-180l320-80-320-80v-180q0-22 18-33.5t38-3.5l616 260q25 11 25 37t-25 37L176-183Z"/></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                                <input type="hidden" name="target_name" value="<?=$target["username"]?>">
+                            </form>
+                            <div class="render -comments">
+                                <?php
+                                    foreach ($comments as $comment) {
+                                        echo renderComment($comment);
+                                    }
+                                ?>
                             </div>
-                            <input type="hidden" name="target_id" value="<?=$target["id"]?>">
-                        </form>
-                        <div class="render">
-
                         </div>
                     </div>
                 </div>
