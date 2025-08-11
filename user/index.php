@@ -50,6 +50,21 @@ $target = getUserByName($_GET["id"]);
                             & > .details {
                                 line-height: 2rem;  
                             }
+
+                            & > .description {
+                                & > .box {
+                                    background-color: #111;
+                                    border-radius: 1rem;
+                                    white-space: pre-wrap;
+                                }
+                            }
+                        }
+
+                        & > .comments {
+                            & > .comment {
+                                display: grid;
+                                grid-template-columns: max-content 1fr max-content;
+                            }
                         }
                     }
                 }
@@ -65,12 +80,18 @@ $target = getUserByName($_GET["id"]);
                     <div class="profile -pad">
                         <div class="avatar -pad -center">
                             <img src="uploads/avatars/<?=$target["avatar"]?>">
-                            <div class="edit">
-                                <div></div>
-                                <a href="user/edit/" class="-a button -pad">
-                                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="M160-120q-17 0-28.5-11.5T120-160v-97q0-16 6-30.5t17-25.5l505-504q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L313-143q-11 11-25.5 17t-30.5 6h-97Zm544-528 56-56-56-56-56 56 56 56Z"/></svg>
-                                </a>
-                            </div>
+                            <?php
+                                if ($user["id"] == $target["id"]) {
+                                    echo <<<HTML
+                                        <div class="edit">
+                                            <div></div>
+                                            <a href="user/edit/" class="-a button -pad">
+                                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="M160-120q-17 0-28.5-11.5T120-160v-97q0-16 6-30.5t17-25.5l505-504q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L313-143q-11 11-25.5 17t-30.5 6h-97Zm544-528 56-56-56-56-56 56 56 56Z"/></svg>
+                                            </a>
+                                        </div>
+                                    HTML;
+                                }
+                            ?>
                         </div>
                         <div class="username -pad -title -center">
                             <?=$target["username"]?>
@@ -79,9 +100,34 @@ $target = getUserByName($_GET["id"]);
                             Last seen: <?=timeAgo($target["last_seen"])?> &nbsp; | &nbsp; Joined: <?=timeAgo($target["time"])?><br>
                             Following: 0 &nbsp; | &nbsp; Followers: 0
                         </div>
+                        <div class="description -pad">
+                            <div class="box -pad"><?=htmlentities($target["description"])?></div>
+                        </div>
                     </div>
                     <div class="comments">
+                        <div class="title -pad -title">
+                            Comments
+                        </div>
+                        <form class="-form comment">
+                            <div class="avatar -pad">
+                                <img src="uploads/avatars/<?=$user["avatar"]?>">
+                            </div>
+                            <div class="input -pad">
+                                <textarea name="comment" class="-textarea"></textarea>
+                            </div>
+                            <div class="send">
+                                <div></div>
+                                <div class="button -pad">
+                                    <button class="-button" name="method" value="comment">
+                                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="M176-183q-20 8-38-3.5T120-220v-180l320-80-320-80v-180q0-22 18-33.5t38-3.5l616 260q25 11 25 37t-25 37L176-183Z"/></svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <input type="hidden" name="target_id" value="<?=$target["id"]?>">
+                        </form>
+                        <div class="render">
 
+                        </div>
                     </div>
                 </div>
             </div>
