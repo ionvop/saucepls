@@ -236,3 +236,33 @@ body {
 .-header--user {
     grid-template-columns: max-content 1fr repeat(2, max-content);
 }
+
+.-comments {
+    & > .item {
+        display: grid;
+        grid-template-columns: max-content 1fr max-content;
+        border-bottom: 1px solid #555;
+
+        & > .avatar {
+            & > img {
+                width: 3rem;
+                height: 3rem;
+                object-fit: cover;
+                border-radius: 50%;
+            }
+        }
+
+        & > .content {
+            & > .details {
+                display: grid;
+                grid-template-columns: 1fr max-content;
+            }
+        }
+
+        & > .actions {
+            & > .action {
+                cursor: pointer;
+            }
+        }
+    }
+}
