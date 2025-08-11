@@ -54,7 +54,6 @@ $user = getUser();
                                 & > .box {
                                     background-color: #111;
                                     border-radius: 1rem;
-                                    white-space: pre-wrap;
                                 }
                             }
                         }
@@ -96,7 +95,9 @@ $user = getUser();
                             Following: 0 &nbsp; | &nbsp; Followers: 0
                         </div>
                         <div class="description -pad">
-                            <div class="box -pad"><?=htmlentities($user["description"])?></div>
+                            <div class="box -pad">
+                                <?=nl2br(htmlentities($user["description"]))?>
+                            </div>
                         </div>
                     </div>
                     <form action="server.php" class="-form edit" method="post" enctype="multipart/form-data">
