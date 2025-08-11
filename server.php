@@ -22,6 +22,12 @@ if (isset($_POST["method"])) {
         case "edit_profile":
             editProfile();
             break;
+        case "user_comment":
+            userComment();
+            break;
+        case "delete_user_comment":
+            deleteUserComment();
+            break;
         default:
             defaultMethod();
             break;
@@ -249,6 +255,12 @@ function editProfile() {
         $stmt->execute();
     }
 
+    if ($_POST["username"] != $user["username"]) {
+        if (getUserByName($_POST["username"]) != false) {
+            alert("That username is already taken.");
+        }
+    }
+
     $query = <<<SQL
         UPDATE `users` SET `username` = :username, `description` = :description WHERE `id` = :id
     SQL;
@@ -259,6 +271,60 @@ function editProfile() {
     $stmt->bindValue(":id", $user["id"]);
     $stmt->execute();
     header("Location: user/?id={$_POST["username"]}");
+}
+
+function userComment() {
+    $db = new SQLite3("database.db");
+    $user = getUser();
+    $target = getUserByName($_POST["target_name"]);
+
+    if ($user == false) {
+        alert("You must be logged in to comment.");
+    }
+
+    $query = <<<SQL
+        INSERT INTO `user_comments` (`user_id`, `target_id`, `content`)
+        VALUES (:user_id, :target_id, :content)
+    SQL;
+
+    $stmt = $db->prepare($query);
+    $stmt->bindValue(":user_id", $user["id"]);
+    $stmt->bindValue(":target_id", $target["id"]);
+    $stmt->bindValue(":content", $_POST["comment"]);
+    $stmt->execute();
+    header("Location: user/?id={$_POST["target_name"]}");
+}
+
+function deleteUserComment() {
+    $db = new SQLite3("database.db");
+    $user = getUser();
+
+    if ($user == false) {
+        alert("You must be logged in to delete a comment.");
+    }
+
+    $query = <<<SQL
+        SELECT * FROM `user_comments` WHERE `id` = :id
+    SQL;
+
+    $stmt = $db->prepare($query);
+    $stmt->bindValue(":id", $_POST["id"]);
+    $comment = $stmt->execute()->fetchArray(SQLITE3_ASSOC);
+
+    if ($comment["user_id"] != $user["id"] && $comment["target_id"] != $user["id"] && $user["type"] != "moderator" && $user["type"] != "admin") {
+        alert("You cannot delete this comment.");
+    }
+
+    $target = getUserById($comment["target_id"]);
+
+    $query = <<<SQL
+        DELETE FROM `user_comments` WHERE `id` = :id
+    SQL;
+
+    $stmt = $db->prepare($query);
+    $stmt->bindValue(":id", $_POST["id"]);
+    $stmt->execute();
+    header("Location: user/?id={$target["username"]}");
 }
 
 function defaultMethod() {
