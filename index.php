@@ -1,6 +1,7 @@
 <?php
 
 include "common.php";
+$db = new SQLite3("database.db");
 
 ?>
 
@@ -28,6 +29,14 @@ include "common.php";
                     </div>
                     <div class="subtitle -pad -center">
                         Upload images, anime screenshots, or manga panels and let the community help you find the source or artist!
+                    </div>
+                    <div class="trending">
+                        <div class="popular">
+
+                        </div>
+                        <div class="recent">
+
+                        </div>
                     </div>
                 </div>
             </div>
