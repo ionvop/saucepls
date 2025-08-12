@@ -253,9 +253,8 @@ body {
         }
 
         & > .content {
-            & > .details {
-                display: grid;
-                grid-template-columns: 1fr max-content;
+            & > .text {
+                padding-top: 0rem;
             }
         }
 
