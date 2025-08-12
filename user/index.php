@@ -154,7 +154,7 @@ $comments = getUserComments($target["id"], $_GET["max"] ?? 10);
                             <div class="render -comments">
                                 <?php
                                     foreach ($comments as $comment) {
-                                        echo renderComment($comment);
+                                        echo renderUserComment($comment);
                                     }
                                 ?>
                             </div>
