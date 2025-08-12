@@ -429,7 +429,7 @@ function getUserComments($id, $limit = 10) {
     return $comments;
 }
 
-function renderComment($comment) {
+function renderUserComment($comment) {
     $user = getUser();
     $target = getUserById($comment["user_id"]);
     $actions = "";
@@ -447,16 +447,6 @@ function renderComment($comment) {
         HTML;
     }
 
-    if ($user["id"] == $comment["user_id"]) {
-        $actions .= <<<HTML
-            <form action="server.php" class="delete action -pad" method="post" enctype="multipart/form-data" onclick="if (confirm('Are you sure you want to delete this comment?')) this.submit()">
-                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="M160-120q-17 0-28.5-11.5T120-160v-97q0-16 6-30.5t17-25.5l505-504q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L313-143q-11 11-25.5 17t-30.5 6h-97Zm544-528 56-56-56-56-56 56 56 56Z"/></svg>
-                <input type="hidden" name="id" value="{$comment['id']}">
-                <input type="hidden" name="method" value="edit_user_comment">
-            </form>
-        HTML;
-    }
-
     return <<<HTML
         <div class="item">
             <a href="user/?id={$target['username']}" class="-a avatar -pad">
@@ -469,11 +459,8 @@ function renderComment($comment) {
                 <div class="text -pad">
                     {$comment["content"]}
                 </div>
-                <div class="details">
-                    <div></div>
-                    <div class="date -pad -subtitle">
-                        {$date}
-                    </div>
+                <div class="date -pad -subtitle">
+                    {$date}
                 </div>
             </div>
             <div class="actions">
