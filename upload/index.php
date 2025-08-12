@@ -77,7 +77,7 @@ include "common.php";
                                 Tags
                             </div>
                             <div class="input -pad">
-                                <input class="-input" name="tags" placeholder="e.g. 1girl, blue_eyes, blonde_hair" required>
+                                <textarea class="-textarea" name="tags" placeholder="e.g. 1girl, blue_eyes, blonde_hair" required></textarea>
                             </div>
                             <div class="subtitle -subtitle -center">
                                 Separate tags with commas.
@@ -88,7 +88,7 @@ include "common.php";
                                 Text on Image (if any)
                             </div>
                             <div class="input -pad">
-                                <input class="-input" name="text" placeholder="Meme text, caption, speech bubble, etc.">
+                                <textarea class="-textarea" name="text" placeholder="Meme text, caption, speech bubble, etc."></textarea>
                             </div>
                         </div>
                         <div class="send -pad -center">
@@ -113,7 +113,7 @@ include "common.php";
                     output.src = reader.result;
                 
                     output.onload = function() {
-                        URL.revokeObjectURL(output.src) // free memory
+                        URL.revokeObjectURL(output.src)
                     }
                 }
 
