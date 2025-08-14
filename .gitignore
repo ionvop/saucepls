@@ -1,5 +1,4 @@
 config.php
-debug.php
 uploads/avatars/*
 !uploads/avatars/default.jpg
 uploads/posts/*
