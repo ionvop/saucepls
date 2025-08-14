@@ -469,3 +469,68 @@ function renderUserComment($comment) {
         </div>
     HTML;
 }
+
+function search($search, $limit = 10, $posts = []) {
+    $db = new SQLite3("database.db");
+
+    if (count($posts) == 0) {
+        $query = <<<SQL
+            SELECT * FROM `posts`
+        SQL;
+
+        $result = $db->query($query);
+        while ($post = $result->fetchArray(SQLITE3_ASSOC)) $posts[] = $post;        
+    }
+
+    $keyword = "";
+    $i = 0;
+
+    while ($i < strlen($search)) {
+        $char = substr($search, $i, 1);
+
+        if ($char == " ") {
+            if (substr($keyword, 0, 4) == "tag:") {
+                $keyword = substr($keyword, 4);
+
+                $posts = array_filter($posts, function ($post) use ($keyword) {
+                    return strpos($post["tags"], $keyword) !== false;
+                });
+            }
+
+            if (substr($keyword, 0, 5) == "text:") {
+                $keyword = substr($keyword, 5);
+            
+                $posts = array_filter($posts, function ($post) use ($keyword) {
+                    return strpos($post["text"], $keyword) !== false;
+                });
+            }
+
+            $posts = array_filter($posts, function ($post) use ($keyword) {
+                $content = "{$post['title']} {$post['description']} {$post['tags']} {$post['text']}";
+                return strpos($content, $keyword) !== false;
+            });
+        } else if ($char == "\"") {
+            $i++;
+            
+            while ($char < strlen($search)) {
+                $char = substr($search, $i, 1);
+
+                if ($char == "\\") {
+                    $i++;
+                    $char = substr($search, $i, 1);
+                } else if ($char == "\"") {
+                    break;
+                }
+
+                $keyword .= $char;
+                $i++;
+            }
+        } else {
+            $keyword .= $char;
+        }
+
+        $i++;
+    }
+
+    return array_slice($posts, 0, $limit);
+}
