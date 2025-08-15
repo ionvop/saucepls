@@ -265,3 +265,81 @@ body {
         }
     }
 }
+
+.-posts {
+    & > .item {
+        display: grid;
+        grid-template-columns: max-content minmax(0, 1fr) max-content;
+        background-color: #222;
+        border-radius: 1rem;
+        overflow: hidden;
+        
+        & > .image {
+            & > img {
+                width: 10rem;
+                height: 100%;
+                object-fit: cover;
+            }
+        }
+
+        & > .content {
+            & > .title {
+                padding: 0.5rem;
+
+                & > .text {
+                    display: -webkit-box;
+                    -webkit-box-orient: vertical;
+                    -webkit-line-clamp: 1;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+            }
+
+            & > .tags {
+                display: -webkit-box;
+                -webkit-box-orient: vertical;
+                -webkit-line-clamp: 1;
+                overflow: hidden;
+                text-overflow: clip;
+                padding-left: 0.5rem;
+
+                & > .tag {
+                    display: inline-block;
+                    padding: 0.5rem;
+                    padding-left: 0rem;
+                    
+                    & > .box {
+                        display: inline-block;
+                        padding: 0.5rem;
+                        background-color: #111;
+                        border-radius: 1rem;
+                        font-size: 0.5rem;
+                    }
+                }
+            }
+
+            & > .description {
+                padding: 0.5rem;
+
+                & > .text {
+                    display: -webkit-box;
+                    -webkit-box-orient: vertical;
+                    -webkit-line-clamp: 3;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    font-size: 0.7rem;
+                }
+            }
+
+            & > .details {
+                padding: 0.5rem;
+                font-size: 0.5rem;
+            }
+        }
+
+        & > .status {
+            padding: 0.5rem;
+            background-color: #0a0;
+        }
+    }
+}
