@@ -505,6 +505,32 @@ function search($search, $limit = 10, $posts = []) {
                 });
             }
 
+            if (substr($keyword, 0, 11) == "unix_start:") {
+                $unixStart = substr($keyword, 11);
+                $unixStart = intval($unixStart);
+
+                $posts = array_filter($posts, function ($post) use ($unixStart) {
+                    return $post["time"] >= $unixStart;
+                });
+            }
+
+            if (substr($keyword, 0, 9) == "unix_end:") {
+                $unixEnd = substr($keyword, 9);
+                $unixEnd = intval($unixEnd);
+
+                $posts = array_filter($posts, function ($post) use ($unixEnd) {
+                    return $post["time"] <= $unixEnd;
+                });
+            }
+
+            if (substr($keyword, 0, 7) == "status:") {
+                $status = substr($keyword, 7);
+
+                $posts = array_filter($posts, function ($post) use ($status) {
+                    return $post["status"] == $status;
+                });
+            }
+
             $posts = array_filter($posts, function ($post) use ($keyword) {
                 $content = "{$post['title']} {$post['description']} {$post['tags']} {$post['text']}";
                 return strpos($content, $keyword) !== false;
