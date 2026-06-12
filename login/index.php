@@ -2,6 +2,11 @@
 
 chdir("../");
 require_once "common.php";
+$user = getUser();
+
+if ($user != false) {
+    header("Location: ../");
+}
 
 ?>
 
