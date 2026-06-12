@@ -53,9 +53,9 @@ function renderNavigation() {
     HTML;
 
     if ($user != false) {
-        $link = "user/?id={$user['id']}";
+        $link = "user/?id={$user['username']}";
         $avatar = "uploads/avatars/{$user['avatar']}";
-        $username = htmlentities($user["username"]);
+        $username = $user["username"];
 
         $login = <<<HTML
             <form style="
@@ -328,6 +328,10 @@ function fetch(string $url, array $options = []): array {
     ];
 }
 
+function printLog(string $message): void {
+    file_put_contents("log.txt", $message . "\n", FILE_APPEND);
+}
+
 function getUser() {
     $db = new SQLite3("database.db");
 
@@ -362,6 +366,41 @@ function getUser() {
     return $user;
 }
 
-function printLog(string $message): void {
-    file_put_contents("log.txt", $message . "\n", FILE_APPEND);
+function getUserByName($username) {
+    $db = new SQLite3("database.db");
+
+    $query = <<<SQL
+        SELECT * FROM `users` WHERE `username` = :username
+    SQL;
+
+    $stmt = $db->prepare($query);
+    $stmt->bindValue(":username", $username);
+    return $stmt->execute()->fetchArray(SQLITE3_ASSOC);
+}
+
+function timeAgo($timestamp) {
+    $now = time(); // Current Unix timestamp
+    $diff = $now - $timestamp; // Difference in seconds
+
+    if ($diff < 60) {
+        return "Just now";
+    } elseif ($diff < 3600) {
+        $minutes = floor($diff / 60);
+        return $minutes . " minute" . ($minutes > 1 ? "s" : "") . " ago";
+    } elseif ($diff < 86400) {
+        $hours = floor($diff / 3600);
+        return $hours . " hour" . ($hours > 1 ? "s" : "") . " ago";
+    } elseif ($diff < 604800) { // Less than 7 days
+        $days = floor($diff / 86400);
+        return $days . " day" . ($days > 1 ? "s" : "") . " ago";
+    } elseif ($diff < 2592000) { // Less than ~30 days (approx 1 month)
+        $weeks = floor($diff / 604800);
+        return $weeks . " week" . ($weeks > 1 ? "s" : "") . " ago";
+    } elseif ($diff < 31536000) { // Less than 1 year
+        $months = floor($diff / 2592000);
+        return $months . " month" . ($months > 1 ? "s" : "") . " ago";
+    } else {
+        $years = floor($diff / 31536000);
+        return $years . " year" . ($years > 1 ? "s" : "") . " ago";
+    }
 }
