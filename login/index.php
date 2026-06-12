@@ -1,7 +1,7 @@
 <?php
 
 chdir("../");
-include "common.php";
+require_once "common.php";
 
 ?>
 
@@ -15,58 +15,107 @@ include "common.php";
         <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style>
-            body > .main {
-                display: grid;
-                grid-template-rows: max-content 1fr;
-                height: 100%;
 
-                & > .content {
-                    & > .login {
-                        background-color: #222;
-                        border-radius: 1rem;
-
-                        & > .subtitle {
-                            padding-top: 0rem;
-                        }
-
-                        & > .input {
-                            & > input {
-                                width: 20rem;
-                            }
-                        }
-                    }
-                }
-            }
         </style>
     </head>
     <body>
-        <div class="main">
-            <?=renderHeader()?>
-            <div class="content -center__flex">
-                <form action="server.php" class="-form login -pad" method="post" enctype="multipart/form-data">
-                    <div class="title -title -pad -center">
-                        Enter your email
-                    </div>
-                    <div class="subtitle -subtitle -pad -center">
-                        A code will be sent to your email which will be<br>
-                        used for logging in or for registering an account.
-                    </div>
-                    <div class="input -pad -center">
-                        <input type="email" class="-input" name="email" placeholder="Email">
-                    </div>
-                    <div class="send -pad -center">
-                        <button class="-button" name="method" value="login">
-                            <div class="-iconlabel">
-                                <div class="icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="M520-120q-17 0-28.5-11.5T480-160q0-17 11.5-28.5T520-200h240v-560H520q-17 0-28.5-11.5T480-800q0-17 11.5-28.5T520-840h240q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H520Zm-73-320H160q-17 0-28.5-11.5T120-480q0-17 11.5-28.5T160-520h287l-75-75q-11-11-11-27t11-28q11-12 28-12.5t29 11.5l143 143q12 12 12 28t-12 28L429-309q-12 12-28.5 11.5T372-310q-11-12-10.5-28.5T373-366l74-74Z"/></svg>
-                                </div>
-                                <div class="label">
+        <div style="
+            display: grid;
+            grid-template-columns: max-content 1fr;
+            height: 100%;
+            box-sizing: border-box;">
+            <?= renderNavigation() ?>
+            <div style="
+                display: grid;
+                grid-template-rows: max-content 1fr;">
+                <?= renderHeader() ?>
+                <div style="
+                    display: grid;
+                    grid-template-columns: 1fr max-content;">
+                    <div style="
+                        display: grid;
+                        grid-template-columns: 1fr max-content 1fr;">
+                        <div></div>
+                        <div style="
+                            padding: 5rem;">
+                            <form style="
+                                padding: 1rem;
+                                background-color: #222;
+                                border-radius: 1rem;
+                                width: 20rem;"
+                                action="server.php"
+                                method="post"
+                                enctype="multipart/form-data">
+                                <div style="
+                                    padding: 1rem;
+                                    text-align: center;
+                                    font-size: 1.5rem;
+                                    font-weight: bold;">
                                     Login
                                 </div>
-                            </div>
-                        </button>
+                                <div style="
+                                    padding: 1rem;
+                                    font-size: 0.7rem;
+                                    text-align: center;
+                                    color: #aaa;">
+                                    No passwords needed. A code will be sent to your email to confirm your login.
+                                </div>
+                                <div style="
+                                    padding: 1rem;">
+                                    Enter your email:
+                                </div>
+                                <div style="
+                                    padding: 1rem;
+                                    padding-top: 0rem;">
+                                    <input type="email"
+                                        name="email"
+                                        placeholder="Email"
+                                        required>
+                                </div>
+                                <div style="
+                                    padding: 1rem;
+                                    text-align: center;">
+                                    <button name="method" value="login">
+                                        <div style="
+                                            display: grid;
+                                            grid-template-columns: max-content 1fr;">
+                                            <div style="
+                                                display: flex;
+                                                align-items: center;">
+                                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="m382-354 339-339q12-12 28-12t28 12q12 12 12 28.5T777-636L410-268q-12 12-28 12t-28-12L182-440q-12-12-11.5-28.5T183-497q12-12 28.5-12t28.5 12l142 143Z"/></svg>
+                                            </div>
+                                            <div style="
+                                                display: flex;
+                                                align-items: center;
+                                                padding-left: 0.5rem;">
+                                                Submit
+                                            </div>
+                                        </div>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                        <div></div>
                     </div>
-                </form>
+                    <div style="
+                        background-color: #222;
+                        border-left: 1px solid #555;
+                        width: 15rem;">
+                        <div style="
+                            padding: 1rem;
+                            font-size: 1.5rem;
+                            text-align: center;">
+                            More Sign-In Options
+                        </div>
+                        <div style="
+                            padding: 1rem;
+                            font-size: 0.7rem;
+                            color: #aaa;
+                            text-align: center;">
+                            This feature is still in development
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <script src="script.js"></script>
