@@ -2,6 +2,11 @@
 
 chdir("../../");
 require_once "common.php";
+$user = getUser();
+
+if ($user != false) {
+    header("Location: ../");
+}
 
 ?>
 
@@ -117,5 +122,9 @@ require_once "common.php";
                 </div>
             </div>
         </div>
+        <script src="script.js"></script>
+        <script>
+            
+        </script>
     </body>
 </html>
