@@ -2,9 +2,9 @@
 
 header("Content-Type: application/json");
 
-if (isset($_SERVER["HTTP_HOST"]) && $_SERVER["HTTP_HOST"] != "localhost") {
+if (isset($_SERVER["HTTP_HOST"]) && $_SERVER["HTTP_HOST"] != "localhost:8000") {
     echo "Access denied. This page is only available on localhost.";
-    exit();
+    exit;
 }
 
 if (isset($_GET["method"])) {
