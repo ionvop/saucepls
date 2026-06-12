@@ -1,0 +1,1 @@
+CREATE TABLE `users` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `username` TEXT UNIQUE, `email` TEXT UNIQUE, `description` TEXT DEFAULT 'Hello, world!', `avatar` TEXT DEFAULT 'default.jpg', `role` TEXT DEFAULT 'member', `session` TEXT, `last_seen` TEXT DEFAULT (unixepoch()), `time` TEXT DEFAULT (unixepoch()));
