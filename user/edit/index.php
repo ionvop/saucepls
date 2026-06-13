@@ -125,7 +125,7 @@ $user = getUser();
                             padding: 1rem;
                             text-align: center;">
                             <button name="method"
-                                value="editProfile">
+                                value="edit_profile">
                                 <div style="
                                     display: grid;
                                     grid-template-columns: max-content 1fr;">
