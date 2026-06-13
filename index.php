@@ -1,6 +1,7 @@
 <?php
 
 require_once "common.php";
+$user = getUser();
 
 ?>
 
@@ -38,6 +39,36 @@ require_once "common.php";
                         background-color: #222;
                         border-left: 1px solid #555;
                         width: 15rem;">
+                        <?php
+                            if ($user != false) {
+                                echo <<<HTML
+                                    <div style="
+                                        padding: 1rem;
+                                        text-align: center;
+                                        border-bottom: 1px solid #555;">
+                                        <a href="upload/">
+                                            <button type="button">
+                                                <div style="
+                                                    display: grid;
+                                                    grid-template-columns: max-content 1fr;">
+                                                    <div style="
+                                                        display: flex;
+                                                        align-items: center;">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M440-440H240q-17 0-28.5-11.5T200-480q0-17 11.5-28.5T240-520h200v-200q0-17 11.5-28.5T480-760q17 0 28.5 11.5T520-720v200h200q17 0 28.5 11.5T760-480q0 17-11.5 28.5T720-440H520v200q0 17-11.5 28.5T480-200q-17 0-28.5-11.5T440-240v-200Z"/></svg>
+                                                    </div>
+                                                    <div style="
+                                                        display: flex;
+                                                        align-items: center;
+                                                        padding-left: 0.5rem;">
+                                                        New Request
+                                                    </div>
+                                                </div>
+                                            </button>
+                                        </a>
+                                    </div>
+                                HTML;
+                            }
+                        ?>
                         <div style="
                             padding: 1rem;
                             text-align: center;
