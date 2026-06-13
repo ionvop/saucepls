@@ -52,15 +52,9 @@ $roleMap = [
                         overflow: auto;">
                         <div style="
                             padding: 1rem;
-                            font-size: 1.5rem;">
-                            About this user
-                        </div>
-                        <div style="
-                            padding: 1rem;
-                            padding-top: 0rem;
                             border-bottom: 1px solid #555;"
                             id="panelDescription">
-                            <?= htmlentities($target["description"]) ?>
+                            
                         </div>
                     </div>
                     <div style="
@@ -163,10 +157,10 @@ $roleMap = [
         <script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.js"></script>
         <script src="script.js"></script>
         <script>
-            const panelDescription = document.getElementById("panel-description");
+            const panelDescription = document.getElementById("panelDescription");
 
             (() => {
-                panelDescription.innerHTML = marked.parse(panelDescription.innerHTML);
+                panelDescription.innerHTML = marked.parse(<?= json_encode($user["description"]) ?>);
             })()
         </script>
     </body>
