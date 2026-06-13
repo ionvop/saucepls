@@ -94,6 +94,7 @@ function renderNavigation() {
             <a style="
                 display: block;
                 border-bottom: 1px solid #111;"
+                class="-tab"
                 href="{$link}">
                 <div style="
                     padding: 3rem;
