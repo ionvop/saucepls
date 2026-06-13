@@ -63,7 +63,8 @@ $user = getUser();
                                         width: 10rem;
                                         height: 10rem;
                                         border-radius: 50%;
-                                        object-fit: cover;"
+                                        object-fit: cover;
+                                        cursor: pointer;"
                                         src="uploads/avatars/<?= $user["avatar"] ?>"
                                         id="imgAvatar">
                                     <input style="
