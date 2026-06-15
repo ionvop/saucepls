@@ -196,12 +196,14 @@ function renderHeader() {
                 SaucePls
             </a>
             <div></div>
-            <div style="
+            <a style="
                 display: flex;
                 align-items: center;
-                padding: 1rem;">
+                padding: 1rem;"
+                href="https://home.ionvop.com/"
+                target="_blank">
                 &copy; 2026 ionvop
-            </div>
+            </a>
         </div>
     HTML;
 }
