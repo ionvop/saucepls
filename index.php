@@ -106,7 +106,20 @@ $user = getUser();
                             padding: 1rem;">
                             <input type="text"
                                 name="q"
-                                placeholder="Keywords or tags...">
+                                placeholder="Keywords or tags..."
+                                id="g_inputTags">
+                        </div>
+                        <div style="
+                            padding: 1rem;
+                            padding-top: 0rem;">
+                            <div style="
+                                display: none;
+                                background-color: #111;
+                                border-radius: 1rem;
+                                overflow: hidden;"
+                                id="g_panelSuggestions">
+
+                            </div>
                         </div>
                         <div style="
                             padding: 1rem;
@@ -136,6 +149,6 @@ $user = getUser();
     </body>
     <script src="script.js"></script>
     <script>
-
+        
     </script>
 </html>
