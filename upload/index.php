@@ -76,7 +76,7 @@ if ($user == false) {
                             font-size: 0.7rem;
                             color: #aaa;
                             text-align: center;">
-                            Click to upload
+                            Click or drag an image over to upload
                         </div>
                     </div>
                     <div style="
@@ -109,8 +109,21 @@ if ($user == false) {
                         <div style="
                             padding: 1rem;
                             padding-top: 0rem;">
-                            <textarea name="description"
-                                placeholder="1girl black_hair red_eyes..."></textarea>
+                            <textarea name="tags"
+                                placeholder="1girl black_hair red_eyes..."
+                                id="g_inputTags"></textarea>
+                        </div>
+                        <div style="
+                            padding: 1rem;
+                            padding-top: 0rem;">
+                            <div style="
+                                display: none;
+                                background-color: #111;
+                                border-radius: 1rem;
+                                overflow: hidden;"
+                                id="g_panelSuggestions">
+
+                            </div>
                         </div>
                         <div style="
                             padding: 1rem;">
@@ -119,7 +132,7 @@ if ($user == false) {
                         <div style="
                             padding: 1rem;
                             padding-top: 0rem;">
-                            <textarea name="description"
+                            <textarea name="text"
                                 placeholder="Leave blank if image doesn't contain text..."></textarea>
                         </div>
                     </div>
