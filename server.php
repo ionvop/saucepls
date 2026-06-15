@@ -2,6 +2,10 @@
 
 require_once "common.php";
 
+if (isset($_SERVER["CONTENT_TYPE"]) && strpos($_SERVER["CONTENT_TYPE"], "application/json") !== false) {
+    $_POST = json_decode(file_get_contents("php://input"), true);
+}
+
 if (isset($_POST["method"])) {
     switch ($_POST["method"]) {
         case "login":
@@ -18,6 +22,12 @@ if (isset($_POST["method"])) {
             break;
         case "edit_profile":
             editProfile();
+            break;
+        case "upload":
+            upload();
+            break;
+        case "api":
+            api();
             break;
         default:
             defaultMethod();
@@ -142,7 +152,8 @@ function register() {
     $session = uniqid("session-");
 
     $query = <<<SQL
-        INSERT INTO `users` (`username`, `email`, `session`) VALUES (:username, :email, :session)
+        INSERT INTO `users` (`username`, `email`, `session`)
+        VALUES (:username, :email, :session)
     SQL;
 
     $stmt = $db->prepare($query);
@@ -220,6 +231,159 @@ function editProfile() {
     $stmt->bindValue(":id", $user["id"]);
     $stmt->execute();
     header("Location: user/?id={$_POST["username"]}");
+}
+
+function upload() {
+    $db = new SQLite3("database.db");
+    $user = getUser();
+
+    if ($user == false) {
+        alert("You must be logged in to upload files.");
+    }
+
+    if ($_FILES["image"]["error"] != 0) {
+        alert("There was an error uploading your image.");
+    }
+
+    if ($_FILES["image"]["size"] > 4000000) {
+        alert("Your image was too large.\n\nMax size: 4MB.");
+    }
+
+    $filename = uniqid("post-") . "." . pathinfo($_FILES["image"]["name"], PATHINFO_EXTENSION);
+    
+    if (move_uploaded_file($_FILES["image"]["tmp_name"], "uploads/posts/{$filename}") == false) {
+        alert("There was an error uploading your image.");
+    }
+
+    $query = <<<SQL
+        INSERT INTO `posts` (`user_id`, `image`, `title`, `description`, `text`)
+        VALUES (:user_id, :image, :title, :description, :text)
+    SQL;
+
+    $stmt = $db->prepare($query);
+    $stmt->bindValue(":user_id", $user["id"]);
+    $stmt->bindValue(":image", $filename);
+    $stmt->bindValue(":title", $_POST["title"]);
+    $stmt->bindValue(":description", $_POST["description"]);
+    $stmt->bindValue(":text", $_POST["text"]);
+    $stmt->execute();
+    $postId = $db->lastInsertRowID();
+    $rawTags = preg_split('/\s+/', trim($_POST["tags"]));
+    $tags = [];
+
+    foreach ($rawTags as $tag) {
+        $tag = strtolower($tag);
+        $tag = ltrim($tag, "-");
+        $tag = preg_replace('/[^a-z0-9_-]/', "", $tag);
+
+        if ($tag == "") {
+            continue;
+        }
+
+        $tags[] = $tag;
+    }
+
+    $tags = array_values(array_unique($tags));
+
+    $query = <<<SQL
+        DELETE FROM `post_tags` WHERE `post_id` = :post_id
+    SQL;
+
+    $stmt = $db->prepare($query);
+    $stmt->bindValue(":post_id", $postId);
+    $stmt->execute();
+
+    foreach ($tags as $tagName) {
+        $query = <<<SQL
+            SELECT * FROM `tags` WHERE `name` = :name LIMIT 1
+        SQL;
+
+        $stmt = $db->prepare($query);
+        $stmt->bindValue(":name", $tagName);
+        $result = $stmt->execute();
+        $row = $result->fetchArray(SQLITE3_ASSOC);
+
+        if ($row) {
+            $tagId = (int)$row["id"];
+        } else {
+            $query = <<<SQL
+                INSERT INTO `tags` (`name`)
+                VALUES (:name)
+            SQL;
+
+            $stmt = $db->prepare($query);
+            $stmt->bindValue(":name", $tagName);
+            $stmt->execute();
+            $tagId = $db->lastInsertRowID();
+        }
+
+        $query = <<<SQL
+            INSERT INTO `post_tags` (`post_id`, `tag_id`)
+            VALUES (:post_id, :tag_id)
+        SQL;
+
+        $stmt = $db->prepare($query);
+        $stmt->bindValue(":post_id", $postId);
+        $stmt->bindValue(":tag_id", $tagId);
+        $stmt->execute();
+    }
+
+    header("Location: post/?id={$postId}");
+}
+
+function api() {
+    $db = new SQLite3("database.db");
+    header("Content-Type: application/json");
+
+    if (isset($_POST["action"]) == false) {
+        http_response_code(400);
+        echo json_encode(["message" => "No action specified."]);
+        exit;
+    }
+
+    switch ($_POST["action"]) {
+        case "suggest_tags":
+            $tag = trim($_POST["tag"] ?? "");
+
+            if ($tag == "") {
+                echo json_encode([]);
+                exit;
+            }
+
+            $query = <<<SQL
+                SELECT
+                    t.id,
+                    t.name,
+                    COUNT(pt.id) AS uses
+                FROM tags t
+                LEFT JOIN post_tags pt
+                    ON pt.tag_id = t.id
+                WHERE t.name LIKE :tag
+                GROUP BY t.id
+                ORDER BY uses DESC, t.name ASC
+                LIMIT 20
+            SQL;
+
+            $stmt = $db->prepare($query);
+            $stmt->bindValue(":tag", $tag . "%");
+            $result = $stmt->execute();
+            $tags = [];
+
+            while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+                $tags[] = [
+                    "id" => (int)$row["id"],
+                    "name" => $row["name"],
+                    "count" => (int)$row["uses"]
+                ];
+            }
+
+            echo json_encode($tags);
+            break;
+        default:
+            http_response_code(400);
+            echo json_encode(["message" => "Invalid action."]);
+            exit;
+    }
 }
 
 function defaultMethod() {
