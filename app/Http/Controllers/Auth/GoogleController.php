@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
 
 class GoogleController extends Controller
@@ -39,34 +38,15 @@ class GoogleController extends Controller
         $user = User::query()->where('email', $email)->first();
 
         if (! $user) {
-            $user = User::create([
-                'username' => $this->uniqueUsername($googleUser->getName() ?? $email),
-                'email' => $email,
-            ]);
+            // New Google user: remember the verified email and ask for a username.
+            session(['auth.verified_email' => $email]);
+
+            return redirect()->route('register');
         }
 
         Auth::login($user);
         session()->regenerate();
 
         return redirect()->intended(route('home'));
-    }
-
-    /**
-     * Derive a unique username from the Google profile name.
-     */
-    protected function uniqueUsername(string $name): string
-    {
-        $base = Str::slug($name, '_', 'en') ?: 'user';
-        $base = Str::limit($base, 30, '');
-
-        $username = $base;
-        $suffix = 1;
-
-        while (User::query()->where('username', $username)->exists()) {
-            $username = Str::limit($base, 30 - strlen((string) $suffix) - 1, '') . '_' . $suffix;
-            $suffix++;
-        }
-
-        return $username;
     }
 }
