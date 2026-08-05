@@ -23,7 +23,7 @@
                         <span class="text-lg font-bold tracking-tight text-white">{{ config('app.name', 'SaucePls') }}</span>
                     </a>
 
-                    {{-- Header actions (placeholder) --}}
+                    {{-- Header actions --}}
                     <div class="flex items-center gap-2">
                         {{-- Search shortcut (desktop) --}}
                         <a href="{{ route('search') }}" class="hidden items-center gap-2 rounded-lg border border-white/10 px-3 py-1.5 text-sm text-gray-400 transition hover:border-white/20 hover:text-gray-200 sm:flex">
@@ -31,11 +31,23 @@
                             <span>Search</span>
                         </a>
 
-                        {{-- Create button --}}
-                        <a href="{{ route('create') }}" class="inline-flex items-center gap-2 rounded-lg bg-[#5555AA] px-3 py-1.5 text-sm font-medium text-white transition hover:bg-[#6666BB]">
-                            <x-lucide-plus class="h-4 w-4" />
-                            <span class="hidden sm:inline">New Request</span>
-                        </a>
+                        @auth
+                            {{-- Create button --}}
+                            <a href="{{ route('create') }}" class="inline-flex items-center gap-2 rounded-lg bg-[#5555AA] px-3 py-1.5 text-sm font-medium text-white transition hover:bg-[#6666BB]">
+                                <x-lucide-plus class="h-4 w-4" />
+                                <span class="hidden sm:inline">New Request</span>
+                            </a>
+
+                            {{-- Avatar / profile --}}
+                            <a href="{{ route('profile') }}" class="flex h-9 w-9 items-center justify-center rounded-full bg-[#5555AA]/20 text-sm font-bold text-[#8888CC] transition hover:bg-[#5555AA]/30" title="{{ auth()->user()->username }}">
+                                {{ strtoupper(substr(auth()->user()->username, 0, 1)) }}
+                            </a>
+                        @else
+                            <a href="{{ route('login') }}" class="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-1.5 text-sm font-medium text-gray-200 transition hover:border-white/20 hover:text-white">
+                                <x-lucide-log-in class="h-4 w-4" />
+                                <span>Log in</span>
+                            </a>
+                        @endauth
                     </div>
                 </div>
             </header>
@@ -74,6 +86,18 @@
                         <x-slot:icon><x-lucide-settings class="h-5 w-5" /></x-slot:icon>
                         Settings
                     </x-nav-link>
+
+                    @auth
+                        <div class="my-3 border-t border-white/10"></div>
+
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-gray-400 transition hover:bg-white/5 hover:text-red-300">
+                                <x-lucide-log-out class="h-5 w-5" />
+                                Log out
+                            </button>
+                        </form>
+                    @endauth
                 </aside>
 
                 {{-- Main content --}}
