@@ -145,16 +145,38 @@ it('logs in an existing user via Google callback', function () {
     $this->assertAuthenticatedAs($user);
 });
 
-it('creates a new user via Google callback', function () {
+it('redirects a new user to registration via Google callback', function () {
     $googleUser = new SocialiteUser();
     $googleUser->map(['email' => 'brandnew@example.com', 'name' => 'Jane Doe']);
 
     Socialite::shouldReceive('driver->user')->once()->andReturn($googleUser);
 
     $this->get(route('auth.google.callback'))
+        ->assertRedirect(route('register'));
+
+    $this->assertTrue(session()->has('auth.verified_email'));
+    $this->assertEquals('brandnew@example.com', session('auth.verified_email'));
+    $this->assertDatabaseMissing('users', ['email' => 'brandnew@example.com']);
+    $this->assertGuest();
+});
+
+it('registers a new Google user after choosing a username', function () {
+    $googleUser = new SocialiteUser();
+    $googleUser->map(['email' => 'brandnew@example.com', 'name' => 'Jane Doe']);
+
+    Socialite::shouldReceive('driver->user')->once()->andReturn($googleUser);
+
+    $this->get(route('auth.google.callback'))
+        ->assertRedirect(route('register'));
+
+    $this->post(route('register.store'), ['username' => 'jane_doe'])
         ->assertRedirect(route('home'));
 
-    $this->assertDatabaseHas('users', ['email' => 'brandnew@example.com']);
+    $this->assertDatabaseHas('users', [
+        'email' => 'brandnew@example.com',
+        'username' => 'jane_doe',
+    ]);
+
     $this->assertAuthenticated();
 });
 
