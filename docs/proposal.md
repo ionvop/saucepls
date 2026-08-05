@@ -220,3 +220,10 @@ WHERE CONCAT(title, description, text, tags) LIKE "%:word%"
 Exclude results by prefixing a word with a hyphen.
 
 Explicitly search by prefixing a word with its type. e.g. `tag:1girl text:"coconute doggy"`.
+
+## Themes
+
+Primary color: #5555AA
+Background color: #111111
+
+You may adjust to what you think is best.
