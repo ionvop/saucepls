@@ -17,11 +17,16 @@ class ProfileController extends Controller
      * Show a user's profile. When no username is given, show the
      * authenticated user's own profile.
      */
-    public function show(Request $request, ?string $username = null): View
+    public function show(Request $request, ?string $username = null): View|RedirectResponse
     {
         $user = $username
-            ? User::where('username', $username)->firstOrFail()
+            ? User::query()->where('username', $username)->firstOrFail()
             : $request->user();
+
+        // A guest visiting /profile (without a username) has no profile to show.
+        if (! $user) {
+            return redirect()->route('login');
+        }
 
         $isOwner = $request->user()?->is($user) ?? false;
 
