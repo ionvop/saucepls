@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\EmailLoginController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -34,7 +35,14 @@ Route::middleware('guest')->group(function () {
 // --- Authenticated routes ---
 Route::middleware('auth')->group(function () {
     Route::post('/logout', LogoutController::class)->name('logout');
+
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
 });
+
+// --- Public profile routes ---
+Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
+Route::get('/u/{username}', [ProfileController::class, 'show'])->name('profile.show');
 
 Route::get('/search', function () {
     return view('pages.search');
@@ -43,10 +51,6 @@ Route::get('/search', function () {
 Route::get('/notifications', function () {
     return view('pages.notifications');
 })->name('notifications');
-
-Route::get('/profile', function () {
-    return view('pages.profile');
-})->name('profile');
 
 Route::get('/settings', function () {
     return view('pages.settings');
