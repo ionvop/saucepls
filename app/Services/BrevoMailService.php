@@ -37,9 +37,19 @@ class BrevoMailService
             $payload['textContent'] = $text;
         }
 
-        $response = Http::withToken(config('services.brevo.key'))
+        $response = Http::withHeaders([
+                'api-key' => config('services.brevo.key'),
+            ])
             ->acceptJson()
             ->post(self::ENDPOINT, $payload);
+
+        if (! $response->successful()) {
+            logger()->error('Brevo send failed', [
+                'status' => $response->status(),
+                'body'   => $response->body(),
+                'to'     => $to,
+            ]);
+        }
 
         return $response->successful();
     }
