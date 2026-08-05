@@ -40,6 +40,7 @@ email: str, unique
 description: str, default = "# About Me\n\nThis user has not written a bio yet." // A Markdown-supported bio of the user.
 type: str, default = "member", enum = ["member", "moderator", "admin"] // The type of user.
 remember_token: str, default = null // Laravel's "remember me" persistent token.
+avatar_path: str, default = null // The path to the user's avatar image.
 last_seen_at: datetime, default = null // The last time the user was seen online.
 banned_until: datetime, default = null // The future time in which the user will be unbanned.
 deleted_at: datetime, default = null // Soft delete indicator.
