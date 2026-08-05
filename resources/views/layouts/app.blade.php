@@ -39,8 +39,12 @@
                             </a>
 
                             {{-- Avatar / profile --}}
-                            <a href="{{ route('profile') }}" class="flex h-9 w-9 items-center justify-center rounded-full bg-[#5555AA]/20 text-sm font-bold text-[#8888CC] transition hover:bg-[#5555AA]/30" title="{{ auth()->user()->username }}">
-                                {{ strtoupper(substr(auth()->user()->username, 0, 1)) }}
+                            <a href="{{ route('profile') }}" class="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-[#5555AA]/20 text-sm font-bold text-[#8888CC] transition hover:bg-[#5555AA]/30" title="{{ auth()->user()->username }}">
+                                @if (auth()->user()->avatar_url)
+                                    <img src="{{ auth()->user()->avatar_url }}" alt="{{ auth()->user()->username }}" class="h-full w-full object-cover">
+                                @else
+                                    {{ strtoupper(substr(auth()->user()->username, 0, 1)) }}
+                                @endif
                             </a>
                         @else
                             <a href="{{ route('login') }}" class="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-1.5 text-sm font-medium text-gray-200 transition hover:border-white/20 hover:text-white">
