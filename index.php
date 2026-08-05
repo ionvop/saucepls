@@ -2,6 +2,7 @@
 
 require_once "common.php";
 $user = getUser();
+$db = new SQLite3("database.db");
 
 ?>
 
@@ -32,8 +33,121 @@ $user = getUser();
                 <div style="
                     display: grid;
                     grid-template-columns: 1fr max-content;">
-                    <div>
+                    <div style="
+                        display: grid;
+                        grid-template-columns: repeat(3, 1fr);
+                        padding-top: 1rem;
+                        padding-left: 1rem;">
+                        <?php
+                            $query = <<<SQL
+                                SELECT * FROM `posts` LIMIT 10
+                            SQL;
 
+                            $posts = $db->query($query);
+
+                            while ($post = $posts->fetchArray(SQLITE3_ASSOC)) {
+                                $query = <<<SQL
+                                    SELECT * FROM `users` WHERE `id` = :id
+                                SQL;
+
+                                $stmt = $db->prepare($query);
+                                $stmt->bindValue(":id", $post["user_id"]);
+                                $user = $stmt->execute()->fetchArray(SQLITE3_ASSOC);
+                                $post["title"] = htmlentities($post["title"]);
+                                $timeAgo = timeAgo($post["time"]);
+
+                                $query = <<<SQL
+                                    SELECT * FROM `post_tags` WHERE `post_id` = :id
+                                SQL;
+
+                                $stmt = $db->prepare($query);
+                                $stmt->bindValue(":id", $post["id"]);
+                                $tags = $stmt->execute();
+                                $tagString = "";
+
+                                while ($tag = $tags->fetchArray(SQLITE3_ASSOC)) {
+                                    $query = <<<SQL
+                                        SELECT * FROM `tags` WHERE `id` = :id
+                                    SQL;
+
+                                    $stmt = $db->prepare($query);
+                                    $stmt->bindValue(":id", $tag["tag_id"]);
+                                    $tag = $stmt->execute()->fetchArray(SQLITE3_ASSOC);
+                                    $tagString .= $tag["name"] . " ";
+                                }
+                                
+                                echo <<<HTML
+                                    <div style="
+                                        padding: 1rem;
+                                        padding-top: 0rem;
+                                        padding-left: 0rem;">
+                                        <a style="
+                                            display: block;
+                                            background-color: #222;
+                                            border-radius: 1rem;"
+                                            href="post/{$post['id']}">
+                                            <div style="
+                                                display: grid;
+                                                grid-template-columns: max-content 1fr max-content;">
+                                                <div style="
+                                                    display: flex;
+                                                    align-items: center;
+                                                    padding: 1rem;">
+                                                    <img style="
+                                                        width: 2rem;
+                                                        height: 2rem;
+                                                        border-radius: 50%;
+                                                        object-fit: cover;"
+                                                        src="uploads/avatars/{$user['avatar']}">
+                                                </div>
+                                                <div style="
+                                                    display: flex;
+                                                    align-items: center;
+                                                    padding: 1rem;
+                                                    padding-left: 0rem;">
+                                                    {$user["username"]}
+                                                </div>
+                                                <div style="
+                                                    display: flex;
+                                                    align-items: center;
+                                                    padding: 1rem;
+                                                    padding-left: 0rem;
+                                                    font-size: 0.7rem;
+                                                    color: #aaa;"
+                                                    data-timestamp="{$post['time']}">
+                                                    {$timeAgo}
+                                                </div>
+                                            </div>
+                                            <div style="
+                                                padding: 1rem;
+                                                padding-top: 0rem;">
+                                                {$post["title"]}
+                                            </div>
+                                            <div style="
+                                                padding: 1rem;
+                                                padding-top: 0rem;">
+                                                <img style="
+                                                    width: 100%;
+                                                    object-fit: cover;
+                                                    aspect-ratio: 1/1;"
+                                                    src="uploads/posts/{$post['image']}">
+                                            </div>
+                                            <div style="
+                                                display: -webkit-box;
+                                                -webkit-box-orient: vertical;
+                                                -webkit-line-clamp: 2;
+                                                overflow: hidden;
+                                                padding: 1rem;
+                                                padding-top: 0rem;
+                                                font-size: 0.7rem;
+                                                color: #aaa;">
+                                                {$tagString}
+                                            </div>
+                                        </a>
+                                    </div>
+                                HTML;
+                            }
+                        ?>
                     </div>
                     <form style="
                         background-color: #222;
