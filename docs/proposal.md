@@ -241,3 +241,22 @@ You may adjust to what you think is best.
 - Header
 - Main content
 - Bottom navigation bar
+
+## Profile page
+
+- Profile picture
+- Username
+- Markdown-supported bio
+- Online status (inferred from last seen)
+- Following / Followers
+- User type
+- Main profile score: number of accepted sauce answers
+- Visitor
+  - Follow/unfollow button
+  - Report button
+- Owner
+  - Edit profile button
+- Sauce requests by the user
+- Sauce answers by the user
+- Sauce requests liked by the user
+- Profile comments
