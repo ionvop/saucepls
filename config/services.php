@@ -35,4 +35,16 @@ return [
         ],
     ],
 
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_REDIRECT_URI'),
+    ],
+
+    'brevo' => [
+        'key' => env('BREVO_API_KEY'),
+        'from_address' => env('BREVO_FROM_ADDRESS', 'noreply@saucepls.app'),
+        'from_name' => env('BREVO_FROM_NAME', 'SaucePls'),
+    ],
+
 ];
