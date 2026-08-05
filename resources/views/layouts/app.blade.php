@@ -74,10 +74,12 @@
                         Notifications
                     </x-nav-link>
 
-                    <x-nav-link :href="route('profile')" :active="request()->routeIs('profile')">
-                        <x-slot:icon><x-lucide-user class="h-5 w-5" /></x-slot:icon>
-                        Profile
-                    </x-nav-link>
+                    @auth
+                        <x-nav-link :href="route('profile')" :active="request()->routeIs('profile')">
+                            <x-slot:icon><x-lucide-user class="h-5 w-5" /></x-slot:icon>
+                            Profile
+                        </x-nav-link>
+                    @endauth
 
                     <div class="my-3 border-t border-white/10"></div>
 
@@ -134,10 +136,12 @@
                     <span>Alerts</span>
                 </a>
 
-                <a href="{{ route('profile') }}" class="flex flex-col items-center gap-0.5 rounded-lg px-3 py-2 text-xs text-gray-400 transition hover:text-white {{ request()->routeIs('profile') ? 'text-[#5555AA]' : '' }}">
-                    <x-lucide-user class="h-5 w-5" />
-                    <span>Profile</span>
-                </a>
+                @auth
+                    <a href="{{ route('profile') }}" class="flex flex-col items-center gap-0.5 rounded-lg px-3 py-2 text-xs text-gray-400 transition hover:text-white {{ request()->routeIs('profile') ? 'text-[#5555AA]' : '' }}">
+                        <x-lucide-user class="h-5 w-5" />
+                        <span>Profile</span>
+                    </a>
+                @endauth
             </div>
         </nav>
     </body>
