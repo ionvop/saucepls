@@ -31,7 +31,15 @@
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data" class="mt-6 space-y-6">
+            <form
+                method="POST"
+                action="{{ route('profile.update') }}"
+                enctype="multipart/form-data"
+                class="mt-6 space-y-6"
+                x-data="profileForm('{{ $user->username }}')"
+                x-ref="form"
+                @submit.prevent="submit($event)"
+            >
                 @csrf
                 @method('PUT')
 
@@ -117,11 +125,85 @@
                         Save changes
                     </button>
                 </div>
+
+                {{-- Username change confirmation modal --}}
+                <div
+                    x-show="showConfirm"
+                    x-cloak
+                    x-transition.opacity
+                    class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+                    @keydown.escape.window="cancel()"
+                >
+                    <div
+                        class="w-full max-w-md rounded-2xl border border-white/10 bg-[#111111] p-6 shadow-2xl"
+                        @click.outside="cancel()"
+                    >
+                        <div class="flex items-start gap-3">
+                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-500/15">
+                                <x-lucide-alert-triangle class="h-5 w-5 text-amber-400" />
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-bold text-white">Change username?</h2>
+                                <p class="mt-1 text-sm text-gray-400">
+                                    Changing your username will start a
+                                    <span class="font-semibold text-gray-200">5-minute cooldown</span>
+                                    before you can change it again.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 flex items-center justify-end gap-3">
+                            <button
+                                type="button"
+                                @click="cancel()"
+                                class="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-gray-300 transition hover:border-white/20 hover:text-white"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                @click="confirmSubmit()"
+                                class="rounded-lg bg-[#5555AA] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#6666BB]"
+                            >
+                                Confirm
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </form>
         </div>
     </div>
 
     <script>
+        function profileForm(originalUsername) {
+            return {
+                originalUsername: originalUsername,
+                showConfirm: false,
+                pendingEvent: null,
+                submit(event) {
+                    const usernameInput = this.$refs.form.querySelector('input[name="username"]');
+                    const usernameChanged = usernameInput && usernameInput.value !== this.originalUsername;
+
+                    if (usernameChanged) {
+                        this.pendingEvent = event;
+                        this.showConfirm = true;
+                        return;
+                    }
+
+                    this.$refs.form.submit();
+                },
+                confirmSubmit() {
+                    this.showConfirm = false;
+                    this.pendingEvent = null;
+                    this.$refs.form.submit();
+                },
+                cancel() {
+                    this.showConfirm = false;
+                    this.pendingEvent = null;
+                },
+            };
+        }
+
         function usernameCooldown(canChange, availableAtIso) {
             return {
                 canChange: canChange,
