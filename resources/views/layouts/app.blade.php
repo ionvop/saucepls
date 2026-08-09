@@ -113,47 +113,51 @@
                                 </div>
 
                                 {{-- Logout confirmation modal --}}
-                                <div
-                                    x-show="showLogout"
-                                    x-cloak
-                                    x-transition.opacity
-                                    class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
-                                    @keydown.escape.window="showLogout = false"
-                                >
+                                {{-- x-teleport="body" escapes the header's backdrop-filter containing
+                                     block, which would otherwise size this fixed overlay to the header. --}}
+                                <template x-teleport="body">
                                     <div
-                                        class="w-full max-w-md rounded-2xl border border-white/10 bg-[#111111] p-6 shadow-2xl"
-                                        @click.outside="showLogout = false"
+                                        x-show="showLogout"
+                                        x-cloak
+                                        x-transition.opacity
+                                        class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+                                        @keydown.escape.window="showLogout = false"
                                     >
-                                        <div class="flex items-start gap-3">
-                                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-500/15">
-                                                <x-lucide-log-out class="h-5 w-5 text-red-400" />
+                                        <div
+                                            class="w-full max-w-md rounded-2xl border border-white/10 bg-[#111111] p-6 shadow-2xl"
+                                            @click.outside="showLogout = false"
+                                        >
+                                            <div class="flex items-start gap-3">
+                                                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-500/15">
+                                                    <x-lucide-log-out class="h-5 w-5 text-red-400" />
+                                                </div>
+                                                <div>
+                                                    <h2 class="text-lg font-bold text-white">Log out?</h2>
+                                                    <p class="mt-1 text-sm text-gray-400">
+                                                        You will need to sign in again to access your account.
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <h2 class="text-lg font-bold text-white">Log out?</h2>
-                                                <p class="mt-1 text-sm text-gray-400">
-                                                    You will need to sign in again to access your account.
-                                                </p>
-                                            </div>
-                                        </div>
 
-                                        <div class="mt-6 flex items-center justify-end gap-3">
-                                            <button
-                                                type="button"
-                                                @click="showLogout = false"
-                                                class="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-gray-300 transition hover:border-white/20 hover:text-white"
-                                            >
-                                                Cancel
-                                            </button>
-                                            <button
-                                                type="button"
-                                                @click="$refs.logoutForm.submit()"
-                                                class="rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-400"
-                                            >
-                                                Log out
-                                            </button>
+                                            <div class="mt-6 flex items-center justify-end gap-3">
+                                                <button
+                                                    type="button"
+                                                    @click="showLogout = false"
+                                                    class="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-gray-300 transition hover:border-white/20 hover:text-white"
+                                                >
+                                                    Cancel
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    @click="$refs.logoutForm.submit()"
+                                                    class="rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-400"
+                                                >
+                                                    Log out
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                </template>
                             </div>
                         @else
                             <a href="{{ route('login') }}" class="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-1.5 text-sm font-medium text-gray-200 transition hover:border-white/20 hover:text-white">
