@@ -38,14 +38,123 @@
                                 <span class="hidden sm:inline">New Request</span>
                             </a>
 
-                            {{-- Avatar / profile --}}
-                            <a href="{{ route('profile') }}" class="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-[#5555AA]/20 text-sm font-bold text-[#8888CC] transition hover:bg-[#5555AA]/30" title="{{ auth()->user()->username }}">
-                                @if (auth()->user()->avatar_url)
-                                    <img src="{{ auth()->user()->avatar_url }}" alt="{{ auth()->user()->username }}" class="h-full w-full object-cover">
-                                @else
-                                    {{ strtoupper(substr(auth()->user()->username, 0, 1)) }}
-                                @endif
-                            </a>
+                            {{-- Avatar dropdown / profile card --}}
+                            <div class="relative" x-data="{ open: false, showLogout: false }">
+                                <button
+                                    type="button"
+                                    @click="open = !open"
+                                    title="{{ auth()->user()->username }}"
+                                    class="flex items-center gap-1.5 rounded-full transition hover:opacity-90"
+                                >
+                                    <span class="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-[#5555AA]/20 text-sm font-bold text-[#8888CC]">
+                                        @if (auth()->user()->avatar_url)
+                                            <img src="{{ auth()->user()->avatar_url }}" alt="{{ auth()->user()->username }}" class="h-full w-full object-cover">
+                                        @else
+                                            {{ strtoupper(substr(auth()->user()->username, 0, 1)) }}
+                                        @endif
+                                    </span>
+                                    <x-lucide-chevron-down class="h-4 w-4 text-gray-400" />
+                                </button>
+
+                                {{-- Logout form --}}
+                                <form x-ref="logoutForm" method="POST" action="{{ route('logout') }}" class="hidden">
+                                    @csrf
+                                </form>
+
+                                {{-- Profile card dropdown --}}
+                                <div
+                                    x-show="open"
+                                    x-cloak
+                                    x-transition:enter="transition ease-out duration-150"
+                                    x-transition:enter-start="opacity-0 translate-y-1"
+                                    x-transition:enter-end="opacity-100 translate-y-0"
+                                    x-transition:leave="transition ease-in duration-100"
+                                    x-transition:leave-start="opacity-100 translate-y-0"
+                                    x-transition:leave-end="opacity-0 translate-y-1"
+                                    @click.outside="open = false"
+                                    @keydown.escape.window="open = false"
+                                    class="absolute right-0 top-full z-50 mt-2 w-64 overflow-hidden rounded-2xl border border-white/10 bg-[#111111] shadow-2xl"
+                                >
+                                    <div class="border-b border-white/10 p-4">
+                                        <div class="flex items-center gap-3">
+                                            <div class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#5555AA]/20 text-sm font-bold text-[#8888CC]">
+                                                @if (auth()->user()->avatar_url)
+                                                    <img src="{{ auth()->user()->avatar_url }}" alt="{{ auth()->user()->username }}" class="h-full w-full object-cover">
+                                                @else
+                                                    {{ strtoupper(substr(auth()->user()->username, 0, 1)) }}
+                                                @endif
+                                            </div>
+                                            <div class="min-w-0">
+                                                <p class="truncate text-sm font-semibold text-white">{{ auth()->user()->username }}</p>
+                                                <p class="truncate text-xs text-gray-400">{{ auth()->user()->email }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="p-1.5">
+                                        <a href="{{ route('profile') }}" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-gray-300 transition hover:bg-white/5 hover:text-white">
+                                            <x-lucide-user class="h-4 w-4 text-gray-400" />
+                                            Profile
+                                        </a>
+                                        <a href="{{ route('settings') }}" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-gray-300 transition hover:bg-white/5 hover:text-white">
+                                            <x-lucide-settings class="h-4 w-4 text-gray-400" />
+                                            Settings
+                                        </a>
+                                        <div class="my-1 border-t border-white/10"></div>
+                                        <button
+                                            type="button"
+                                            @click="open = false; showLogout = true"
+                                            class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-red-400 transition hover:bg-red-500/10 hover:text-red-300"
+                                        >
+                                            <x-lucide-log-out class="h-4 w-4" />
+                                            Log out
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {{-- Logout confirmation modal --}}
+                                <div
+                                    x-show="showLogout"
+                                    x-cloak
+                                    x-transition.opacity
+                                    class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+                                    @keydown.escape.window="showLogout = false"
+                                >
+                                    <div
+                                        class="w-full max-w-md rounded-2xl border border-white/10 bg-[#111111] p-6 shadow-2xl"
+                                        @click.outside="showLogout = false"
+                                    >
+                                        <div class="flex items-start gap-3">
+                                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-500/15">
+                                                <x-lucide-log-out class="h-5 w-5 text-red-400" />
+                                            </div>
+                                            <div>
+                                                <h2 class="text-lg font-bold text-white">Log out?</h2>
+                                                <p class="mt-1 text-sm text-gray-400">
+                                                    You will need to sign in again to access your account.
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div class="mt-6 flex items-center justify-end gap-3">
+                                            <button
+                                                type="button"
+                                                @click="showLogout = false"
+                                                class="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-gray-300 transition hover:border-white/20 hover:text-white"
+                                            >
+                                                Cancel
+                                            </button>
+                                            <button
+                                                type="button"
+                                                @click="$refs.logoutForm.submit()"
+                                                class="rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-400"
+                                            >
+                                                Log out
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         @else
                             <a href="{{ route('login') }}" class="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-1.5 text-sm font-medium text-gray-200 transition hover:border-white/20 hover:text-white">
                                 <x-lucide-log-in class="h-4 w-4" />
