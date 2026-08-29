@@ -3,7 +3,7 @@
 @section('title', 'Possible duplicate - ' . config('app.name', 'SaucePls'))
 
 @section('content')
-    <div class="mx-auto max-w-2xl">
+    <div class="mx-auto max-w-2xl" x-data="leavePrompt">
         <a href="{{ route('create') }}"
             class="inline-flex items-center gap-2 text-sm text-gray-400 transition hover:text-white">
             <x-lucide-arrow-left class="h-4 w-4" />
@@ -25,7 +25,7 @@
             </div>
 
             {{-- Existing request --}}
-            <a href="{{ route('sauce-requests.show', $duplicate) }}"
+            <a href="{{ route('sauce-requests.show', $duplicate) }}" target="_blank" rel="noopener"
                 class="mt-6 block overflow-hidden rounded-xl border border-white/10 bg-[#111111] transition hover:border-[#5555AA]/50">
                 <div class="bg-[#1a1a1a]">
                     @if ($duplicate->image_url)
@@ -63,12 +63,20 @@
 
             {{-- Actions --}}
             <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
-                <a href="{{ route('sauce-requests.show', $duplicate) }}"
+                <a href="{{ route('sauce-requests.show', $duplicate) }}" target="_blank" rel="noopener"
                     class="inline-flex items-center justify-center gap-2 rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-gray-300 transition hover:border-white/20 hover:text-white">
                     <x-lucide-eye class="h-4 w-4" />
                     View existing request
                 </a>
-                <a href="{{ route('sauce-requests.details', $sauceRequest) }}"
+                <form method="POST" action="{{ route('sauce-requests.cancel', $sauceRequest) }}">
+                    @csrf
+                    <button type="submit" @click="allowLeave()"
+                        class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-gray-300 transition hover:border-white/20 hover:text-white">
+                        <x-lucide-x class="h-4 w-4" />
+                        Cancel
+                    </button>
+                </form>
+                <a href="{{ route('sauce-requests.details', $sauceRequest) }}" @click="allowLeave()"
                     class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#5555AA] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#6666BB]">
                     Continue anyway
                     <x-lucide-arrow-right class="h-4 w-4" />
