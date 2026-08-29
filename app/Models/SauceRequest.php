@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 
 #[Fillable([
@@ -45,11 +47,20 @@ class SauceRequest extends Model
     }
 
     /**
+     * The tags attached to the sauce request.
+     */
+    public function tags(): BelongsToMany
+    {
+        return $this->belongsToMany(Tag::class, 'sauce_request_tags')
+            ->withTimestamps();
+    }
+
+    /**
      * The absolute URL to the request's image.
      */
-    protected function imageUrl(): \Illuminate\Database\Eloquent\Casts\Attribute
+    protected function imageUrl(): Attribute
     {
-        return \Illuminate\Database\Eloquent\Casts\Attribute::get(function (): ?string {
+        return Attribute::get(function (): ?string {
             if (! $this->image_path) {
                 return null;
             }
