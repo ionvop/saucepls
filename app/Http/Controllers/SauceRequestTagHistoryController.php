@@ -29,18 +29,6 @@ class SauceRequestTagHistoryController extends Controller
     }
 
     /**
-     * Undo a single tagging change.
-     */
-    public function revert(Request $request, SauceRequest $sauceRequest, SauceRequestTaggingHistory $taggingHistory): RedirectResponse
-    {
-        abort_unless($taggingHistory->sauce_request_id === $sauceRequest->id, 404);
-
-        $this->tags->revert($taggingHistory, $request->user());
-
-        return back()->with('status', 'The tagging change has been reverted.');
-    }
-
-    /**
      * Restore the sauce request's tags to the state they were in after the
      * given history entry was applied.
      */
