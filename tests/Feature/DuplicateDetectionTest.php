@@ -11,9 +11,9 @@ uses(RefreshDatabase::class);
 /**
  * Create a sauce request owned by the given user.
  */
-function makePhashSauceRequest(User $user, string $phash): SauceRequest
+function makePhashSauceRequest(User $user, string $phash, array $attributes = []): SauceRequest
 {
-    return SauceRequest::create([
+    return SauceRequest::create(array_merge([
         'user_id' => $user->id,
         'title' => 'Original title',
         'description' => 'Original description.',
@@ -21,7 +21,8 @@ function makePhashSauceRequest(User $user, string $phash): SauceRequest
         'image_path' => 'sauce-requests/test.png',
         'phash64' => $phash,
         'is_explicit' => true,
-    ]);
+        'published_at' => now(),
+    ], $attributes));
 }
 
 // ---------------------------------------------------------------------------
@@ -84,4 +85,17 @@ it('does not flag a request as a duplicate of itself', function () {
     // The draft's own phash is an exact match (distance 0), but it must
     // be excluded so the upload is not flagged as a duplicate of itself.
     expect($service->findDuplicate('0000000000000000', $draft->id))->toBeNull();
+});
+
+it('ignores unpublished drafts when detecting duplicates', function () {
+    $user = User::factory()->create();
+    makePhashSauceRequest($user, '0000000000000000', [
+        'published_at' => null,
+    ]);
+
+    $service = app(DuplicateDetectionService::class);
+
+    // The only matching request is an unpublished draft, so it must not
+    // be flagged as a duplicate.
+    expect($service->findDuplicate('0f00000000000000'))->toBeNull();
 });
