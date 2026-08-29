@@ -8,6 +8,7 @@ use App\Models\SauceRequest;
 use App\Services\OcrService;
 use App\Services\PerceptualHashService;
 use App\Services\TagInferenceService;
+use App\Services\TagService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -19,8 +20,8 @@ class SauceRequestController extends Controller
         private readonly PerceptualHashService $perceptualHash,
         private readonly OcrService $ocr,
         private readonly TagInferenceService $tagInference,
-    ) {
-    }
+        private readonly TagService $tags,
+    ) {}
 
     /**
      * Show a paginated feed of sauce requests.
@@ -72,8 +73,12 @@ class SauceRequestController extends Controller
             'is_explicit' => $validated['is_explicit'] ?? true,
         ]);
 
-        // TODO: Persist the suggested tags once the `tags` and
-        //       `sauce_request_tags` tables exist.
+        // Persist the tags suggested by the model inference pipeline
+        // together with any tags the user entered manually.
+        $suggestedTags = $this->tagInference->infer($absolutePath);
+        $combinedTags = implode(' ', array_merge((array) $suggestedTags, [(string) ($validated['tags'] ?? '')]));
+
+        $this->tags->sync($sauceRequest, $combinedTags, $request->user());
 
         return redirect()
             ->route('sauce-requests.show', $sauceRequest)
@@ -85,7 +90,7 @@ class SauceRequestController extends Controller
      */
     public function show(Request $request, SauceRequest $sauceRequest): View
     {
-        $sauceRequest->load('user');
+        $sauceRequest->load(['user', 'tags']);
 
         return view('pages.sauce-requests.show', [
             'sauceRequest' => $sauceRequest,
@@ -100,7 +105,7 @@ class SauceRequestController extends Controller
     {
         abort_unless($request->user()?->is($sauceRequest->user), 403);
 
-        $sauceRequest->load('user');
+        $sauceRequest->load(['user', 'tags']);
 
         return view('pages.sauce-requests.edit', [
             'sauceRequest' => $sauceRequest,
@@ -112,7 +117,15 @@ class SauceRequestController extends Controller
      */
     public function update(UpdateSauceRequestRequest $request, SauceRequest $sauceRequest): RedirectResponse
     {
-        $sauceRequest->update($request->validated());
+        $validated = $request->validated();
+
+        $sauceRequest->update([
+            'title' => $validated['title'] ?? 'Sauce pls',
+            'description' => $validated['description'] ?? '',
+            'is_explicit' => $validated['is_explicit'] ?? true,
+        ]);
+
+        $this->tags->sync($sauceRequest, (string) ($validated['tags'] ?? ''), $request->user());
 
         return redirect()
             ->route('sauce-requests.show', $sauceRequest)
