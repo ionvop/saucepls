@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SauceRequestController;
 use App\Http\Controllers\SauceRequestTagController;
+use App\Http\Controllers\SauceRequestTagHistoryController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -49,7 +50,12 @@ Route::middleware('auth')->group(function () {
 
     // --- Community tagging ---
     Route::put('/sauce-requests/{sauceRequest}/tags', [SauceRequestTagController::class, 'update'])->name('sauce-requests.tags.update');
-});
+
+    // --- Tagging history ---
+    Route::get('/sauce-requests/{sauceRequest}/tags/history', [SauceRequestTagHistoryController::class, 'index'])->name('sauce-requests.tags.history');
+    Route::post('/sauce-requests/{sauceRequest}/tags/history/{taggingHistory}/revert', [SauceRequestTagHistoryController::class, 'revert'])->name('sauce-requests.tags.history.revert');
+    Route::post('/sauce-requests/{sauceRequest}/tags/history/{taggingHistory}/restore', [SauceRequestTagHistoryController::class, 'restore'])->name('sauce-requests.tags.history.restore');
+})->scopeBindings();
 
 // --- Public profile routes ---
 Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
