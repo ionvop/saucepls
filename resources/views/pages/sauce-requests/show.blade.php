@@ -91,40 +91,84 @@
                 <div class="mt-6 border-t border-white/10 pt-6">
                     <h2 class="text-sm font-semibold uppercase tracking-wide text-gray-400">Tags</h2>
 
-                    @if ($sauceRequest->tags->isNotEmpty())
-                        <div class="mt-3 flex flex-wrap gap-2">
-                            @foreach ($sauceRequest->tags as $tag)
-                                <span class="inline-flex items-center gap-1 rounded-full bg-[#5555AA]/20 px-3 py-1 text-xs font-medium text-[#8888CC]">
-                                    <a href="{{ route('search', ['q' => 'tag:' . $tag->name]) }}" class="hover:text-white">
-                                        {{ $tag->name }}
-                                    </a>
-                                    @auth
-                                        <form method="POST" action="{{ route('sauce-requests.tags.destroy', [$sauceRequest, $tag]) }}" class="inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" title="Remove tag"
-                                                class="text-[#8888CC]/60 transition hover:text-red-400">
-                                                <x-lucide-x class="h-3 w-3" />
-                                            </button>
-                                        </form>
-                                    @endauth
-                                </span>
-                            @endforeach
+                    @auth
+                        <div x-data="{ editing: false }">
+                            {{-- Display mode: plain tag pills + edit button --}}
+                            <div x-show="!editing" x-cloak>
+                                @if ($sauceRequest->tags->isNotEmpty())
+                                    <div class="mt-3 flex flex-wrap items-center gap-2">
+                                        @foreach ($sauceRequest->tags as $tag)
+                                            <span class="inline-flex items-center rounded-full bg-[#5555AA]/20 px-3 py-1 text-xs font-medium text-[#8888CC]">
+                                                <a href="{{ route('search', ['q' => 'tag:' . $tag->name]) }}" class="hover:text-white">
+                                                    {{ $tag->name }}
+                                                </a>
+                                            </span>
+                                        @endforeach
+
+                                        <button type="button" @click="editing = true"
+                                            class="ml-1 inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-2.5 py-1 text-xs font-medium text-gray-300 transition hover:border-white/20 hover:text-white">
+                                            <x-lucide-pencil class="h-3.5 w-3.5" />
+                                            Edit tags
+                                        </button>
+                                    </div>
+                                @else
+                                    <div class="mt-3 flex items-center gap-2">
+                                        <p class="text-sm text-gray-500">No tags yet.</p>
+
+                                        <button type="button" @click="editing = true"
+                                            class="inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-2.5 py-1 text-xs font-medium text-gray-300 transition hover:border-white/20 hover:text-white">
+                                            <x-lucide-pencil class="h-3.5 w-3.5" />
+                                            Edit tags
+                                        </button>
+                                    </div>
+                                @endif
+                            </div>
+
+                            {{-- Edit mode: single editable field replacing the whole set --}}
+                            <form x-show="editing" x-cloak
+                                method="POST" action="{{ route('sauce-requests.tags.update', $sauceRequest) }}"
+                                class="mt-3 flex flex-col gap-2">
+                                @csrf
+                                @method('PUT')
+
+                                <input type="text" name="tags" value="{{ old('tags', $sauceRequest->tags->pluck('name')->implode(' ')) }}"
+                                    placeholder="Space-separated tags (e.g. 1girl black_hair smile)" maxlength="1000"
+                                    class="w-full rounded-lg border border-white/10 bg-[#111111] px-3 py-2 text-sm text-white placeholder-gray-500 outline-none transition focus:border-[#5555AA] focus:ring-2 focus:ring-[#5555AA]/40">
+                                <p class="text-xs text-gray-500">
+                                    Space-separated, lowercase, alphanumeric, hyphens, and underscores only.
+                                </p>
+
+                                <div class="flex items-center gap-2">
+                                    <button type="submit"
+                                        class="rounded-lg bg-[#5555AA] px-3 py-1.5 text-sm font-medium text-white transition hover:bg-[#6666BB]">
+                                        Save
+                                    </button>
+                                    <button type="button" @click="editing = false"
+                                        class="rounded-lg border border-white/10 px-3 py-1.5 text-sm font-medium text-gray-300 transition hover:border-white/20 hover:text-white">
+                                        Cancel
+                                    </button>
+                                </div>
+
+                                @error('tags')
+                                    <p class="text-xs text-red-400">{{ $message }}</p>
+                                @enderror
+                            </form>
                         </div>
                     @else
-                        <p class="mt-2 text-sm text-gray-500">No tags yet.</p>
-                    @endif
-
-                    @auth
-                        <form method="POST" action="{{ route('sauce-requests.tags.store', $sauceRequest) }}" class="mt-4 flex items-center gap-2">
-                            @csrf
-                            <input type="text" name="tags" placeholder="Add tags (space-separated)" maxlength="1000"
-                                class="w-full max-w-xs rounded-lg border border-white/10 bg-[#111111] px-3 py-1.5 text-sm text-white placeholder-gray-500 outline-none transition focus:border-[#5555AA] focus:ring-2 focus:ring-[#5555AA]/40">
-                            <button type="submit"
-                                class="rounded-lg bg-[#5555AA] px-3 py-1.5 text-sm font-medium text-white transition hover:bg-[#6666BB]">
-                                Add
-                            </button>
-                        </form>
+                        {{-- Guest: read-only tag pills --}}
+                        @if ($sauceRequest->tags->isNotEmpty())
+                            <div class="mt-3 flex flex-wrap gap-2">
+                                @foreach ($sauceRequest->tags as $tag)
+                                    <span class="inline-flex items-center rounded-full bg-[#5555AA]/20 px-3 py-1 text-xs font-medium text-[#8888CC]">
+                                        <a href="{{ route('search', ['q' => 'tag:' . $tag->name]) }}" class="hover:text-white">
+                                            {{ $tag->name }}
+                                        </a>
+                                    </span>
+                                @endforeach
+                            </div>
+                        @else
+                            <p class="mt-2 text-sm text-gray-500">No tags yet.</p>
+                        @endif
                     @endauth
                 </div>
 
