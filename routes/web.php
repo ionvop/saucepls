@@ -48,8 +48,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/sauce-requests/{sauceRequest}', [SauceRequestController::class, 'update'])->name('sauce-requests.update');
 
     // --- Community tagging ---
-    Route::post('/sauce-requests/{sauceRequest}/tags', [SauceRequestTagController::class, 'store'])->name('sauce-requests.tags.store');
-    Route::delete('/sauce-requests/{sauceRequest}/tags/{tag}', [SauceRequestTagController::class, 'destroy'])->name('sauce-requests.tags.destroy');
+    Route::put('/sauce-requests/{sauceRequest}/tags', [SauceRequestTagController::class, 'update'])->name('sauce-requests.tags.update');
 });
 
 // --- Public profile routes ---
