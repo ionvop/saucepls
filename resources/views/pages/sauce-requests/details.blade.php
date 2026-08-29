@@ -3,7 +3,7 @@
 @section('title', 'Review Request - ' . config('app.name', 'SaucePls'))
 
 @section('content')
-    <div class="mx-auto max-w-2xl">
+    <div class="mx-auto max-w-2xl" x-data="leavePrompt">
         <a href="{{ route('create') }}"
             class="inline-flex items-center gap-2 text-sm text-gray-400 transition hover:text-white">
             <x-lucide-arrow-left class="h-4 w-4" />
@@ -74,11 +74,14 @@
 
                 {{-- Actions --}}
                 <div class="flex items-center justify-end gap-3">
-                    <a href="{{ route('create') }}"
-                        class="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-gray-300 transition hover:border-white/20 hover:text-white">
-                        Cancel
-                    </a>
-                    <button type="submit"
+                    <form method="POST" action="{{ route('sauce-requests.cancel', $sauceRequest) }}">
+                        @csrf
+                        <button type="submit" @click="allowLeave()"
+                            class="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-gray-300 transition hover:border-white/20 hover:text-white">
+                            Cancel
+                        </button>
+                    </form>
+                    <button type="submit" @click="allowLeave()"
                         class="rounded-lg bg-[#5555AA] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#6666BB]">
                         Post request
                     </button>
