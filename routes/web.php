@@ -53,7 +53,6 @@ Route::middleware('auth')->group(function () {
 
     // --- Tagging history ---
     Route::get('/sauce-requests/{sauceRequest}/tags/history', [SauceRequestTagHistoryController::class, 'index'])->name('sauce-requests.tags.history');
-    Route::post('/sauce-requests/{sauceRequest}/tags/history/{taggingHistory}/revert', [SauceRequestTagHistoryController::class, 'revert'])->name('sauce-requests.tags.history.revert');
     Route::post('/sauce-requests/{sauceRequest}/tags/history/{taggingHistory}/restore', [SauceRequestTagHistoryController::class, 'restore'])->name('sauce-requests.tags.history.restore');
 })->scopeBindings();
 
