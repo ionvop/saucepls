@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SauceRequestController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -38,11 +39,18 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+
+    Route::get('/create', [SauceRequestController::class, 'create'])->name('create');
+    Route::post('/sauce-requests', [SauceRequestController::class, 'store'])->name('sauce-requests.store');
 });
 
 // --- Public profile routes ---
 Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
 Route::get('/u/{username}', [ProfileController::class, 'show'])->name('profile.show');
+
+// --- Public sauce request routes ---
+Route::get('/sauce-requests', [SauceRequestController::class, 'index'])->name('sauce-requests.index');
+Route::get('/sauce-requests/{sauceRequest}', [SauceRequestController::class, 'show'])->name('sauce-requests.show');
 
 Route::get('/search', function () {
     return view('pages.search');
@@ -55,7 +63,3 @@ Route::get('/notifications', function () {
 Route::get('/settings', function () {
     return view('pages.settings');
 })->name('settings');
-
-Route::get('/create', function () {
-    return view('pages.create');
-})->name('create');
