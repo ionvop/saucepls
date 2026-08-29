@@ -103,6 +103,7 @@ it('records tagging history when creating a sauce request', function () {
     $history = SauceRequestTaggingHistory::firstOrFail();
     expect($history->added_tags)->toBe(['1girl', 'smile']);
     expect($history->removed_tags)->toBe([]);
+    expect($history->tags_snapshot)->toBe(['1girl', 'smile']);
 });
 
 // ---------------------------------------------------------------------------
