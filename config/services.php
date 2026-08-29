@@ -53,4 +53,10 @@ return [
         'phash_threshold' => env('DUPLICATE_PHASH_THRESHOLD', 10),
     ],
 
+    'drafts' => [
+        // Unpublished drafts abandoned before the user clicks "Post request"
+        // are purged opportunistically once they exceed this age.
+        'ttl_hours' => env('DRAFTS_TTL_HOURS', 24),
+    ],
+
 ];
