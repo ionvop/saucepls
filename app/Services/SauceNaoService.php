@@ -80,8 +80,32 @@ class SauceNaoService
             'index_id' => (int) ($header['index_id'] ?? 0),
             'index_name' => $header['index_name'] ?? null,
             'urls' => $data['ext_urls'] ?? [],
-            'title' => $data['title'] ?? $data['eng_name'] ?? $data['source'] ?? null,
-            'author' => $data['member_name'] ?? $data['creator'] ?? $data['author_name'] ?? null,
+            'title' => $this->toString($data['title'] ?? $data['eng_name'] ?? $data['source'] ?? null),
+            'author' => $this->toString($data['member_name'] ?? $data['creator'] ?? $data['author_name'] ?? null),
         ];
+    }
+
+    /**
+     * Coerce a SauceNAO field value into a plain string.
+     *
+     * Some fields (e.g. "creator") can be an array of names, which we
+     * join into a single comma-separated string so the value is always
+     * safe to echo in a view.
+     *
+     * @param  mixed  $value
+     */
+    protected function toString(mixed $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        if (is_array($value)) {
+            $value = implode(', ', array_filter($value, fn ($item) => is_scalar($item)));
+        }
+
+        $value = trim((string) $value);
+
+        return $value === '' ? null : $value;
     }
 }
