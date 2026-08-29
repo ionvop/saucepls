@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\SauceRequest;
-use App\Models\Tag;
 use App\Services\TagService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -15,26 +14,17 @@ class SauceRequestTagController extends Controller
     ) {}
 
     /**
-     * Add one or more tags to a sauce request (any authenticated user).
+     * Replace the full set of tags on a sauce request (any authenticated
+     * user). Tags are synced to match the space-separated input.
      */
-    public function store(Request $request, SauceRequest $sauceRequest): RedirectResponse
+    public function update(Request $request, SauceRequest $sauceRequest): RedirectResponse
     {
         $request->validate([
-            'tags' => ['required', 'string', 'max:1000'],
+            'tags' => ['nullable', 'string', 'max:1000'],
         ]);
 
-        $this->tags->add($sauceRequest, (string) $request->input('tags'), $request->user());
+        $this->tags->sync($sauceRequest, (string) $request->input('tags', ''), $request->user());
 
-        return back()->with('status', 'Tags have been added.');
-    }
-
-    /**
-     * Remove a single tag from a sauce request (any authenticated user).
-     */
-    public function destroy(Request $request, SauceRequest $sauceRequest, Tag $tag): RedirectResponse
-    {
-        $this->tags->remove($sauceRequest, [$tag->name], $request->user());
-
-        return back()->with('status', 'Tag has been removed.');
+        return back()->with('status', 'Tags have been updated.');
     }
 }
