@@ -18,17 +18,12 @@ use Illuminate\Support\Facades\Storage;
     'text',
     'image_path',
     'accepted_sauce',
-    'status',
     'phash64',
     'is_explicit',
 ])]
 class SauceRequest extends Model
 {
     use SoftDeletes;
-
-    public const STATUS_DRAFT = 'draft';
-
-    public const STATUS_POSTED = 'posted';
 
     /**
      * Get the attributes that should be cast.
@@ -90,21 +85,5 @@ class SauceRequest extends Model
     public function isAccepted(): bool
     {
         return $this->accepted_sauce !== null;
-    }
-
-    /**
-     * Whether the request is still a draft (image uploaded, not yet posted).
-     */
-    public function isDraft(): bool
-    {
-        return $this->status === self::STATUS_DRAFT;
-    }
-
-    /**
-     * Whether the request has been posted.
-     */
-    public function isPosted(): bool
-    {
-        return $this->status === self::STATUS_POSTED;
     }
 }
