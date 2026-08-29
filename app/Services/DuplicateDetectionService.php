@@ -30,7 +30,9 @@ class DuplicateDetectionService
         $closest = null;
         $closestDistance = PHP_INT_MAX;
 
-        foreach (SauceRequest::query()->get() as $sauceRequest) {
+        // Only published requests can be flagged as duplicates. Unpublished
+        // drafts are still in the pre-post pipeline and must not match.
+        foreach (SauceRequest::query()->published()->get() as $sauceRequest) {
             if ($sauceRequest->id === $excludeId) {
                 continue;
             }
