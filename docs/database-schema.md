@@ -41,10 +41,10 @@ description: str, default = "A wiki has not been written for this tag yet." // A
 created_at: datetime
 updated_at: datetime
 
-sauce_request_likes
+sauce_request_bookmarks
 id: int, pk
 sauce_request_id: int, fk = sauce_requests.id
-user_id: int, fk = users.id
+user_id: int, fk = users.id // The user who bookmarked the sauce request to track its progress.
 created_at: datetime
 updated_at: datetime
 unique(sauce_request_id, user_id)
