@@ -49,6 +49,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/sauce-requests/{sauceRequest}/details', [SauceRequestController::class, 'details'])->name('sauce-requests.details');
     Route::get('/sauce-requests/{sauceRequest}/duplicate/{duplicate}', [SauceRequestController::class, 'duplicate'])->name('sauce-requests.duplicate');
     Route::post('/sauce-requests/{sauceRequest}/publish', [SauceRequestController::class, 'publish'])->name('sauce-requests.publish');
+    Route::post('/sauce-requests/{sauceRequest}/cancel', [SauceRequestController::class, 'cancel'])->name('sauce-requests.cancel');
 
     Route::get('/sauce-requests/{sauceRequest}/edit', [SauceRequestController::class, 'edit'])->name('sauce-requests.edit');
     Route::put('/sauce-requests/{sauceRequest}', [SauceRequestController::class, 'update'])->name('sauce-requests.update');
