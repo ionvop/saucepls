@@ -6,6 +6,7 @@ use App\Http\Requests\PublishSauceRequestRequest;
 use App\Http\Requests\StoreSauceRequestRequest;
 use App\Http\Requests\UpdateSauceRequestRequest;
 use App\Models\SauceRequest;
+use App\Models\User;
 use App\Services\DuplicateDetectionService;
 use App\Services\OcrService;
 use App\Services\PerceptualHashService;
@@ -47,6 +48,8 @@ class SauceRequestController extends Controller
      */
     public function create(): View
     {
+        $this->purgeAbandonedDrafts(auth()->user());
+
         return view('pages.sauce-requests.create');
     }
 
@@ -58,6 +61,10 @@ class SauceRequestController extends Controller
     public function upload(StoreSauceRequestRequest $request): RedirectResponse
     {
         $validated = $request->validated();
+
+        // Clear the user's abandoned drafts before creating a new one so
+        // they do not accumulate as hidden unpublished rows.
+        $this->purgeAbandonedDrafts($request->user());
 
         $imagePath = $request->file('image')->store('sauce-requests', 'public');
 
@@ -219,5 +226,34 @@ class SauceRequestController extends Controller
         return redirect()
             ->route('sauce-requests.show', $sauceRequest)
             ->with('status', 'Your sauce request has been updated.');
+    }
+
+    /**
+     * Soft-delete the given user's unpublished drafts that are older than
+     * the configured TTL, and remove their uploaded image files. This runs
+     * opportunistically when the user starts a new upload or visits the
+     * upload form, so abandoned drafts do not accumulate.
+     */
+    private function purgeAbandonedDrafts(?User $user): void
+    {
+        if ($user === null) {
+            return;
+        }
+
+        $cutoff = now()->subHours((int) config('services.drafts.ttl_hours', 24));
+
+        $drafts = SauceRequest::query()
+            ->where('user_id', $user->id)
+            ->whereNull('published_at')
+            ->where('created_at', '<', $cutoff)
+            ->get();
+
+        foreach ($drafts as $draft) {
+            if ($draft->image_path) {
+                Storage::disk('public')->delete($draft->image_path);
+            }
+
+            $draft->delete();
+        }
     }
 }
