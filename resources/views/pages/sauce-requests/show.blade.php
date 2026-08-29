@@ -87,12 +87,45 @@
                     </div>
                 @endif
 
-                {{-- Tags placeholder --}}
+                {{-- Tags --}}
                 <div class="mt-6 border-t border-white/10 pt-6">
                     <h2 class="text-sm font-semibold uppercase tracking-wide text-gray-400">Tags</h2>
-                    <p class="mt-2 text-sm text-gray-500">
-                        Tagging is not available yet.
-                    </p>
+
+                    @if ($sauceRequest->tags->isNotEmpty())
+                        <div class="mt-3 flex flex-wrap gap-2">
+                            @foreach ($sauceRequest->tags as $tag)
+                                <span class="inline-flex items-center gap-1 rounded-full bg-[#5555AA]/20 px-3 py-1 text-xs font-medium text-[#8888CC]">
+                                    <a href="{{ route('search', ['q' => 'tag:' . $tag->name]) }}" class="hover:text-white">
+                                        {{ $tag->name }}
+                                    </a>
+                                    @auth
+                                        <form method="POST" action="{{ route('sauce-requests.tags.destroy', [$sauceRequest, $tag]) }}" class="inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" title="Remove tag"
+                                                class="text-[#8888CC]/60 transition hover:text-red-400">
+                                                <x-lucide-x class="h-3 w-3" />
+                                            </button>
+                                        </form>
+                                    @endauth
+                                </span>
+                            @endforeach
+                        </div>
+                    @else
+                        <p class="mt-2 text-sm text-gray-500">No tags yet.</p>
+                    @endif
+
+                    @auth
+                        <form method="POST" action="{{ route('sauce-requests.tags.store', $sauceRequest) }}" class="mt-4 flex items-center gap-2">
+                            @csrf
+                            <input type="text" name="tags" placeholder="Add tags (space-separated)" maxlength="1000"
+                                class="w-full max-w-xs rounded-lg border border-white/10 bg-[#111111] px-3 py-1.5 text-sm text-white placeholder-gray-500 outline-none transition focus:border-[#5555AA] focus:ring-2 focus:ring-[#5555AA]/40">
+                            <button type="submit"
+                                class="rounded-lg bg-[#5555AA] px-3 py-1.5 text-sm font-medium text-white transition hover:bg-[#6666BB]">
+                                Add
+                            </button>
+                        </form>
+                    @endauth
                 </div>
 
                 {{-- Answers placeholder --}}
