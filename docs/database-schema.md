@@ -125,20 +125,10 @@ created_at: datetime
 updated_at: datetime
 unique(user_id, target_user_id)
 
-notifications
-id: int, pk
-user_id: int, fk = users.id
-content: str // e.g. "Your sauce request has received an answer! Check if it's correct.", "John Doe has followed you.", etc.
-type: str // Used for icon e.g. "sauce_answer", "follow", etc.
-url: str // Where the user will be redirected to if they click on the notification.
-read_at: datetime, default = null
-created_at: datetime
-updated_at: datetime
-
 moderation_logs
 id: int, pk
 user_id: int, fk = users.id // The moderator who performed the action.
-action_type: str, enum = ["accept", "delete", "timeout"] // The type of action performed.
+action_type: str, enum = ["delete", "timeout", "restore"] // The type of action performed.
 target_type: str, enum = ["user", "sauce_request", "sauce_answer", "sauce_comment", "user_comment"] // The type of target.
 target_id: int // The ID of the target.
 details: json // Additional details about the action such as the reason, timeout duration, etc.
@@ -150,7 +140,15 @@ id: int, pk
 user_id: int, fk = users.id // The user who reported an issue.
 target_type: str, enum = ["user", "sauce_request", "sauce_answer", "sauce_comment", "user_comment"] // The type of target.
 target_id: int // The ID of the target.
+category: str, enum = ["spam", "harassment", "other"] // The category of the report.
 reason: str // The reason for the report.
+details: json // Additional details about the report such as the screenshot, etc.
+status: str, enum = ["pending", "resolved", "dismissed"] // The status of the report.
+resolved_by: int, fk = users.id, default = null // The user who resolved the report.
+resolved_at: datetime, default = null
 created_at: datetime
 updated_at: datetime
+
+notifications
+// use Laravel's native notifications table
 ```
