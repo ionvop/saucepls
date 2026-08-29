@@ -40,6 +40,14 @@
                             NSFW
                         </span>
                     @endif
+
+                    @if ($isOwner)
+                        <a href="{{ route('sauce-requests.edit', $sauceRequest) }}"
+                            class="ml-auto inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-3 py-1.5 text-xs font-medium text-gray-300 transition hover:border-white/20 hover:text-white">
+                            <x-lucide-pencil class="h-3.5 w-3.5" />
+                            Edit
+                        </a>
+                    @endif
                 </div>
 
                 {{-- Title --}}
