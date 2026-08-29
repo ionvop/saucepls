@@ -27,12 +27,13 @@ class SauceRequestController extends Controller
     ) {}
 
     /**
-     * Show a paginated feed of sauce requests.
+     * Show a paginated feed of published sauce requests.
      */
     public function index(): View
     {
         $sauceRequests = SauceRequest::query()
             ->with('user')
+            ->published()
             ->latest()
             ->paginate(12);
 
@@ -132,6 +133,10 @@ class SauceRequestController extends Controller
 
     /**
      * Publish a draft sauce request with the user's final text and tags.
+     *
+     * This is the only action that actually "posts" a sauce request. Until
+     * this runs, the request is an unpublished draft that is hidden from
+     * the public feed.
      */
     public function publish(PublishSauceRequestRequest $request, SauceRequest $sauceRequest): RedirectResponse
     {
@@ -139,6 +144,7 @@ class SauceRequestController extends Controller
 
         $sauceRequest->update([
             'text' => $validated['text'] ?? '',
+            'published_at' => now(),
         ]);
 
         $this->tags->sync($sauceRequest, (string) ($validated['tags'] ?? ''), $request->user());
@@ -149,10 +155,30 @@ class SauceRequestController extends Controller
     }
 
     /**
-     * Show a single sauce request.
+     * Cancel an unpublished draft sauce request. The draft is soft-deleted
+     * and the user is returned to the upload form.
+     */
+    public function cancel(Request $request, SauceRequest $sauceRequest): RedirectResponse
+    {
+        abort_unless($request->user()?->is($sauceRequest->user), 403);
+
+        $sauceRequest->delete();
+
+        return redirect()
+            ->route('create')
+            ->with('status', 'Your sauce request has been canceled.');
+    }
+
+    /**
+     * Show a single sauce request. Unpublished drafts are only visible to
+     * their owner (e.g. to preview before posting).
      */
     public function show(Request $request, SauceRequest $sauceRequest): View
     {
+        if ($sauceRequest->published_at === null && ! $request->user()?->is($sauceRequest->user)) {
+            abort(404);
+        }
+
         $sauceRequest->load(['user', 'tags']);
 
         return view('pages.sauce-requests.show', [
