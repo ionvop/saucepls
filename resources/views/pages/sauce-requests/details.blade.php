@@ -73,19 +73,23 @@
                 </div>
 
                 {{-- Actions --}}
-                <div class="flex items-center justify-end gap-3">
-                    <form method="POST" action="{{ route('sauce-requests.cancel', $sauceRequest) }}">
-                        @csrf
-                        <button type="submit" @click="allowLeave()"
-                            class="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-gray-300 transition hover:border-white/20 hover:text-white">
-                            Cancel
-                        </button>
-                    </form>
+                <div class="flex items-center justify-end">
                     <button type="submit" @click="allowLeave()"
                         class="rounded-lg bg-[#5555AA] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#6666BB]">
                         Post request
                     </button>
                 </div>
+            </form>
+
+            {{-- Cancel is kept outside the publish form so it POSTs to the
+                 cancel route instead of the publish route. Nested forms are
+                 invalid HTML and are collapsed into the outer form. --}}
+            <form method="POST" action="{{ route('sauce-requests.cancel', $sauceRequest) }}" class="mt-6 flex justify-end">
+                @csrf
+                <button type="submit" @click="allowLeave()"
+                    class="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-gray-300 transition hover:border-white/20 hover:text-white">
+                    Cancel
+                </button>
             </form>
         </div>
     </div>
