@@ -52,61 +52,20 @@ it('lets any authenticated user view the tagging history', function () {
         ->assertSee('cat_ears');
 });
 
-// ---------------------------------------------------------------------------
-// Reverting a single change
-// ---------------------------------------------------------------------------
-
-it('redirects guests away from the revert route', function () {
-    $owner = User::factory()->create();
-    $sauceRequest = makeHistorySauceRequest($owner);
-
-    app(TagService::class)->add($sauceRequest, ['1girl'], $owner);
-    $history = SauceRequestTaggingHistory::firstOrFail();
-
-    $this->post(route('sauce-requests.tags.history.revert', [$sauceRequest, $history]))
-        ->assertRedirect(route('login'));
-});
-
-it('reverts a single tagging change and records a compensating entry', function () {
+it('stores a snapshot of the resulting tags on each history entry', function () {
     $owner = User::factory()->create();
     $member = User::factory()->create();
     $sauceRequest = makeHistorySauceRequest($owner);
 
     app(TagService::class)->add($sauceRequest, ['1girl', 'smile'], $owner);
     app(TagService::class)->add($sauceRequest, ['cat_ears'], $member);
+    app(TagService::class)->remove($sauceRequest, ['smile'], $member);
 
-    $change = SauceRequestTaggingHistory::whereJsonContains('added_tags', 'cat_ears')->firstOrFail();
+    $history = SauceRequestTaggingHistory::orderBy('id')->get();
 
-    $this->actingAs($member)
-        ->post(route('sauce-requests.tags.history.revert', [$sauceRequest, $change]))
-        ->assertRedirect();
-
-    expect($sauceRequest->fresh()->tags->pluck('name')->all())
-        ->toBe(['1girl', 'smile']);
-
-    $compensating = SauceRequestTaggingHistory::latest('id')->firstOrFail();
-    expect($compensating->user_id)->toBe($member->id);
-    expect($compensating->removed_tags)->toBe(['cat_ears']);
-    expect($compensating->added_tags)->toBe([]);
-});
-
-it('does not record a compensating entry when reverting a no-op change', function () {
-    $owner = User::factory()->create();
-    $member = User::factory()->create();
-    $sauceRequest = makeHistorySauceRequest($owner);
-
-    app(TagService::class)->add($sauceRequest, ['1girl'], $owner);
-    app(TagService::class)->remove($sauceRequest, ['1girl'], $member);
-
-    // The first change added '1girl', which has since been removed, so
-    // reverting it is a no-op and should not record anything.
-    $history = SauceRequestTaggingHistory::whereJsonContains('added_tags', '1girl')->firstOrFail();
-
-    $this->actingAs($member)
-        ->post(route('sauce-requests.tags.history.revert', [$sauceRequest, $history]))
-        ->assertRedirect();
-
-    expect(SauceRequestTaggingHistory::count())->toBe(2);
+    expect($history[0]->tags_snapshot)->toBe(['1girl', 'smile']);
+    expect($history[1]->tags_snapshot)->toBe(['1girl', 'smile', 'cat_ears']);
+    expect($history[2]->tags_snapshot)->toBe(['1girl', 'cat_ears']);
 });
 
 // ---------------------------------------------------------------------------
@@ -135,6 +94,7 @@ it('restores tags to the state after a given history entry', function () {
     // The restore itself is recorded as a compensating entry.
     $compensating = SauceRequestTaggingHistory::latest('id')->firstOrFail();
     expect($compensating->added_tags)->toBe(['smile']);
+    expect($compensating->tags_snapshot)->toBe(['1girl', 'smile', 'cat_ears']);
 });
 
 // ---------------------------------------------------------------------------
@@ -151,6 +111,6 @@ it('returns 404 when the history entry belongs to another sauce request', functi
     $history = SauceRequestTaggingHistory::firstOrFail();
 
     $this->actingAs($member)
-        ->post(route('sauce-requests.tags.history.revert', [$sauceRequestB, $history]))
+        ->post(route('sauce-requests.tags.history.restore', [$sauceRequestB, $history]))
         ->assertNotFound();
 });
