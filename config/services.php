@@ -53,6 +53,26 @@ return [
         'phash_threshold' => env('DUPLICATE_PHASH_THRESHOLD', 10),
     ],
 
+    'saucenao' => [
+        // API key for the SauceNAO reverse image search. Get one from
+        // https://saucenao.com/user.php
+        'key' => env('SAUCENAO_API_KEY'),
+
+        // The SauceNAO search endpoint.
+        'endpoint' => env('SAUCENAO_ENDPOINT', 'https://saucenao.com/search.php'),
+
+        // How many results to request from SauceNAO.
+        'numres' => env('SAUCENAO_NUMRES', 5),
+
+        // The minimum similarity percentage for a result to be considered
+        // an "easily identifiable" match. Results below this are ignored.
+        'min_similarity' => env('SAUCENAO_MIN_SIMILARITY', 60),
+
+        // How long (in minutes) to cache a lookup result so the
+        // intermediate page does not re-hit the SauceNAO API.
+        'cache_ttl' => env('SAUCENAO_CACHE_TTL', 10),
+    ],
+
     'drafts' => [
         // Unpublished drafts abandoned before the user clicks "Post request"
         // are purged opportunistically once they exceed this age.
