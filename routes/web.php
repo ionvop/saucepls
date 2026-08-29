@@ -42,6 +42,9 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/create', [SauceRequestController::class, 'create'])->name('create');
     Route::post('/sauce-requests', [SauceRequestController::class, 'store'])->name('sauce-requests.store');
+
+    Route::get('/sauce-requests/{sauceRequest}/edit', [SauceRequestController::class, 'edit'])->name('sauce-requests.edit');
+    Route::put('/sauce-requests/{sauceRequest}', [SauceRequestController::class, 'update'])->name('sauce-requests.update');
 });
 
 // --- Public profile routes ---
