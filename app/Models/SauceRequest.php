@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -20,6 +21,7 @@ use Illuminate\Support\Facades\Storage;
     'accepted_sauce',
     'phash64',
     'is_explicit',
+    'published_at',
 ])]
 class SauceRequest extends Model
 {
@@ -36,6 +38,7 @@ class SauceRequest extends Model
             'is_explicit' => 'boolean',
             'accepted_sauce' => 'integer',
             'deleted_at' => 'datetime',
+            'published_at' => 'datetime',
         ];
     }
 
@@ -45,6 +48,14 @@ class SauceRequest extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Scope the query to only published sauce requests.
+     */
+    public function scopePublished(Builder $query): Builder
+    {
+        return $query->whereNotNull('published_at');
     }
 
     /**
