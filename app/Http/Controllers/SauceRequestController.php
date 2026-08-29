@@ -10,10 +10,12 @@ use App\Models\User;
 use App\Services\DuplicateDetectionService;
 use App\Services\OcrService;
 use App\Services\PerceptualHashService;
+use App\Services\SauceNaoService;
 use App\Services\TagInferenceService;
 use App\Services\TagService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
@@ -24,6 +26,7 @@ class SauceRequestController extends Controller
         private readonly DuplicateDetectionService $duplicateDetection,
         private readonly OcrService $ocr,
         private readonly TagInferenceService $tagInference,
+        private readonly SauceNaoService $sauceNao,
         private readonly TagService $tags,
     ) {}
 
@@ -102,6 +105,24 @@ class SauceRequestController extends Controller
                 ->route('sauce-requests.duplicate', [$sauceRequest, 'duplicate' => $duplicate]);
         }
 
+        // Step 2 of the pre-post pipeline: SauceNAO reverse image search.
+        // If the image is easily identifiable, send the user to an
+        // intermediate page where they can view the result or continue
+        // anyway. The result is cached so the intermediate page does not
+        // need to re-hit the SauceNAO API.
+        $matches = $this->sauceNao->lookup($absolutePath);
+
+        if ($matches !== []) {
+            Cache::put(
+                $this->sauceCacheKey($sauceRequest),
+                $matches,
+                now()->addMinutes((int) config('services.saucenao.cache_ttl', 10)),
+            );
+
+            return redirect()
+                ->route('sauce-requests.sauce', $sauceRequest);
+        }
+
         return redirect()
             ->route('sauce-requests.details', $sauceRequest);
     }
@@ -120,6 +141,32 @@ class SauceRequestController extends Controller
         return view('pages.sauce-requests.duplicate', [
             'sauceRequest' => $sauceRequest,
             'duplicate' => $duplicate,
+        ]);
+    }
+
+    /**
+     * Show the intermediate page when SauceNAO identifies the uploaded
+     * image. The user can view the result or continue posting anyway.
+     */
+    public function sauce(Request $request, SauceRequest $sauceRequest): View
+    {
+        abort_unless($request->user()?->is($sauceRequest->user), 403);
+
+        $sauceRequest->load(['user', 'tags']);
+
+        // The lookup result is cached during upload. If it is missing
+        // (e.g. the cache was cleared), re-run the lookup against the
+        // stored image so the page still has something to show.
+        $matches = Cache::get($this->sauceCacheKey($sauceRequest));
+
+        if ($matches === null && $sauceRequest->image_path) {
+            $absolutePath = Storage::disk('public')->path($sauceRequest->image_path);
+            $matches = $this->sauceNao->lookup($absolutePath);
+        }
+
+        return view('pages.sauce-requests.sauce', [
+            'sauceRequest' => $sauceRequest,
+            'matches' => $matches ?? [],
         ]);
     }
 
@@ -226,6 +273,14 @@ class SauceRequestController extends Controller
         return redirect()
             ->route('sauce-requests.show', $sauceRequest)
             ->with('status', 'Your sauce request has been updated.');
+    }
+
+    /**
+     * The cache key used to store the SauceNAO lookup results for a draft.
+     */
+    private function sauceCacheKey(SauceRequest $sauceRequest): string
+    {
+        return "sauce-requests.{$sauceRequest->id}.saucenao";
     }
 
     /**
