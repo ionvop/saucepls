@@ -85,8 +85,9 @@ class SauceRequestController extends Controller
         // Step 1 of the pre-post pipeline: reverse image search. If the
         // image is a near-duplicate of an existing sauce request, send
         // the user to an intermediate page where they can view the
-        // existing request or continue anyway.
-        $duplicate = $this->duplicateDetection->findDuplicate($phash);
+        // existing request or continue anyway. The draft just created is
+        // excluded so the upload is not flagged as a duplicate of itself.
+        $duplicate = $this->duplicateDetection->findDuplicate($phash, $sauceRequest->id);
 
         if ($duplicate !== null) {
             return redirect()
