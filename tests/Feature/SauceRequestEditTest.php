@@ -376,3 +376,64 @@ it('allows the owner to preview their own unpublished draft', function () {
         ->assertOk()
         ->assertSee('My draft');
 });
+
+// ---------------------------------------------------------------------------
+// Opportunistic purge of abandoned drafts
+// ---------------------------------------------------------------------------
+
+it('purges abandoned drafts when visiting the upload form', function () {
+    $owner = User::factory()->create();
+    $abandoned = makeSauceRequest($owner, [
+        'published_at' => null,
+    ]);
+    $abandoned->forceFill(['created_at' => now()->subHours(25)])->save();
+
+    $recent = makeSauceRequest($owner, [
+        'published_at' => null,
+    ]);
+    $recent->forceFill(['created_at' => now()->subHours(1)])->save();
+
+    $this->actingAs($owner)
+        ->get(route('create'))
+        ->assertOk();
+
+    $this->assertSoftDeleted('sauce_requests', ['id' => $abandoned->id]);
+    $this->assertDatabaseHas('sauce_requests', ['id' => $recent->id]);
+});
+
+it('purges abandoned drafts when uploading a new image', function () {
+    $owner = User::factory()->create();
+    $abandoned = makeSauceRequest($owner, [
+        'published_at' => null,
+    ]);
+    $abandoned->forceFill(['created_at' => now()->subHours(25)])->save();
+
+    $this->actingAs($owner)
+        ->post(route('sauce-requests.upload'), [
+            'title' => 'Who drew this?',
+            'image' => UploadedFile::fake()->image('art.png'),
+        ])
+        ->assertRedirect();
+
+    $this->assertSoftDeleted('sauce_requests', ['id' => $abandoned->id]);
+});
+
+it('does not purge published requests or drafts from other users', function () {
+    $owner = User::factory()->create();
+    $other = User::factory()->create();
+
+    $published = makeSauceRequest($owner);
+    $published->forceFill(['created_at' => now()->subHours(25)])->save();
+
+    $otherDraft = makeSauceRequest($other, [
+        'published_at' => null,
+    ]);
+    $otherDraft->forceFill(['created_at' => now()->subHours(25)])->save();
+
+    $this->actingAs($owner)
+        ->get(route('create'))
+        ->assertOk();
+
+    $this->assertDatabaseHas('sauce_requests', ['id' => $published->id]);
+    $this->assertDatabaseHas('sauce_requests', ['id' => $otherDraft->id]);
+});
