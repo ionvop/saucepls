@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreSauceRequestRequest;
+use App\Http\Requests\UpdateSauceRequestRequest;
 use App\Models\SauceRequest;
 use App\Services\OcrService;
 use App\Services\PerceptualHashService;
@@ -82,12 +83,39 @@ class SauceRequestController extends Controller
     /**
      * Show a single sauce request.
      */
-    public function show(SauceRequest $sauceRequest): View
+    public function show(Request $request, SauceRequest $sauceRequest): View
     {
         $sauceRequest->load('user');
 
         return view('pages.sauce-requests.show', [
             'sauceRequest' => $sauceRequest,
+            'isOwner' => $request->user()?->is($sauceRequest->user) ?? false,
         ]);
+    }
+
+    /**
+     * Show the form to edit an existing sauce request.
+     */
+    public function edit(Request $request, SauceRequest $sauceRequest): View
+    {
+        abort_unless($request->user()?->is($sauceRequest->user), 403);
+
+        $sauceRequest->load('user');
+
+        return view('pages.sauce-requests.edit', [
+            'sauceRequest' => $sauceRequest,
+        ]);
+    }
+
+    /**
+     * Update an existing sauce request (title, description, NSFW toggle).
+     */
+    public function update(UpdateSauceRequestRequest $request, SauceRequest $sauceRequest): RedirectResponse
+    {
+        $sauceRequest->update($request->validated());
+
+        return redirect()
+            ->route('sauce-requests.show', $sauceRequest)
+            ->with('status', 'Your sauce request has been updated.');
     }
 }
