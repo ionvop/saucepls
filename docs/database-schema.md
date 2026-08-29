@@ -74,6 +74,14 @@ deleted_at: datetime, default = null
 created_at: datetime
 updated_at: datetime
 
+sauce_request_comment_likes
+id: int, pk
+sauce_request_comment_id: int, fk = sauce_request_comments.id
+user_id: int, fk = users.id
+created_at: datetime
+updated_at: datetime
+unique(sauce_request_comment_id, user_id)
+
 sauce_answers
 id: int, pk
 sauce_request_id: int, fk = sauce_requests.id
@@ -100,6 +108,14 @@ content: str // e.g. "Thank you for your service, sauceman."
 deleted_at: datetime, default = null
 created_at: datetime
 updated_at: datetime
+
+user_comment_likes
+id: int, pk
+user_comment_id: int, fk = user_comments.id
+user_id: int, fk = users.id
+created_at: datetime
+updated_at: datetime
+unique(user_comment_id, user_id)
 
 user_follows
 id: int, pk
