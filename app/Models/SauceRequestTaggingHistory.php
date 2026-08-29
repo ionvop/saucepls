@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['sauce_request_id', 'user_id', 'added_tags', 'removed_tags'])]
+#[Fillable(['sauce_request_id', 'user_id', 'added_tags', 'removed_tags', 'tags_snapshot'])]
 class SauceRequestTaggingHistory extends Model
 {
     /**
@@ -26,6 +26,7 @@ class SauceRequestTaggingHistory extends Model
         return [
             'added_tags' => 'array',
             'removed_tags' => 'array',
+            'tags_snapshot' => 'array',
         ];
     }
 
