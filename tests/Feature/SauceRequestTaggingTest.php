@@ -148,13 +148,15 @@ it('records added and removed tags in history when updating', function () {
 // Community tagging
 // ---------------------------------------------------------------------------
 
-it('lets any authenticated user add tags', function () {
+it('lets any authenticated user replace the full tag set', function () {
     $owner = User::factory()->create();
     $member = User::factory()->create();
     $sauceRequest = makeTaggedSauceRequest($owner);
 
+    app(TagService::class)->add($sauceRequest, ['1girl', 'smile'], $owner);
+
     $this->actingAs($member)
-        ->post(route('sauce-requests.tags.store', $sauceRequest), [
+        ->put(route('sauce-requests.tags.update', $sauceRequest), [
             'tags' => 'cute cat_ears',
         ])
         ->assertRedirect();
@@ -162,43 +164,42 @@ it('lets any authenticated user add tags', function () {
     expect($sauceRequest->fresh()->tags->pluck('name')->all())
         ->toBe(['cute', 'cat_ears']);
 
-    $history = SauceRequestTaggingHistory::firstOrFail();
+    $history = SauceRequestTaggingHistory::latest('id')->firstOrFail();
     expect($history->user_id)->toBe($member->id);
     expect($history->added_tags)->toBe(['cute', 'cat_ears']);
+    expect($history->removed_tags)->toBe(['1girl', 'smile']);
 });
 
-it('lets any authenticated user remove a tag', function () {
+it('lets any authenticated user remove all tags by clearing the field', function () {
     $owner = User::factory()->create();
     $member = User::factory()->create();
     $sauceRequest = makeTaggedSauceRequest($owner);
 
     app(TagService::class)->add($sauceRequest, ['1girl', 'smile'], $owner);
-    $tag = Tag::where('name', 'smile')->firstOrFail();
 
     $this->actingAs($member)
-        ->delete(route('sauce-requests.tags.destroy', [$sauceRequest, $tag]))
+        ->put(route('sauce-requests.tags.update', $sauceRequest), [
+            'tags' => '',
+        ])
         ->assertRedirect();
 
     expect($sauceRequest->fresh()->tags->pluck('name')->all())
-        ->toBe(['1girl']);
+        ->toBe([]);
 
     $history = SauceRequestTaggingHistory::latest('id')->firstOrFail();
     expect($history->user_id)->toBe($member->id);
-    expect($history->removed_tags)->toBe(['smile']);
+    expect($history->removed_tags)->toBe(['1girl', 'smile']);
 });
 
-it('redirects guests away from the tag routes', function () {
+it('redirects guests away from the tag route', function () {
     $owner = User::factory()->create();
     $sauceRequest = makeTaggedSauceRequest($owner);
 
-    $this->post(route('sauce-requests.tags.store', $sauceRequest), ['tags' => 'cute'])
-        ->assertRedirect(route('login'));
-
-    $this->delete(route('sauce-requests.tags.destroy', [$sauceRequest, 1]))
+    $this->put(route('sauce-requests.tags.update', $sauceRequest), ['tags' => 'cute'])
         ->assertRedirect(route('login'));
 });
 
-it('does not duplicate tags when adding an existing tag', function () {
+it('does not duplicate tags when syncing an unchanged set', function () {
     $owner = User::factory()->create();
     $member = User::factory()->create();
     $sauceRequest = makeTaggedSauceRequest($owner);
@@ -206,7 +207,7 @@ it('does not duplicate tags when adding an existing tag', function () {
     app(TagService::class)->add($sauceRequest, ['1girl'], $owner);
 
     $this->actingAs($member)
-        ->post(route('sauce-requests.tags.store', $sauceRequest), [
+        ->put(route('sauce-requests.tags.update', $sauceRequest), [
             'tags' => '1girl',
         ])
         ->assertRedirect();
@@ -214,6 +215,6 @@ it('does not duplicate tags when adding an existing tag', function () {
     expect($sauceRequest->fresh()->tags->pluck('name')->all())
         ->toBe(['1girl']);
 
-    // No new history row should be recorded for a no-op add.
+    // No new history row should be recorded for a no-op sync.
     expect(SauceRequestTaggingHistory::count())->toBe(1);
 });
