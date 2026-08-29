@@ -219,3 +219,85 @@ it('does not duplicate tags when syncing an unchanged set', function () {
     // No new history row should be recorded for a no-op sync.
     expect(SauceRequestTaggingHistory::count())->toBe(1);
 });
+
+// ---------------------------------------------------------------------------
+// Rate limiting community tag modifications
+// ---------------------------------------------------------------------------
+
+it('rate limits a member to 5 tag modifications per minute', function () {
+    $owner = User::factory()->create();
+    $member = User::factory()->create();
+    $sauceRequest = makeTaggedSauceRequest($owner);
+
+    $this->actingAs($member);
+
+    for ($i = 0; $i < 5; $i++) {
+        $this->put(route('sauce-requests.tags.update', $sauceRequest), [
+            'tags' => "tag{$i}",
+        ])->assertRedirect();
+    }
+
+    $this->put(route('sauce-requests.tags.update', $sauceRequest), [
+        'tags' => 'tag6',
+    ])->assertTooManyRequests();
+});
+
+it('does not rate limit the owner of the sauce request', function () {
+    $owner = User::factory()->create();
+    $sauceRequest = makeTaggedSauceRequest($owner);
+
+    $this->actingAs($owner);
+
+    for ($i = 0; $i < 10; $i++) {
+        $this->put(route('sauce-requests.tags.update', $sauceRequest), [
+            'tags' => "tag{$i}",
+        ])->assertRedirect();
+    }
+});
+
+it('does not rate limit moderators', function () {
+    $owner = User::factory()->create();
+    $moderator = User::factory()->create(['type' => 'moderator']);
+    $sauceRequest = makeTaggedSauceRequest($owner);
+
+    $this->actingAs($moderator);
+
+    for ($i = 0; $i < 10; $i++) {
+        $this->put(route('sauce-requests.tags.update', $sauceRequest), [
+            'tags' => "tag{$i}",
+        ])->assertRedirect();
+    }
+});
+
+it('does not rate limit admins', function () {
+    $owner = User::factory()->create();
+    $admin = User::factory()->create(['type' => 'admin']);
+    $sauceRequest = makeTaggedSauceRequest($owner);
+
+    $this->actingAs($admin);
+
+    for ($i = 0; $i < 10; $i++) {
+        $this->put(route('sauce-requests.tags.update', $sauceRequest), [
+            'tags' => "tag{$i}",
+        ])->assertRedirect();
+    }
+});
+
+it('rate limits the restore route for members', function () {
+    $owner = User::factory()->create();
+    $member = User::factory()->create();
+    $sauceRequest = makeTaggedSauceRequest($owner);
+
+    app(TagService::class)->add($sauceRequest, ['1girl'], $owner);
+    $target = SauceRequestTaggingHistory::firstOrFail();
+
+    $this->actingAs($member);
+
+    for ($i = 0; $i < 5; $i++) {
+        $this->post(route('sauce-requests.tags.history.restore', [$sauceRequest, $target]))
+            ->assertRedirect();
+    }
+
+    $this->post(route('sauce-requests.tags.history.restore', [$sauceRequest, $target]))
+        ->assertTooManyRequests();
+});
