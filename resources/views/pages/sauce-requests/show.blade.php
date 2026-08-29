@@ -122,6 +122,12 @@
                                         </button>
                                     </div>
                                 @endif
+
+                                <a href="{{ route('sauce-requests.tags.history', $sauceRequest) }}"
+                                    class="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-gray-400 transition hover:text-white">
+                                    <x-lucide-history class="h-3.5 w-3.5" />
+                                    View tagging history
+                                </a>
                             </div>
 
                             {{-- Edit mode: single editable field replacing the whole set --}}
