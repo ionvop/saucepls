@@ -74,7 +74,6 @@ class SauceRequestController extends Controller
             'image_path' => $imagePath,
             'phash64' => $phash,
             'is_explicit' => $validated['is_explicit'] ?? true,
-            'status' => SauceRequest::STATUS_DRAFT,
         ]);
 
         // Persist the tags suggested by the model inference pipeline so
@@ -109,7 +108,6 @@ class SauceRequestController extends Controller
 
         $sauceRequest->update([
             'text' => $validated['text'] ?? '',
-            'status' => SauceRequest::STATUS_POSTED,
         ]);
 
         $this->tags->sync($sauceRequest, (string) ($validated['tags'] ?? ''), $request->user());
