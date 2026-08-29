@@ -182,6 +182,11 @@
                         Search
                     </x-nav-link>
 
+                    <x-nav-link :href="route('sauce-requests.index')" :active="request()->routeIs('sauce-requests.*')">
+                        <x-slot:icon><x-lucide-image class="h-5 w-5" /></x-slot:icon>
+                        Sauce Requests
+                    </x-nav-link>
+
                     <x-nav-link :href="route('notifications')" :active="request()->routeIs('notifications')">
                         <x-slot:icon><x-lucide-bell class="h-5 w-5" /></x-slot:icon>
                         Notifications
@@ -237,6 +242,11 @@
                 <a href="{{ route('search') }}" class="flex flex-col items-center gap-0.5 rounded-lg px-3 py-2 text-xs text-gray-400 transition hover:text-white {{ request()->routeIs('search') ? 'text-[#5555AA]' : '' }}">
                     <x-lucide-search class="h-5 w-5" />
                     <span>Search</span>
+                </a>
+
+                <a href="{{ route('sauce-requests.index') }}" class="flex flex-col items-center gap-0.5 rounded-lg px-3 py-2 text-xs text-gray-400 transition hover:text-white {{ request()->routeIs('sauce-requests.*') ? 'text-[#5555AA]' : '' }}">
+                    <x-lucide-image class="h-5 w-5" />
+                    <span>Requests</span>
                 </a>
 
                 <a href="{{ route('create') }}" class="flex flex-col items-center gap-0.5 rounded-lg px-3 py-2 text-xs text-gray-400 transition hover:text-white {{ request()->routeIs('create') ? 'text-[#5555AA]' : '' }}">
