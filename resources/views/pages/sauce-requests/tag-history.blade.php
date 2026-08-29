@@ -50,6 +50,19 @@
                                     <span class="text-gray-400">{{ $entry->created_at?->format('M j, Y g:i A') }}</span>
                                 </div>
 
+                                <div class="mt-3">
+                                    <span class="text-xs text-gray-500">Tags after this change:</span>
+                                    <div class="mt-1.5 flex flex-wrap gap-1.5">
+                                        @forelse ($entry->tags_snapshot ?? [] as $tag)
+                                            <span class="inline-flex items-center rounded-full bg-[#5555AA]/20 px-2.5 py-0.5 text-xs font-medium text-[#8888CC]">
+                                                {{ $tag }}
+                                            </span>
+                                        @empty
+                                            <span class="text-xs text-gray-500">No tags.</span>
+                                        @endforelse
+                                    </div>
+                                </div>
+
                                 <div class="mt-3 flex flex-wrap items-center gap-2">
                                     @if (! empty($entry->added_tags))
                                         <span class="text-xs text-gray-500">Added:</span>
@@ -75,15 +88,6 @@
                                 </div>
 
                                 <div class="mt-4 flex flex-wrap items-center gap-2">
-                                    <form method="POST" action="{{ route('sauce-requests.tags.history.revert', [$sauceRequest, $entry]) }}">
-                                        @csrf
-                                        <button type="submit"
-                                            class="inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-3 py-1.5 text-xs font-medium text-gray-300 transition hover:border-white/20 hover:text-white">
-                                            <x-lucide-undo-2 class="h-3.5 w-3.5" />
-                                            Revert this change
-                                        </button>
-                                    </form>
-
                                     <form method="POST" action="{{ route('sauce-requests.tags.history.restore', [$sauceRequest, $entry]) }}">
                                         @csrf
                                         <button type="submit"
