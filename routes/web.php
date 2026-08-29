@@ -49,11 +49,15 @@ Route::middleware('auth')->group(function () {
     Route::put('/sauce-requests/{sauceRequest}', [SauceRequestController::class, 'update'])->name('sauce-requests.update');
 
     // --- Community tagging ---
-    Route::put('/sauce-requests/{sauceRequest}/tags', [SauceRequestTagController::class, 'update'])->name('sauce-requests.tags.update');
+    Route::put('/sauce-requests/{sauceRequest}/tags', [SauceRequestTagController::class, 'update'])
+        ->middleware('throttle:tagging')
+        ->name('sauce-requests.tags.update');
 
     // --- Tagging history ---
     Route::get('/sauce-requests/{sauceRequest}/tags/history', [SauceRequestTagHistoryController::class, 'index'])->name('sauce-requests.tags.history');
-    Route::post('/sauce-requests/{sauceRequest}/tags/history/{taggingHistory}/restore', [SauceRequestTagHistoryController::class, 'restore'])->name('sauce-requests.tags.history.restore');
+    Route::post('/sauce-requests/{sauceRequest}/tags/history/{taggingHistory}/restore', [SauceRequestTagHistoryController::class, 'restore'])
+        ->middleware('throttle:tagging')
+        ->name('sauce-requests.tags.history.restore');
 })->scopeBindings();
 
 // --- Public profile routes ---
