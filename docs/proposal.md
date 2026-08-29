@@ -2,17 +2,17 @@
 
 ## Introduction
 
-I'm building a social platform called SaucePls where people can ask for the source (or in slang, sauce) of the images they found, more specifically animanga-related whether it's an artwork, a cropped manga panel, or a screenshot of an anime episode.
+We're building a social platform called SaucePls where people can ask for the source (or in slang, sauce) of the images they found, more specifically animanga-related whether it's an artwork, a cropped manga panel, or a screenshot of an anime episode.
 
 - Users login/register with email OTP or Google OAuth. No passwords needed. Accounts are identified by email, so if a user logs in with a Google account that shares an email with an existing account, that existing account will be logged in.
 - Users post unknown images as a sauce request.
 - Before a sauce request is posted, it runs a four step process:
   - A reverse image search to check if there's already an existing sauce request for that image. (Perceptual Hashing will be used for this.)
     - If an existing sauce request is found, the user may view the existing sauce request or continue to the next step.
-  - SauceNAO is run on the image to check if it's easily identifiable. (I'll be using `ClarityCafe/Sagiri` for this.)
+  - SauceNAO is run on the image to check if it's easily identifiable. (See `docs/saucenao-example.md`)
     - If SauceNAO finds a match, the user may view the result or continue to the next step.
   - The image is scanned with OCR to automatically extract text from the image.
-  - The image is sent to an external API for model inference to automatically provide possible tags for the image. (I'll be using `SmilingWolf/wd-swinv2-tagger-v3` for this running on a Huggingface Space.)
+  - The image is sent to an external API for model inference to automatically provide possible tags for the image. (See `docs/deepdanbooru-example.md`)
 - The community may add missing tags or remove irrelevant tags, however these changes are logged and attributed to the user making the change incase of griefing or abuse.
 - The community may comment for discussion or provide the sauce if they recognize the image.
 - Original poster or a moderator can choose the accepted sauce.
@@ -63,7 +63,7 @@ text: str, default = "" // The text extracted from the image if it contains any.
 image_path: str // The path to the image file.
 accepted_sauce: int, fk = sauce_answers.id, default = null // The accepted sauce.
 phash64: str // Used if someone tries to upload a duplicate request to an already existing sauce request.
-is_explicit: bool, default = false // Whether the image contains explicit content.
+is_explicit: bool, default = true // Whether the image contains explicit content.
 deleted_at: datetime, default = null
 created_at: datetime
 updated_at: datetime
@@ -95,8 +95,7 @@ sauce_request_tagging_history
 id: int, pk
 sauce_request_id: int, fk = sauce_requests.id
 user_id: int, fk = users.id // The user who made the change.
-before_tags: str // The tags before the change. Used to revert changes. e.g. "1girl red_eyes"
-after_tags: str // The tags after the change. Used to check for griefing or abuse. e.g. "1girl black_hair red_eyes"
+// I'll let you handle how tagging is recorded.
 created_at: datetime
 updated_at: datetime
 
