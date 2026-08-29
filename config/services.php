@@ -47,4 +47,10 @@ return [
         'from_name' => env('BREVO_FROM_NAME', 'SaucePls'),
     ],
 
+    'duplicate' => [
+        // The maximum Hamming distance between two 64-bit perceptual
+        // hashes for the images to be considered duplicates.
+        'phash_threshold' => env('DUPLICATE_PHASH_THRESHOLD', 10),
+    ],
+
 ];
