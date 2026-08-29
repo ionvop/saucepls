@@ -18,8 +18,12 @@ class DuplicateDetectionService
      * Find the closest existing sauce request whose perceptual hash is
      * within the configured Hamming distance threshold, or null when no
      * duplicate is found.
+     *
+     * @param  int|null  $excludeId  A sauce request id to skip, e.g. the
+     *                               draft that was just created for the
+     *                               uploaded image.
      */
-    public function findDuplicate(string $phash): ?SauceRequest
+    public function findDuplicate(string $phash, ?int $excludeId = null): ?SauceRequest
     {
         $threshold = (int) config('services.duplicate.phash_threshold', 10);
 
@@ -27,6 +31,10 @@ class DuplicateDetectionService
         $closestDistance = PHP_INT_MAX;
 
         foreach (SauceRequest::query()->get() as $sauceRequest) {
+            if ($sauceRequest->id === $excludeId) {
+                continue;
+            }
+
             $distance = $this->perceptualHash->distance($phash, $sauceRequest->phash64);
 
             if ($distance <= $threshold && $distance < $closestDistance) {
