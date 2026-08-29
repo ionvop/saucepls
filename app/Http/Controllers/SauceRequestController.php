@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\PublishSauceRequestRequest;
 use App\Http\Requests\StoreSauceRequestRequest;
 use App\Http\Requests\UpdateSauceRequestRequest;
 use App\Models\SauceRequest;
@@ -47,9 +48,11 @@ class SauceRequestController extends Controller
     }
 
     /**
-     * Store a newly created sauce request.
+     * Store the uploaded image as a draft sauce request and run the
+     * pre-post pipeline (steps 3 and 4: OCR text + tag inference) to
+     * supply the initial values for the details page.
      */
-    public function store(StoreSauceRequestRequest $request): RedirectResponse
+    public function upload(StoreSauceRequestRequest $request): RedirectResponse
     {
         $validated = $request->validated();
 
@@ -71,14 +74,45 @@ class SauceRequestController extends Controller
             'image_path' => $imagePath,
             'phash64' => $phash,
             'is_explicit' => $validated['is_explicit'] ?? true,
+            'status' => SauceRequest::STATUS_DRAFT,
         ]);
 
-        // Persist the tags suggested by the model inference pipeline
-        // together with any tags the user entered manually.
-        $suggestedTags = $this->tagInference->infer($absolutePath);
-        $combinedTags = implode(' ', array_merge((array) $suggestedTags, [(string) ($validated['tags'] ?? '')]));
+        // Persist the tags suggested by the model inference pipeline so
+        // they can be reviewed and edited on the details page.
+        $this->tags->sync($sauceRequest, (array) $suggestedTags, $request->user());
 
-        $this->tags->sync($sauceRequest, $combinedTags, $request->user());
+        return redirect()
+            ->route('sauce-requests.details', $sauceRequest);
+    }
+
+    /**
+     * Show the details page where the user can review and edit the OCR
+     * text and the tags suggested by the inference pipeline before posting.
+     */
+    public function details(Request $request, SauceRequest $sauceRequest): View
+    {
+        abort_unless($request->user()?->is($sauceRequest->user), 403);
+
+        $sauceRequest->load(['user', 'tags']);
+
+        return view('pages.sauce-requests.details', [
+            'sauceRequest' => $sauceRequest,
+        ]);
+    }
+
+    /**
+     * Publish a draft sauce request with the user's final text and tags.
+     */
+    public function publish(PublishSauceRequestRequest $request, SauceRequest $sauceRequest): RedirectResponse
+    {
+        $validated = $request->validated();
+
+        $sauceRequest->update([
+            'text' => $validated['text'] ?? '',
+            'status' => SauceRequest::STATUS_POSTED,
+        ]);
+
+        $this->tags->sync($sauceRequest, (string) ($validated['tags'] ?? ''), $request->user());
 
         return redirect()
             ->route('sauce-requests.show', $sauceRequest)
