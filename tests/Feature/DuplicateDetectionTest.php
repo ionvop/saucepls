@@ -74,3 +74,14 @@ it('ignores soft-deleted requests when detecting duplicates', function () {
 
     expect($service->findDuplicate('0f00000000000000'))->toBeNull();
 });
+
+it('does not flag a request as a duplicate of itself', function () {
+    $user = User::factory()->create();
+    $draft = makePhashSauceRequest($user, '0000000000000000');
+
+    $service = app(DuplicateDetectionService::class);
+
+    // The draft's own phash is an exact match (distance 0), but it must
+    // be excluded so the upload is not flagged as a duplicate of itself.
+    expect($service->findDuplicate('0000000000000000', $draft->id))->toBeNull();
+});
