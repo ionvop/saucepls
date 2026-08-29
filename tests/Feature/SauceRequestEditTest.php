@@ -2,7 +2,9 @@
 
 use App\Models\SauceRequest;
 use App\Models\User;
+use App\Services\TagService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 
 uses(RefreshDatabase::class);
 
@@ -155,4 +157,123 @@ it('rejects a title that is too long', function () {
             'title' => str_repeat('a', 121),
         ])
         ->assertSessionHasErrors('title');
+});
+
+// ---------------------------------------------------------------------------
+// Uploading an image (draft creation)
+// ---------------------------------------------------------------------------
+
+it('creates a draft sauce request when uploading an image', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->post(route('sauce-requests.upload'), [
+            'title' => 'Who drew this?',
+            'description' => 'Found it on Discord.',
+            'image' => UploadedFile::fake()->image('art.png'),
+        ])
+        ->assertRedirect();
+
+    $sauceRequest = SauceRequest::firstOrFail();
+
+    expect($sauceRequest->status)->toBe(SauceRequest::STATUS_DRAFT);
+    expect($sauceRequest->title)->toBe('Who drew this?');
+    expect($sauceRequest->description)->toBe('Found it on Discord.');
+    expect($sauceRequest->image_path)->not->toBeNull();
+});
+
+it('redirects guests away from the upload action', function () {
+    $this->post(route('sauce-requests.upload'), [
+        'image' => UploadedFile::fake()->image('art.png'),
+    ])->assertRedirect(route('login'));
+});
+
+// ---------------------------------------------------------------------------
+// Viewing the details page
+// ---------------------------------------------------------------------------
+
+it('redirects guests away from the details page', function () {
+    $owner = User::factory()->create();
+    $sauceRequest = makeSauceRequest($owner);
+
+    $this->get(route('sauce-requests.details', $sauceRequest))
+        ->assertRedirect(route('login'));
+});
+
+it('forbids a non-owner from viewing the details page', function () {
+    $owner = User::factory()->create();
+    $other = User::factory()->create();
+    $sauceRequest = makeSauceRequest($owner);
+
+    $this->actingAs($other)
+        ->get(route('sauce-requests.details', $sauceRequest))
+        ->assertForbidden();
+});
+
+it('shows the details page to the owner with prefilled text and tags', function () {
+    $owner = User::factory()->create();
+    $sauceRequest = makeSauceRequest($owner, [
+        'text' => 'Hello world',
+    ]);
+
+    app(TagService::class)->add($sauceRequest, ['1girl', 'smile'], $owner);
+
+    $this->actingAs($owner)
+        ->get(route('sauce-requests.details', $sauceRequest))
+        ->assertOk()
+        ->assertSee('Hello world')
+        ->assertSee('1girl smile');
+});
+
+// ---------------------------------------------------------------------------
+// Publishing a draft
+// ---------------------------------------------------------------------------
+
+it('publishes a draft with the edited text and tags', function () {
+    $owner = User::factory()->create();
+    $sauceRequest = makeSauceRequest($owner, [
+        'text' => 'Original OCR text',
+        'status' => SauceRequest::STATUS_DRAFT,
+    ]);
+
+    $this->actingAs($owner)
+        ->post(route('sauce-requests.publish', $sauceRequest), [
+            'text' => 'Edited text',
+            'tags' => '1girl black_hair',
+        ])
+        ->assertRedirect(route('sauce-requests.show', $sauceRequest));
+
+    $fresh = $sauceRequest->fresh();
+
+    expect($fresh->status)->toBe(SauceRequest::STATUS_POSTED);
+    expect($fresh->text)->toBe('Edited text');
+    expect($fresh->tags->pluck('name')->all())->toBe(['1girl', 'black_hair']);
+});
+
+it('redirects guests away from the publish action', function () {
+    $owner = User::factory()->create();
+    $sauceRequest = makeSauceRequest($owner);
+
+    $this->post(route('sauce-requests.publish', $sauceRequest), [
+        'text' => 'Edited text',
+    ])->assertRedirect(route('login'));
+});
+
+it('forbids a non-owner from publishing a draft', function () {
+    $owner = User::factory()->create();
+    $other = User::factory()->create();
+    $sauceRequest = makeSauceRequest($owner, [
+        'status' => SauceRequest::STATUS_DRAFT,
+    ]);
+
+    $this->actingAs($other)
+        ->post(route('sauce-requests.publish', $sauceRequest), [
+            'text' => 'Hacked text',
+        ])
+        ->assertForbidden();
+
+    $this->assertDatabaseHas('sauce_requests', [
+        'id' => $sauceRequest->id,
+        'status' => SauceRequest::STATUS_DRAFT,
+    ]);
 });
