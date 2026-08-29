@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SauceRequestController;
+use App\Http\Controllers\SauceRequestTagController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -45,6 +46,10 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/sauce-requests/{sauceRequest}/edit', [SauceRequestController::class, 'edit'])->name('sauce-requests.edit');
     Route::put('/sauce-requests/{sauceRequest}', [SauceRequestController::class, 'update'])->name('sauce-requests.update');
+
+    // --- Community tagging ---
+    Route::post('/sauce-requests/{sauceRequest}/tags', [SauceRequestTagController::class, 'store'])->name('sauce-requests.tags.store');
+    Route::delete('/sauce-requests/{sauceRequest}/tags/{tag}', [SauceRequestTagController::class, 'destroy'])->name('sauce-requests.tags.destroy');
 });
 
 // --- Public profile routes ---
