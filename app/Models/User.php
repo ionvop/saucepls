@@ -83,4 +83,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(SauceRequest::class);
     }
+
+    /**
+     * Whether the user is a moderator or admin (i.e. not a regular member).
+     */
+    public function isStaff(): bool
+    {
+        return $this->type !== 'member';
+    }
 }
