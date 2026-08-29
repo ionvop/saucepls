@@ -154,6 +154,73 @@ class TagService
     }
 
     /**
+     * Undo a single recorded tagging change by re-attaching the tags that
+     * were removed and detaching the tags that were added. The reversal is
+     * itself recorded in the history to preserve the audit trail.
+     */
+    public function revert(SauceRequestTaggingHistory $history, User $user): void
+    {
+        $sauceRequest = $history->sauceRequest;
+
+        $current = $sauceRequest->tags()->pluck('tags.name')->all();
+
+        // Re-attach the tags that the change removed, and detach the tags
+        // that the change added. Only act on tags that are actually present
+        // or absent so a no-op revert does not record anything.
+        $toAdd = array_values(array_diff($history->removed_tags ?? [], $current));
+        $toRemove = array_values(array_intersect($history->added_tags ?? [], $current));
+
+        if ($toAdd === [] && $toRemove === []) {
+            return;
+        }
+
+        $added = [];
+
+        foreach ($toAdd as $name) {
+            $tag = Tag::firstOrCreate(['name' => $name]);
+
+            $sauceRequest->tags()->attach($tag);
+            $added[] = $name;
+        }
+
+        $removed = [];
+
+        if ($toRemove !== []) {
+            $tagIds = Tag::whereIn('name', $toRemove)->pluck('id')->all();
+
+            $sauceRequest->tags()->detach($tagIds);
+            $removed = $toRemove;
+        }
+
+        $this->record($sauceRequest, $user, added: $added, removed: $removed);
+    }
+
+    /**
+     * Restore a sauce request's tags to the state they were in immediately
+     * after the given history entry was applied. Because history rows only
+     * store per-change diffs, the target state is reconstructed by folding
+     * every change up to and including the target forward from an empty set.
+     * The resulting change is recorded in the history for attribution.
+     */
+    public function restoreTo(SauceRequest $sauceRequest, SauceRequestTaggingHistory $target, User $user): void
+    {
+        $state = [];
+
+        $history = SauceRequestTaggingHistory::query()
+            ->where('sauce_request_id', $sauceRequest->id)
+            ->where('id', '<=', $target->id)
+            ->orderBy('id')
+            ->get();
+
+        foreach ($history as $entry) {
+            $state = array_values(array_diff($state, $entry->removed_tags ?? []));
+            $state = array_values(array_unique(array_merge($state, $entry->added_tags ?? [])));
+        }
+
+        $this->sync($sauceRequest, $state, $user);
+    }
+
+    /**
      * Persist a tagging change for attribution.
      *
      * @param  array<int, string>  $added
