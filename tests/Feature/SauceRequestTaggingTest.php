@@ -64,36 +64,46 @@ it('drops empty tags', function () {
 // Storing tags with a new sauce request
 // ---------------------------------------------------------------------------
 
-it('persists user-entered tags when creating a sauce request', function () {
+it('persists user-entered tags when publishing a sauce request', function () {
     $user = User::factory()->create();
 
     $this->actingAs($user)
-        ->post(route('sauce-requests.store'), [
+        ->post(route('sauce-requests.upload'), [
             'title' => 'Who drew this?',
             'description' => 'Found it on Discord.',
             'image' => UploadedFile::fake()->image('art.png'),
-            'tags' => '1girl Black_Hair smile',
         ])
         ->assertRedirect();
 
     $sauceRequest = SauceRequest::firstOrFail();
 
-    expect($sauceRequest->tags->pluck('name')->all())
+    $this->actingAs($user)
+        ->post(route('sauce-requests.publish', $sauceRequest), [
+            'tags' => '1girl Black_Hair smile',
+        ])
+        ->assertRedirect(route('sauce-requests.show', $sauceRequest));
+
+    expect($sauceRequest->fresh()->tags->pluck('name')->all())
         ->toBe(['1girl', 'black_hair', 'smile']);
 });
 
-it('records tagging history when creating a sauce request', function () {
+it('records tagging history when publishing a sauce request', function () {
     $user = User::factory()->create();
 
     $this->actingAs($user)
-        ->post(route('sauce-requests.store'), [
+        ->post(route('sauce-requests.upload'), [
             'title' => 'Who drew this?',
             'image' => UploadedFile::fake()->image('art.png'),
-            'tags' => '1girl smile',
         ])
         ->assertRedirect();
 
     $sauceRequest = SauceRequest::firstOrFail();
+
+    $this->actingAs($user)
+        ->post(route('sauce-requests.publish', $sauceRequest), [
+            'tags' => '1girl smile',
+        ])
+        ->assertRedirect(route('sauce-requests.show', $sauceRequest));
 
     $this->assertDatabaseHas('sauce_request_tagging_history', [
         'sauce_request_id' => $sauceRequest->id,
