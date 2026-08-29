@@ -23,6 +23,7 @@ function makeTaggedSauceRequest(User $user, array $attributes = []): SauceReques
         'image_path' => 'sauce-requests/test.png',
         'phash64' => 'aaaaaaaaaaaaaaaa',
         'is_explicit' => true,
+        'published_at' => now(),
     ], $attributes));
 }
 
