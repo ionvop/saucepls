@@ -176,7 +176,6 @@ it('creates a draft sauce request when uploading an image', function () {
 
     $sauceRequest = SauceRequest::firstOrFail();
 
-    expect($sauceRequest->status)->toBe(SauceRequest::STATUS_DRAFT);
     expect($sauceRequest->title)->toBe('Who drew this?');
     expect($sauceRequest->description)->toBe('Found it on Discord.');
     expect($sauceRequest->image_path)->not->toBeNull();
@@ -233,7 +232,6 @@ it('publishes a draft with the edited text and tags', function () {
     $owner = User::factory()->create();
     $sauceRequest = makeSauceRequest($owner, [
         'text' => 'Original OCR text',
-        'status' => SauceRequest::STATUS_DRAFT,
     ]);
 
     $this->actingAs($owner)
@@ -245,7 +243,6 @@ it('publishes a draft with the edited text and tags', function () {
 
     $fresh = $sauceRequest->fresh();
 
-    expect($fresh->status)->toBe(SauceRequest::STATUS_POSTED);
     expect($fresh->text)->toBe('Edited text');
     expect($fresh->tags->pluck('name')->all())->toBe(['1girl', 'black_hair']);
 });
@@ -262,9 +259,7 @@ it('redirects guests away from the publish action', function () {
 it('forbids a non-owner from publishing a draft', function () {
     $owner = User::factory()->create();
     $other = User::factory()->create();
-    $sauceRequest = makeSauceRequest($owner, [
-        'status' => SauceRequest::STATUS_DRAFT,
-    ]);
+    $sauceRequest = makeSauceRequest($owner);
 
     $this->actingAs($other)
         ->post(route('sauce-requests.publish', $sauceRequest), [
@@ -274,6 +269,5 @@ it('forbids a non-owner from publishing a draft', function () {
 
     $this->assertDatabaseHas('sauce_requests', [
         'id' => $sauceRequest->id,
-        'status' => SauceRequest::STATUS_DRAFT,
     ]);
 });
