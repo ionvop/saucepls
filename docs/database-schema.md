@@ -61,7 +61,9 @@ sauce_request_tagging_history
 id: int, pk
 sauce_request_id: int, fk = sauce_requests.id
 user_id: int, fk = users.id // The user who made the change.
-// I'll let you handle how tagging is recorded.
+added_tags: json // Tags added by this change.
+removed_tags: json // Tags removed by this change.
+tags_snapshot: json // Full resulting tag state immediately after this change.
 created_at: datetime
 updated_at: datetime
 
