@@ -6,6 +6,7 @@ use App\Http\Requests\PublishSauceRequestRequest;
 use App\Http\Requests\StoreSauceRequestRequest;
 use App\Http\Requests\UpdateSauceRequestRequest;
 use App\Models\SauceRequest;
+use App\Services\DuplicateDetectionService;
 use App\Services\OcrService;
 use App\Services\PerceptualHashService;
 use App\Services\TagInferenceService;
@@ -19,6 +20,7 @@ class SauceRequestController extends Controller
 {
     public function __construct(
         private readonly PerceptualHashService $perceptualHash,
+        private readonly DuplicateDetectionService $duplicateDetection,
         private readonly OcrService $ocr,
         private readonly TagInferenceService $tagInference,
         private readonly TagService $tags,
@@ -80,8 +82,36 @@ class SauceRequestController extends Controller
         // they can be reviewed and edited on the details page.
         $this->tags->sync($sauceRequest, (array) $suggestedTags, $request->user());
 
+        // Step 1 of the pre-post pipeline: reverse image search. If the
+        // image is a near-duplicate of an existing sauce request, send
+        // the user to an intermediate page where they can view the
+        // existing request or continue anyway.
+        $duplicate = $this->duplicateDetection->findDuplicate($phash);
+
+        if ($duplicate !== null) {
+            return redirect()
+                ->route('sauce-requests.duplicate', [$sauceRequest, 'duplicate' => $duplicate]);
+        }
+
         return redirect()
             ->route('sauce-requests.details', $sauceRequest);
+    }
+
+    /**
+     * Show the intermediate page when the uploaded image is a
+     * near-duplicate of an existing sauce request.
+     */
+    public function duplicate(Request $request, SauceRequest $sauceRequest, SauceRequest $duplicate): View
+    {
+        abort_unless($request->user()?->is($sauceRequest->user), 403);
+
+        $sauceRequest->load(['user', 'tags']);
+        $duplicate->load(['user', 'tags']);
+
+        return view('pages.sauce-requests.duplicate', [
+            'sauceRequest' => $sauceRequest,
+            'duplicate' => $duplicate,
+        ]);
     }
 
     /**
