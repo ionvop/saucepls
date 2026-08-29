@@ -21,6 +21,7 @@ function makeSauceRequest(User $user, array $attributes = []): SauceRequest
         'image_path' => 'sauce-requests/test.png',
         'phash64' => 'aaaaaaaaaaaaaaaa',
         'is_explicit' => true,
+        'published_at' => now(),
     ], $attributes));
 }
 
@@ -270,4 +271,108 @@ it('forbids a non-owner from publishing a draft', function () {
     $this->assertDatabaseHas('sauce_requests', [
         'id' => $sauceRequest->id,
     ]);
+});
+
+// ---------------------------------------------------------------------------
+// Publishing sets the published_at timestamp
+// ---------------------------------------------------------------------------
+
+it('sets published_at when a draft is published', function () {
+    $owner = User::factory()->create();
+    $sauceRequest = makeSauceRequest($owner, [
+        'published_at' => null,
+    ]);
+
+    $this->actingAs($owner)
+        ->post(route('sauce-requests.publish', $sauceRequest), [
+            'text' => 'Edited text',
+        ])
+        ->assertRedirect(route('sauce-requests.show', $sauceRequest));
+
+    expect($sauceRequest->fresh()->published_at)->not->toBeNull();
+});
+
+// ---------------------------------------------------------------------------
+// Canceling a draft
+// ---------------------------------------------------------------------------
+
+it('cancels a draft and redirects to the upload form', function () {
+    $owner = User::factory()->create();
+    $sauceRequest = makeSauceRequest($owner, [
+        'published_at' => null,
+    ]);
+
+    $this->actingAs($owner)
+        ->post(route('sauce-requests.cancel', $sauceRequest))
+        ->assertRedirect(route('create'));
+
+    $this->assertSoftDeleted('sauce_requests', [
+        'id' => $sauceRequest->id,
+    ]);
+});
+
+it('redirects guests away from the cancel action', function () {
+    $owner = User::factory()->create();
+    $sauceRequest = makeSauceRequest($owner);
+
+    $this->post(route('sauce-requests.cancel', $sauceRequest))
+        ->assertRedirect(route('login'));
+});
+
+it('forbids a non-owner from canceling a draft', function () {
+    $owner = User::factory()->create();
+    $other = User::factory()->create();
+    $sauceRequest = makeSauceRequest($owner);
+
+    $this->actingAs($other)
+        ->post(route('sauce-requests.cancel', $sauceRequest))
+        ->assertForbidden();
+
+    $this->assertDatabaseHas('sauce_requests', [
+        'id' => $sauceRequest->id,
+    ]);
+});
+
+// ---------------------------------------------------------------------------
+// Draft visibility
+// ---------------------------------------------------------------------------
+
+it('hides unpublished drafts from the public feed', function () {
+    $owner = User::factory()->create();
+    makeSauceRequest($owner, [
+        'title' => 'Published request',
+        'published_at' => now(),
+    ]);
+    makeSauceRequest($owner, [
+        'title' => 'Hidden draft',
+        'published_at' => null,
+    ]);
+
+    $this->get(route('sauce-requests.index'))
+        ->assertOk()
+        ->assertSee('Published request')
+        ->assertDontSee('Hidden draft');
+});
+
+it('hides unpublished drafts from the public show page', function () {
+    $owner = User::factory()->create();
+    $draft = makeSauceRequest($owner, [
+        'published_at' => null,
+    ]);
+
+    $this->get(route('sauce-requests.show', $draft))
+        ->assertNotFound();
+});
+
+it('allows the owner to preview their own unpublished draft', function () {
+    $owner = User::factory()->create();
+    $draft = makeSauceRequest($owner, [
+        'title' => 'My draft',
+        'published_at' => null,
+    ]);
+
+    $this->actingAs($owner)
+        ->get(route('sauce-requests.show', $draft))
+        ->assertOk()
+        ->assertSee('My draft');
 });
