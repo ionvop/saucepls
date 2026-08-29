@@ -2,11 +2,11 @@
 
 namespace App\Providers;
 
+use App\Models\SauceRequest;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
-use App\Models\SauceRequest;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -24,6 +24,27 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureTaggingRateLimiter();
+        $this->configureUploadRateLimiter();
+    }
+
+    /**
+     * Rate limit sauce request uploads to prevent abuse of the pre-post
+     * pipeline (perceptual hashing, SauceNAO, OCR, and tag inference),
+     * which all run within the upload request.
+     *
+     * Staff (moderators/admins) are exempt.
+     */
+    protected function configureUploadRateLimiter(): void
+    {
+        RateLimiter::for('upload', function (Request $request) {
+            $user = $request->user();
+
+            if ($user && $user->isStaff()) {
+                return Limit::none();
+            }
+
+            return Limit::perMinute(10)->by($user?->id ?? $request->ip());
+        });
     }
 
     /**
