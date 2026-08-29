@@ -32,7 +32,7 @@
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('sauce-requests.store') }}" enctype="multipart/form-data" class="mt-6 space-y-6">
+            <form method="POST" action="{{ route('sauce-requests.upload') }}" enctype="multipart/form-data" class="mt-6 space-y-6">
                 @csrf
 
                 {{-- Image --}}
@@ -69,20 +69,6 @@
                     @enderror
                 </div>
 
-                {{-- Tags --}}
-                <div>
-                    <label for="tags" class="mb-1 block text-sm font-medium text-gray-300">Tags</label>
-                    <input type="text" name="tags" id="tags" value="{{ old('tags') }}" maxlength="1000"
-                        placeholder="1girl black_hair smile"
-                        class="w-full rounded-lg border border-white/10 bg-[#111111] px-3 py-2 text-sm text-white placeholder-gray-500 outline-none transition focus:border-[#5555AA] focus:ring-2 focus:ring-[#5555AA]/40">
-                    <p class="mt-1 text-xs text-gray-500">
-                        Space-separated, lowercase, alphanumeric, hyphens, and underscores only.
-                    </p>
-                    @error('tags')
-                        <p class="mt-1 text-xs text-red-400">{{ $message }}</p>
-                    @enderror
-                </div>
-
                 {{-- Explicit toggle --}}
                 <div class="flex items-center justify-between rounded-lg border border-white/10 bg-[#111111] px-4 py-3">
                     <div>
@@ -105,7 +91,7 @@
                     </a>
                     <button type="submit"
                         class="rounded-lg bg-[#5555AA] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#6666BB]">
-                        Post request
+                        Continue
                     </button>
                 </div>
             </form>
