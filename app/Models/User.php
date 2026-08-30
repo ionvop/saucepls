@@ -13,7 +13,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
 
-#[Fillable(['username', 'email', 'description', 'type', 'avatar_path', 'username_changed_at', 'last_seen_at', 'banned_until'])]
+#[Fillable(['username', 'email', 'description', 'type', 'avatar_path', 'username_changed_at', 'last_seen_at', 'banned_until', 'hide_nsfw'])]
 #[Hidden(['remember_token'])]
 class User extends Authenticatable
 {
@@ -37,6 +37,7 @@ class User extends Authenticatable
             'username_changed_at' => 'datetime',
             'banned_until' => 'datetime',
             'deleted_at' => 'datetime',
+            'hide_nsfw' => 'boolean',
         ];
     }
 
