@@ -101,7 +101,7 @@ it('sends the image as a multipart file upload with the threshold query param', 
     app(TagInferenceService::class)->infer($path);
 
     Http::assertSent(function ($request) {
-        return $request->url() === 'https://deepdanbooru.nsk.sh/deepdanbooru?threshold=0.2'
+        return $request->url() === 'https://deepdanbooru.nsk.sh/deepdanbooru?threshold=0.5'
             && $request->hasFile('image');
     });
 });
