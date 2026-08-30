@@ -73,6 +73,22 @@ return [
         'cache_ttl' => env('SAUCENAO_CACHE_TTL', 10),
     ],
 
+    'ocr' => [
+        // API key for the OCR.space OCR API. Get a free one from
+        // https://ocr.space/ocrapi/freekey
+        'key' => env('OCR_SPACE_API_KEY'),
+
+        // The OCR.space parse endpoint.
+        'endpoint' => env('OCR_SPACE_ENDPOINT', 'https://api.ocr.space/parse/image'),
+
+        // Language used for OCR. "auto" lets the API detect it (Engine 2/3).
+        'language' => env('OCR_SPACE_LANGUAGE', 'auto'),
+
+        // The OCR engine to use. Engine 2 is the default and best all-round
+        // choice for noisy/photo backgrounds like animanga images.
+        'engine' => env('OCR_SPACE_ENGINE', 2),
+    ],
+
     'drafts' => [
         // Unpublished drafts abandoned before the user clicks "Post request"
         // are purged opportunistically once they exceed this age.
