@@ -35,11 +35,16 @@ class SauceRequestController extends Controller
     /**
      * Show a paginated feed of published sauce requests.
      */
-    public function index(): View
+    public function index(Request $request): View
     {
+        $hideNsfw = auth()->check()
+            ? auth()->user()->hide_nsfw
+            : (bool) $request->cookie('hide_nsfw');
+
         $sauceRequests = SauceRequest::query()
             ->with('user')
             ->published()
+            ->when($hideNsfw, fn ($query) => $query->where('is_explicit', false))
             ->latest()
             ->paginate(12);
 
