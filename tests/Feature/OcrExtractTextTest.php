@@ -5,6 +5,7 @@ use App\Models\User;
 use App\Services\DuplicateDetectionService;
 use App\Services\OcrService;
 use App\Services\SauceNaoService;
+use App\Services\TagInferenceService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
@@ -111,6 +112,11 @@ it('stores the OCR text as the initial value of the text field', function () {
 
     $this->mock(SauceNaoService::class)
         ->shouldReceive('lookup')
+        ->once()
+        ->andReturn([]);
+
+    $this->mock(TagInferenceService::class)
+        ->shouldReceive('infer')
         ->once()
         ->andReturn([]);
 
