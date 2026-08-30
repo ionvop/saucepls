@@ -12,7 +12,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // The `hide_nsfw` cookie is set client-side by the explicit-content
+        // dialog (resources/js/app.js), so it is plaintext and must not be
+        // encrypted/decrypted by Laravel's EncryptCookies middleware.
+        $middleware->encryptCookies(except: ['hide_nsfw']);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
