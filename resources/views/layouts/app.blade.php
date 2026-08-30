@@ -268,52 +268,52 @@
             </div>
         </nav>
 
-        {{-- First-visit explicit-content warning dialog --}}
-        <div
-            x-data="explicitContentDialog"
-            data-authed="{{ auth()->check() ? '1' : '0' }}"
-            data-hide-nsfw="{{ auth()->check() && auth()->user()->hide_nsfw ? '1' : '0' }}"
-            data-cookie="{{ request()->cookie('hide_nsfw') !== null ? '1' : '0' }}"
-            data-endpoint="{{ route('content-preference.store') }}"
-            x-show="show"
-            x-cloak
-            x-transition.opacity
-            class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
-            @keydown.escape.window="dismiss()"
-        >
-            <div
-                class="w-full max-w-md rounded-2xl border border-white/10 bg-[#111111] p-6 shadow-2xl"
-                @click.outside="dismiss()"
-            >
-                <div class="flex items-start gap-3">
-                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-500/15">
-                        <x-lucide-alert-triangle class="h-5 w-5 text-amber-400" />
-                    </div>
-                    <div>
-                        <h2 class="text-lg font-bold text-white">Explicit content</h2>
-                        <p class="mt-1 text-sm text-gray-400">
-                            This site may contain explicit or adult content. Would you like to hide it?
-                        </p>
-                    </div>
-                </div>
+        {{-- First-visit explicit-content warning dialog (guests who haven't chosen yet) --}}
+        @guest
+            @if (request()->cookie('hide_nsfw') === null)
+                <div
+                    x-data="explicitContentDialog"
+                    x-show="show"
+                    x-cloak
+                    x-transition.opacity
+                    class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+                    @keydown.escape.window="dismiss()"
+                >
+                    <div
+                        class="w-full max-w-md rounded-2xl border border-white/10 bg-[#111111] p-6 shadow-2xl"
+                        @click.outside="dismiss()"
+                    >
+                        <div class="flex items-start gap-3">
+                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-500/15">
+                                <x-lucide-alert-triangle class="h-5 w-5 text-amber-400" />
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-bold text-white">Explicit content</h2>
+                                <p class="mt-1 text-sm text-gray-400">
+                                    This site may contain explicit or adult content. Would you like to hide it?
+                                </p>
+                            </div>
+                        </div>
 
-                <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
-                    <button
-                        type="button"
-                        @click="choose(true)"
-                        class="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-gray-300 transition hover:border-white/20 hover:text-white"
-                    >
-                        Hide explicit content
-                    </button>
-                    <button
-                        type="button"
-                        @click="choose(false)"
-                        class="rounded-lg bg-[#5555AA] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#6666BB]"
-                    >
-                        Show everything
-                    </button>
+                        <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+                            <button
+                                type="button"
+                                @click="choose(true)"
+                                class="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-gray-300 transition hover:border-white/20 hover:text-white"
+                            >
+                                Hide explicit content
+                            </button>
+                            <button
+                                type="button"
+                                @click="choose(false)"
+                                class="rounded-lg bg-[#5555AA] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#6666BB]"
+                            >
+                                Show everything
+                            </button>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
+            @endif
+        @endguest
     </body>
 </html>
