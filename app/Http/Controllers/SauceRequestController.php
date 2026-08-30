@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateSauceRequestRequest;
 use App\Models\SauceRequest;
 use App\Models\User;
 use App\Services\DuplicateDetectionService;
+use App\Services\ImageCompressionService;
 use App\Services\OcrService;
 use App\Services\PerceptualHashService;
 use App\Services\SauceNaoService;
@@ -28,6 +29,7 @@ class SauceRequestController extends Controller
         private readonly TagInferenceService $tagInference,
         private readonly SauceNaoService $sauceNao,
         private readonly TagService $tags,
+        private readonly ImageCompressionService $imageCompression,
     ) {}
 
     /**
@@ -72,6 +74,11 @@ class SauceRequestController extends Controller
         $imagePath = $request->file('image')->store('sauce-requests', 'public');
 
         $absolutePath = Storage::disk('public')->path($imagePath);
+
+        // Compress the image to WebP if it is at or above the target
+        // size. The original is discarded and replaced in place, so the
+        // pre-post pipeline below runs against the compressed image.
+        $this->imageCompression->compressToWebpUnder($absolutePath);
 
         // Run the pre-post pipeline. Each step is currently stubbed and
         // will be replaced with real implementations later.
