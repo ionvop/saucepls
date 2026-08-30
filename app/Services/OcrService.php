@@ -33,9 +33,12 @@ class OcrService
                 'file' => fopen($path, 'r'),
                 'language' => config('services.ocr.language', 'auto'),
                 'OCREngine' => config('services.ocr.engine', 2),
-                'detectOrientation' => true,
-                'scale' => true,
-                'isOverlayRequired' => false,
+                // OCR.space expects these flags as the literal strings
+                // "true"/"false". Sending PHP booleans makes Laravel
+                // serialize them as JSON true/false, which the API rejects.
+                'detectOrientation' => 'true',
+                'scale' => 'true',
+                'isOverlayRequired' => 'false',
             ]);
 
         if (! $response->successful()) {
