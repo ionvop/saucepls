@@ -95,4 +95,21 @@ return [
         'ttl_hours' => env('DRAFTS_TTL_HOURS', 24),
     ],
 
+    'image_compression' => [
+        // Whether uploaded images are compressed to WebP before the
+        // pre-post pipeline runs.
+        'enabled' => env('IMAGE_COMPRESSION_ENABLED', true),
+
+        // Images at or above this size (in bytes) are compressed. The
+        // original is discarded and replaced with the compressed WebP.
+        'max_bytes' => env('IMAGE_COMPRESSION_MAX_BYTES', 1_000_000),
+
+        // The lowest WebP quality to try before scaling the image down.
+        'min_quality' => env('IMAGE_COMPRESSION_MIN_QUALITY', 30),
+
+        // How much to scale the image down on each retry when quality
+        // alone is not enough to reach the target size.
+        'scale_factor' => env('IMAGE_COMPRESSION_SCALE_FACTOR', 0.9),
+    ],
+
 ];
