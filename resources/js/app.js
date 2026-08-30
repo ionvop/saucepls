@@ -58,4 +58,26 @@ Alpine.data('explicitContentDialog', () => ({
     },
 }));
 
+/**
+ * Client-side explicit-content toggle for guests on the settings page.
+ *
+ * Reads the current `hide_nsfw` cookie on mount and writes it back when the
+ * user toggles the switch. Uses the same cookie format as the first-visit
+ * dialog so the feed's guest filtering picks it up immediately.
+ */
+Alpine.data('guestNsfwToggle', () => ({
+    hideNsfw: false,
+
+    init() {
+        this.hideNsfw = document.cookie
+            .split('; ')
+            .find((row) => row.startsWith('hide_nsfw='))
+            ?.split('=')[1] === '1';
+    },
+
+    save() {
+        document.cookie = `hide_nsfw=${this.hideNsfw ? 1 : 0}; path=/; max-age=31536000; SameSite=Lax`;
+    },
+}));
+
 Alpine.start();
