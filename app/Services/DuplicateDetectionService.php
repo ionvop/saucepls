@@ -37,6 +37,12 @@ class DuplicateDetectionService
                 continue;
             }
 
+            // GIFs are stored without a perceptual hash and cannot be
+            // compared for duplicates.
+            if ($sauceRequest->phash64 === null) {
+                continue;
+            }
+
             $distance = $this->perceptualHash->distance($phash, $sauceRequest->phash64);
 
             if ($distance <= $threshold && $distance < $closestDistance) {
