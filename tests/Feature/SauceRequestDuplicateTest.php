@@ -3,6 +3,7 @@
 use App\Models\SauceRequest;
 use App\Models\User;
 use App\Services\DuplicateDetectionService;
+use App\Services\SauceNaoService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 
@@ -56,6 +57,11 @@ it('redirects to the details page when no duplicate is found', function () {
         ->shouldReceive('findDuplicate')
         ->once()
         ->andReturn(null);
+
+    $this->mock(SauceNaoService::class)
+        ->shouldReceive('lookup')
+        ->once()
+        ->andReturn([]);
 
     $this->actingAs($user)
         ->post(route('sauce-requests.upload'), [
@@ -115,9 +121,13 @@ it('rate limits sauce request uploads', function () {
         ->shouldReceive('findDuplicate')
         ->andReturn(null);
 
+    $this->mock(SauceNaoService::class)
+        ->shouldReceive('lookup')
+        ->andReturn([]);
+
     $this->actingAs($user);
 
-    for ($i = 0; $i < 10; $i++) {
+    for ($i = 0; $i < 3; $i++) {
         $this->post(route('sauce-requests.upload'), [
             'title' => 'Who drew this?',
             'image' => UploadedFile::fake()->image('art.png'),
