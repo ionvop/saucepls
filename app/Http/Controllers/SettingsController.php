@@ -13,7 +13,7 @@ class SettingsController extends Controller
      */
     public function edit(): View
     {
-        return view('pages.settings');
+        return view('pages.settings', ['user' => request()->user()]);
     }
 
     /**
