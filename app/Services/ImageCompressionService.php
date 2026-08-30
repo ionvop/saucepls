@@ -7,22 +7,33 @@ namespace App\Services;
  * size before the pre-post pipeline (perceptual hashing, OCR, tag
  * inference, and SauceNAO) runs against them.
  *
- * Images that are already under the target size are left untouched.
- * Animated GIFs are skipped to preserve their animation. The original
- * file is replaced in place so the rest of the upload flow keeps using
- * the same path.
+ * Every non-GIF image is converted to WebP, regardless of its original
+ * size, so all stored images end up as WebP under the target size. GIFs
+ * are skipped to preserve their animation; they bypass the pipeline
+ * entirely and are stored as-is. The original file is replaced in place
+ * so the rest of the upload flow keeps using the same path.
  */
 class ImageCompressionService
 {
+    /**
+     * Whether the image at the given path is a GIF.
+     *
+     * @param  string  $path  Absolute path to the image file.
+     */
+    public function isGif(string $path): bool
+    {
+        return $this->mimeType($path) === 'image/gif';
+    }
+
     /**
      * Compress the image at the given path to WebP, scaling it down
      * until it fits under the target size.
      *
      * @param  string  $path  Absolute path to the image file.
      * @param  int  $maxBytes  Target maximum file size in bytes.
-     * @return bool Whether the file was compressed (false if it was
-     *              already small enough, was a GIF, or could not be
-     *              processed).
+     * @return bool Whether the file was compressed (false if it was a
+     *              GIF, could not be processed, or compression is
+     *              disabled).
      */
     public function compressToWebpUnder(string $path, int $maxBytes = 1_000_000): bool
     {
@@ -30,13 +41,13 @@ class ImageCompressionService
             return false;
         }
 
-        if (! is_file($path) || filesize($path) < $maxBytes) {
+        if (! is_file($path)) {
             return false;
         }
 
         $mime = $this->mimeType($path);
 
-        // Skip animated GIFs so their animation is preserved.
+        // Skip GIFs so their animation is preserved.
         if ($mime === 'image/gif') {
             return false;
         }
