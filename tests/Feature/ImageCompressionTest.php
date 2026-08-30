@@ -27,16 +27,14 @@ function makeJpeg(string $path, int $width = 2000, int $height = 2000): string
 // Service-level tests
 // ---------------------------------------------------------------------------
 
-it('leaves images already under the target size untouched', function () {
+it('converts a small image to WebP', function () {
     $path = tempnam(sys_get_temp_dir(), 'img');
     makeJpeg($path, 50, 50);
 
-    $before = filesize($path);
-
     $compressed = app(ImageCompressionService::class)->compressToWebpUnder($path, 1_000_000);
 
-    expect($compressed)->toBeFalse();
-    expect(filesize($path))->toBe($before);
+    expect($compressed)->toBeTrue();
+    expect(getimagesize($path)['mime'])->toBe('image/webp');
 });
 
 it('skips animated GIFs to preserve animation', function () {
@@ -49,6 +47,13 @@ it('skips animated GIFs to preserve animation', function () {
 
     expect($compressed)->toBeFalse();
     expect(filesize($path))->toBe($before);
+});
+
+it('detects GIF files', function () {
+    $path = tempnam(sys_get_temp_dir(), 'img');
+    file_put_contents($path, 'GIF89a'.str_repeat("\0", 100));
+
+    expect(app(ImageCompressionService::class)->isGif($path))->toBeTrue();
 });
 
 it('compresses a large image to under the target size', function () {
