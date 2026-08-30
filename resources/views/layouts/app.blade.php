@@ -303,24 +303,17 @@
                         <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
                             <button
                                 type="button"
-                                @click="dismiss()"
+                                @click="choose(true)"
                                 class="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-gray-300 transition hover:border-white/20 hover:text-white"
                             >
-                                Not now
+                                Hide explicit content
                             </button>
                             <button
                                 type="button"
                                 @click="choose(false)"
-                                class="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-gray-300 transition hover:border-white/20 hover:text-white"
-                            >
-                                Show everything
-                            </button>
-                            <button
-                                type="button"
-                                @click="choose(true)"
                                 class="rounded-lg bg-[#5555AA] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#6666BB]"
                             >
-                                Hide explicit content
+                                Show everything
                             </button>
                         </div>
                     </div>
