@@ -47,12 +47,14 @@ Alpine.data('explicitContentDialog', () => ({
     hideNsfw: false,
     hasCookie: false,
     saving: false,
+    endpoint: '',
 
     init() {
         const el = this.$el;
         this.authed = el.dataset.authed === '1';
         this.hideNsfw = el.dataset.hideNsfw === '1';
         this.hasCookie = el.dataset.cookie === '1';
+        this.endpoint = el.dataset.endpoint ?? '';
 
         // Already decided: authed users with a preference, or guests with a cookie.
         if (this.authed ? this.hideNsfw : this.hasCookie) {
@@ -74,7 +76,7 @@ Alpine.data('explicitContentDialog', () => ({
 
         if (this.authed) {
             try {
-                await fetch(this.$el.dataset.endpoint, {
+                await fetch(this.endpoint, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
