@@ -4,6 +4,7 @@ use App\Models\SauceRequest;
 use App\Models\User;
 use App\Services\OcrService;
 use App\Services\SauceNaoService;
+use App\Services\TagInferenceService;
 use App\Services\TagService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -161,6 +162,11 @@ it('creates a draft sauce request when uploading an image', function () {
         ->shouldReceive('extractText')
         ->once()
         ->andReturn('');
+
+    $this->mock(TagInferenceService::class)
+        ->shouldReceive('infer')
+        ->once()
+        ->andReturn([]);
 
     $this->actingAs($user)
         ->post(route('sauce-requests.upload'), [
@@ -412,6 +418,11 @@ it('purges abandoned drafts when uploading a new image', function () {
         ->shouldReceive('extractText')
         ->once()
         ->andReturn('');
+
+    $this->mock(TagInferenceService::class)
+        ->shouldReceive('infer')
+        ->once()
+        ->andReturn([]);
 
     $this->actingAs($owner)
         ->post(route('sauce-requests.upload'), [
