@@ -2,6 +2,7 @@
 
 use App\Models\SauceRequest;
 use App\Models\User;
+use App\Services\OcrService;
 use App\Services\SauceNaoService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -33,6 +34,11 @@ function makeSauceRequestForSauce(User $user, array $attributes = []): SauceRequ
 it('redirects to the sauce page when SauceNAO finds a match', function () {
     $user = User::factory()->create();
 
+    $this->mock(OcrService::class)
+        ->shouldReceive('extractText')
+        ->once()
+        ->andReturn('');
+
     $this->mock(SauceNaoService::class)
         ->shouldReceive('lookup')
         ->once()
@@ -58,6 +64,11 @@ it('redirects to the sauce page when SauceNAO finds a match', function () {
 
 it('redirects to the details page when SauceNAO finds no match', function () {
     $user = User::factory()->create();
+
+    $this->mock(OcrService::class)
+        ->shouldReceive('extractText')
+        ->once()
+        ->andReturn('');
 
     $this->mock(SauceNaoService::class)
         ->shouldReceive('lookup')
