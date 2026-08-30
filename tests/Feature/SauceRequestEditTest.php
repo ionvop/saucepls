@@ -8,23 +8,6 @@ use Illuminate\Http\UploadedFile;
 
 uses(RefreshDatabase::class);
 
-/**
- * Create a sauce request owned by the given user.
- */
-function makeSauceRequest(User $user, array $attributes = []): SauceRequest
-{
-    return SauceRequest::create(array_merge([
-        'user_id' => $user->id,
-        'title' => 'Original title',
-        'description' => 'Original description.',
-        'text' => '',
-        'image_path' => 'sauce-requests/test.png',
-        'phash64' => 'aaaaaaaaaaaaaaaa',
-        'is_explicit' => true,
-        'published_at' => now(),
-    ], $attributes));
-}
-
 // ---------------------------------------------------------------------------
 // Viewing the edit form
 // ---------------------------------------------------------------------------
