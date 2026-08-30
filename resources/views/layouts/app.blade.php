@@ -268,9 +268,10 @@
             </div>
         </nav>
 
-        {{-- First-visit explicit-content warning dialog (guests who haven't chosen yet) --}}
+        {{-- First-visit explicit-content warning dialog (guests who haven't chosen yet).
+             Suppressed on the settings page, where the toggle is already visible. --}}
         @guest
-            @if (request()->cookie('hide_nsfw') === null)
+            @if (request()->cookie('hide_nsfw') === null && !request()->routeIs('settings'))
                 <div
                     x-data="explicitContentDialog"
                     x-show="show"
