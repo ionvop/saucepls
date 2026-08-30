@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SauceRequestController;
+use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SauceRequestTagController;
 use App\Http\Controllers\SauceRequestTagHistoryController;
 use Illuminate\Support\Facades\Route;
@@ -41,6 +42,9 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+
+    Route::get('/settings', [SettingsController::class, 'edit'])->name('settings');
+    Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
 
     Route::get('/create', [SauceRequestController::class, 'create'])->name('create');
     Route::post('/sauce-requests/upload', [SauceRequestController::class, 'upload'])
@@ -83,7 +87,3 @@ Route::get('/search', function () {
 Route::get('/notifications', function () {
     return view('pages.notifications');
 })->name('notifications');
-
-Route::get('/settings', function () {
-    return view('pages.settings');
-})->name('settings');
