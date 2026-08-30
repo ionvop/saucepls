@@ -43,7 +43,7 @@ class AppServiceProvider extends ServiceProvider
                 return Limit::none();
             }
 
-            return Limit::perMinute(10)->by($user?->id ?? $request->ip());
+            return Limit::perMinute(3)->by($user?->id ?? $request->ip());
         });
     }
 
