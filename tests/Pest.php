@@ -48,3 +48,22 @@ function something()
 {
     // ..
 }
+
+/**
+ * Create a sauce request owned by the given user.
+ */
+function makeSauceRequest(
+    \App\Models\User $user,
+    array $attributes = [],
+): \App\Models\SauceRequest {
+    return \App\Models\SauceRequest::create(array_merge([
+        'user_id' => $user->id,
+        'title' => 'Original title',
+        'description' => 'Original description.',
+        'text' => '',
+        'image_path' => 'sauce-requests/test.png',
+        'phash64' => 'aaaaaaaaaaaaaaaa',
+        'is_explicit' => true,
+        'published_at' => now(),
+    ], $attributes));
+}
