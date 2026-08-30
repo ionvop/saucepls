@@ -54,6 +54,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/sauce-requests/{sauceRequest}/edit', [SauceRequestController::class, 'edit'])->name('sauce-requests.edit');
     Route::put('/sauce-requests/{sauceRequest}', [SauceRequestController::class, 'update'])->name('sauce-requests.update');
+    Route::delete('/sauce-requests/{sauceRequest}', [SauceRequestController::class, 'destroy'])->name('sauce-requests.destroy');
 
     // --- Community tagging ---
     Route::put('/sauce-requests/{sauceRequest}/tags', [SauceRequestTagController::class, 'update'])
