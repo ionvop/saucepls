@@ -75,9 +75,28 @@ class SauceRequestController extends Controller
 
         $absolutePath = Storage::disk('public')->path($imagePath);
 
-        // Compress the image to WebP if it is at or above the target
-        // size. The original is discarded and replaced in place, so the
-        // pre-post pipeline below runs against the compressed image.
+        // GIFs are stored as-is to preserve their animation and skip the
+        // entire pre-post pipeline (perceptual hashing, OCR, tag
+        // inference, duplicate detection, and SauceNAO), which cannot
+        // process them. They move straight to the details page.
+        if ($this->imageCompression->isGif($absolutePath)) {
+            $sauceRequest = SauceRequest::create([
+                'user_id' => $request->user()->id,
+                'title' => $validated['title'] ?? 'Sauce pls',
+                'description' => $validated['description'] ?? '',
+                'text' => '',
+                'image_path' => $imagePath,
+                'phash64' => null,
+                'is_explicit' => $validated['is_explicit'] ?? true,
+            ]);
+
+            return redirect()->route('sauce-requests.details', $sauceRequest);
+        }
+
+        // Compress the image to WebP. Every non-GIF image is converted so
+        // all stored images are WebP under the target size. The original
+        // is discarded and replaced in place, so the pre-post pipeline
+        // below runs against the compressed image.
         $this->imageCompression->compressToWebpUnder($absolutePath);
 
         // Run the pre-post pipeline. Each step is currently stubbed and
