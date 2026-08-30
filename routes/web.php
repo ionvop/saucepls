@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\EmailLoginController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\ContentPreferenceController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SauceRequestController;
 use App\Http\Controllers\SettingsController;
@@ -45,6 +46,9 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/settings', [SettingsController::class, 'edit'])->name('settings');
     Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
+
+    Route::post('/content-preference', [ContentPreferenceController::class, 'store'])
+        ->name('content-preference.store');
 
     Route::get('/create', [SauceRequestController::class, 'create'])->name('create');
     Route::post('/sauce-requests/upload', [SauceRequestController::class, 'upload'])
