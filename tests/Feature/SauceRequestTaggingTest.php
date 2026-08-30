@@ -4,6 +4,8 @@ use App\Models\SauceRequest;
 use App\Models\SauceRequestTaggingHistory;
 use App\Models\Tag;
 use App\Models\User;
+use App\Services\OcrService;
+use App\Services\SauceNaoService;
 use App\Services\TagService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -68,6 +70,16 @@ it('drops empty tags', function () {
 it('persists user-entered tags when publishing a sauce request', function () {
     $user = User::factory()->create();
 
+    $this->mock(SauceNaoService::class)
+        ->shouldReceive('lookup')
+        ->once()
+        ->andReturn([]);
+
+    $this->mock(OcrService::class)
+        ->shouldReceive('extractText')
+        ->once()
+        ->andReturn('');
+
     $this->actingAs($user)
         ->post(route('sauce-requests.upload'), [
             'title' => 'Who drew this?',
@@ -90,6 +102,16 @@ it('persists user-entered tags when publishing a sauce request', function () {
 
 it('records tagging history when publishing a sauce request', function () {
     $user = User::factory()->create();
+
+    $this->mock(SauceNaoService::class)
+        ->shouldReceive('lookup')
+        ->once()
+        ->andReturn([]);
+
+    $this->mock(OcrService::class)
+        ->shouldReceive('extractText')
+        ->once()
+        ->andReturn('');
 
     $this->actingAs($user)
         ->post(route('sauce-requests.upload'), [
