@@ -4,6 +4,7 @@ use App\Models\SauceRequest;
 use App\Models\User;
 use App\Services\OcrService;
 use App\Services\SauceNaoService;
+use App\Services\TagInferenceService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
@@ -39,6 +40,11 @@ it('redirects to the sauce page when SauceNAO finds a match', function () {
         ->once()
         ->andReturn('');
 
+    $this->mock(TagInferenceService::class)
+        ->shouldReceive('infer')
+        ->once()
+        ->andReturn([]);
+
     $this->mock(SauceNaoService::class)
         ->shouldReceive('lookup')
         ->once()
@@ -69,6 +75,11 @@ it('redirects to the details page when SauceNAO finds no match', function () {
         ->shouldReceive('extractText')
         ->once()
         ->andReturn('');
+
+    $this->mock(TagInferenceService::class)
+        ->shouldReceive('infer')
+        ->once()
+        ->andReturn([]);
 
     $this->mock(SauceNaoService::class)
         ->shouldReceive('lookup')
