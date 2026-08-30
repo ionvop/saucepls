@@ -2,6 +2,8 @@
 
 use App\Models\SauceRequest;
 use App\Models\User;
+use App\Services\OcrService;
+use App\Services\SauceNaoService;
 use App\Services\TagService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -149,6 +151,16 @@ it('rejects a title that is too long', function () {
 
 it('creates a draft sauce request when uploading an image', function () {
     $user = User::factory()->create();
+
+    $this->mock(SauceNaoService::class)
+        ->shouldReceive('lookup')
+        ->once()
+        ->andReturn([]);
+
+    $this->mock(OcrService::class)
+        ->shouldReceive('extractText')
+        ->once()
+        ->andReturn('');
 
     $this->actingAs($user)
         ->post(route('sauce-requests.upload'), [
@@ -390,6 +402,16 @@ it('purges abandoned drafts when uploading a new image', function () {
         'published_at' => null,
     ]);
     $abandoned->forceFill(['created_at' => now()->subHours(25)])->save();
+
+    $this->mock(SauceNaoService::class)
+        ->shouldReceive('lookup')
+        ->once()
+        ->andReturn([]);
+
+    $this->mock(OcrService::class)
+        ->shouldReceive('extractText')
+        ->once()
+        ->andReturn('');
 
     $this->actingAs($owner)
         ->post(route('sauce-requests.upload'), [
