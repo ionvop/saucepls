@@ -6,6 +6,7 @@ use App\Models\Tag;
 use App\Models\User;
 use App\Services\OcrService;
 use App\Services\SauceNaoService;
+use App\Services\TagInferenceService;
 use App\Services\TagService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -80,6 +81,11 @@ it('persists user-entered tags when publishing a sauce request', function () {
         ->once()
         ->andReturn('');
 
+    $this->mock(TagInferenceService::class)
+        ->shouldReceive('infer')
+        ->once()
+        ->andReturn([]);
+
     $this->actingAs($user)
         ->post(route('sauce-requests.upload'), [
             'title' => 'Who drew this?',
@@ -112,6 +118,11 @@ it('records tagging history when publishing a sauce request', function () {
         ->shouldReceive('extractText')
         ->once()
         ->andReturn('');
+
+    $this->mock(TagInferenceService::class)
+        ->shouldReceive('infer')
+        ->once()
+        ->andReturn([]);
 
     $this->actingAs($user)
         ->post(route('sauce-requests.upload'), [
