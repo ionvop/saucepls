@@ -3,7 +3,7 @@
 @section('title', 'New Request - ' . config('app.name', 'SaucePls'))
 
 @section('content')
-    <div class="mx-auto max-w-2xl">
+    <div class="mx-auto max-w-2xl" x-data="imageCompression">
         <a href="{{ route('sauce-requests.index') }}"
             class="inline-flex items-center gap-2 text-sm text-gray-400 transition hover:text-white">
             <x-lucide-arrow-left class="h-4 w-4" />
@@ -39,8 +39,12 @@
                 <div>
                     <label for="image" class="mb-1 block text-sm font-medium text-gray-300">Image</label>
                     <input type="file" name="image" id="image" accept="image/jpeg,image/png,image/webp,image/gif" required
+                        x-on:change="onFileChange($event)"
                         class="w-full rounded-lg border border-white/10 bg-[#111111] px-3 py-2 text-sm text-white file:mr-3 file:rounded-lg file:border-0 file:bg-[#5555AA]/20 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-[#8888CC] hover:file:bg-[#5555AA]/30">
                     <p class="mt-1 text-xs text-gray-500">JPEG, PNG, WebP, or GIF. Max 10MB.</p>
+                    <p class="mt-1 text-xs text-gray-500">
+                        Images over 1MB are compressed to WebP and the original is discarded.
+                    </p>
                     @error('image')
                         <p class="mt-1 text-xs text-red-400">{{ $message }}</p>
                     @enderror
@@ -96,5 +100,36 @@
                 </div>
             </form>
         </div>
+
+        {{-- Confirmation popup for images over 1MB --}}
+        <div x-show="showPopup" x-cloak x-transition.opacity
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+            <div class="w-full max-w-md rounded-2xl border border-white/10 bg-[#1a1a1a] p-6 shadow-xl">
+                <h2 class="text-lg font-bold text-white">Large image detected</h2>
+                <p class="mt-2 text-sm text-gray-400">
+                    Your image is over 1MB. It will be compressed to WebP and the original will be discarded.
+                </p>
+                <div class="mt-6 flex items-center justify-end gap-3">
+                    <button type="button" x-on:click="showPopup = false"
+                        class="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-gray-300 transition hover:border-white/20 hover:text-white">
+                        Got it
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('imageCompression', () => ({
+                showPopup: false,
+                onFileChange(event) {
+                    const file = event.target.files?.[0];
+                    if (file && file.size > 1_000_000) {
+                        this.showPopup = true;
+                    }
+                },
+            }));
+        });
+    </script>
 @endsection
