@@ -43,7 +43,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
-    Route::get('/settings', [SettingsController::class, 'edit'])->name('settings');
     Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
 
     Route::get('/create', [SauceRequestController::class, 'create'])->name('create');
@@ -75,6 +74,9 @@ Route::middleware('auth')->group(function () {
 // --- Public profile routes ---
 Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
 Route::get('/u/{username}', [ProfileController::class, 'show'])->name('profile.show');
+
+// --- Settings (guest-accessible; authed users save via the auth-only PUT route) ---
+Route::get('/settings', [SettingsController::class, 'edit'])->name('settings');
 
 // --- Public sauce request routes ---
 Route::get('/sauce-requests', [SauceRequestController::class, 'index'])->name('sauce-requests.index');
