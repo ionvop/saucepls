@@ -41,12 +41,28 @@
                         </span>
                     @endif
 
-                    @if ($isOwner)
-                        <a href="{{ route('sauce-requests.edit', $sauceRequest) }}"
-                            class="ml-auto inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-3 py-1.5 text-xs font-medium text-gray-300 transition hover:border-white/20 hover:text-white">
-                            <x-lucide-pencil class="h-3.5 w-3.5" />
-                            Edit
-                        </a>
+                    @if ($isOwner || $isStaff)
+                        <div class="ml-auto flex items-center gap-2">
+                            @if ($isOwner)
+                                <a href="{{ route('sauce-requests.edit', $sauceRequest) }}"
+                                    class="inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-3 py-1.5 text-xs font-medium text-gray-300 transition hover:border-white/20 hover:text-white">
+                                    <x-lucide-pencil class="h-3.5 w-3.5" />
+                                    Edit
+                                </a>
+                            @endif
+
+                            <form method="POST" action="{{ route('sauce-requests.destroy', $sauceRequest) }}"
+                                onsubmit="return confirm('Delete this sauce request? This cannot be undone.')">
+                                @csrf
+                                @method('DELETE')
+
+                                <button type="submit"
+                                    class="inline-flex items-center gap-1.5 rounded-lg border border-red-500/30 px-3 py-1.5 text-xs font-medium text-red-300 transition hover:border-red-500/60 hover:bg-red-500/10 hover:text-red-200">
+                                    <x-lucide-trash-2 class="h-3.5 w-3.5" />
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
                     @endif
                 </div>
 
