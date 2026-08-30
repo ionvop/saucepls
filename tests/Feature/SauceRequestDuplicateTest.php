@@ -3,6 +3,7 @@
 use App\Models\SauceRequest;
 use App\Models\User;
 use App\Services\DuplicateDetectionService;
+use App\Services\OcrService;
 use App\Services\SauceNaoService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -34,6 +35,11 @@ it('redirects to the duplicate page when a near-duplicate is found', function ()
     $user = User::factory()->create();
     $existing = makeDuplicateSauceRequest($user);
 
+    $this->mock(OcrService::class)
+        ->shouldReceive('extractText')
+        ->once()
+        ->andReturn('');
+
     $this->mock(DuplicateDetectionService::class)
         ->shouldReceive('findDuplicate')
         ->once()
@@ -57,6 +63,11 @@ it('redirects to the details page when no duplicate is found', function () {
         ->shouldReceive('findDuplicate')
         ->once()
         ->andReturn(null);
+
+    $this->mock(OcrService::class)
+        ->shouldReceive('extractText')
+        ->once()
+        ->andReturn('');
 
     $this->mock(SauceNaoService::class)
         ->shouldReceive('lookup')
@@ -124,6 +135,10 @@ it('rate limits sauce request uploads', function () {
     $this->mock(SauceNaoService::class)
         ->shouldReceive('lookup')
         ->andReturn([]);
+
+    $this->mock(OcrService::class)
+        ->shouldReceive('extractText')
+        ->andReturn('');
 
     $this->actingAs($user);
 
