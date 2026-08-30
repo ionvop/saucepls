@@ -89,6 +89,22 @@ return [
         'engine' => env('OCR_SPACE_ENGINE', 2),
     ],
 
+    'tag_inference' => [
+        // The model inference endpoint used to auto-suggest tags for an
+        // uploaded image (DeepDanbooru-style). The image is POSTed as a
+        // multipart file upload and the API returns a list of tags with
+        // confidence scores.
+        'endpoint' => env('TAG_INFERENCE_ENDPOINT', 'https://deepdanbooru.nsk.sh/deepdanbooru'),
+
+        // The minimum confidence score (0.0 - 1.0) for a suggested tag to
+        // be kept. Tags below this are discarded.
+        'threshold' => env('TAG_INFERENCE_THRESHOLD', 0.5),
+
+        // The maximum number of suggested tags to return. When null, every
+        // tag above the threshold is returned.
+        'max_tags' => env('TAG_INFERENCE_MAX_TAGS'),
+    ],
+
     'drafts' => [
         // Unpublished drafts abandoned before the user clicks "Post request"
         // are purged opportunistically once they exceed this age.
