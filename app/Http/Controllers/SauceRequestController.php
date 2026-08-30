@@ -238,6 +238,7 @@ class SauceRequestController extends Controller
         return view('pages.sauce-requests.show', [
             'sauceRequest' => $sauceRequest,
             'isOwner' => $request->user()?->is($sauceRequest->user) ?? false,
+            'isStaff' => $request->user()?->isStaff() ?? false,
         ]);
     }
 
@@ -273,6 +274,29 @@ class SauceRequestController extends Controller
         return redirect()
             ->route('sauce-requests.show', $sauceRequest)
             ->with('status', 'Your sauce request has been updated.');
+    }
+
+    /**
+     * Delete a sauce request. Owners may delete their own requests, and
+     * staff (moderators/admins) may delete any request. The request is
+     * soft-deleted and its uploaded image file is removed.
+     */
+    public function destroy(Request $request, SauceRequest $sauceRequest): RedirectResponse
+    {
+        abort_unless(
+            $request->user() && ($request->user()->is($sauceRequest->user) || $request->user()->isStaff()),
+            403,
+        );
+
+        if ($sauceRequest->image_path) {
+            Storage::disk('public')->delete($sauceRequest->image_path);
+        }
+
+        $sauceRequest->delete();
+
+        return redirect()
+            ->route('sauce-requests.index')
+            ->with('status', 'Your sauce request has been deleted.');
     }
 
     /**
