@@ -5,6 +5,7 @@ use App\Models\User;
 use App\Services\DuplicateDetectionService;
 use App\Services\OcrService;
 use App\Services\SauceNaoService;
+use App\Services\TagInferenceService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 
@@ -40,6 +41,11 @@ it('redirects to the duplicate page when a near-duplicate is found', function ()
         ->once()
         ->andReturn('');
 
+    $this->mock(TagInferenceService::class)
+        ->shouldReceive('infer')
+        ->once()
+        ->andReturn([]);
+
     $this->mock(DuplicateDetectionService::class)
         ->shouldReceive('findDuplicate')
         ->once()
@@ -68,6 +74,11 @@ it('redirects to the details page when no duplicate is found', function () {
         ->shouldReceive('extractText')
         ->once()
         ->andReturn('');
+
+    $this->mock(TagInferenceService::class)
+        ->shouldReceive('infer')
+        ->once()
+        ->andReturn([]);
 
     $this->mock(SauceNaoService::class)
         ->shouldReceive('lookup')
@@ -139,6 +150,10 @@ it('rate limits sauce request uploads', function () {
     $this->mock(OcrService::class)
         ->shouldReceive('extractText')
         ->andReturn('');
+
+    $this->mock(TagInferenceService::class)
+        ->shouldReceive('infer')
+        ->andReturn([]);
 
     $this->actingAs($user);
 
