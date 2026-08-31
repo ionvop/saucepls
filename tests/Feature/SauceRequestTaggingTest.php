@@ -161,11 +161,10 @@ it('syncs tags when updating a sauce request', function () {
     app(TagService::class)->add($sauceRequest, ['1girl', 'smile'], $owner);
 
     $this->actingAs($owner)
-        ->put(route('sauce-requests.update', $sauceRequest), [
-            'title' => 'Updated title',
+        ->put(route('sauce-requests.tags.update', $sauceRequest), [
             'tags' => '1girl black_hair',
         ])
-        ->assertRedirect(route('sauce-requests.show', $sauceRequest));
+        ->assertRedirect();
 
     expect($sauceRequest->fresh()->tags->pluck('name')->all())
         ->toBe(['1girl', 'black_hair']);
@@ -178,11 +177,10 @@ it('records added and removed tags in history when updating', function () {
     app(TagService::class)->add($sauceRequest, ['1girl', 'smile'], $owner);
 
     $this->actingAs($owner)
-        ->put(route('sauce-requests.update', $sauceRequest), [
-            'title' => 'Updated title',
+        ->put(route('sauce-requests.tags.update', $sauceRequest), [
             'tags' => '1girl black_hair',
         ])
-        ->assertRedirect(route('sauce-requests.show', $sauceRequest));
+        ->assertRedirect();
 
     $history = SauceRequestTaggingHistory::latest('id')->firstOrFail();
     expect($history->added_tags)->toBe(['black_hair']);
