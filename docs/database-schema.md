@@ -92,11 +92,12 @@ sauce_request_comments
 id: int, pk
 sauce_request_id: int, fk = sauce_requests.id
 user_id: int, fk = users.id
-parent_id: int, fk = sauce_request_comments.id, default = null // The comment this is a reply to. A null value means it is a top-level comment.
+parent_id: int, fk = sauce_request_comments.id, default = null // The comment this is a reply to. A null value means it is a top-level comment. Replies are limited to one level deep.
 content: str // e.g. "This looks like the artstyle of Snale on Twitter."
 deleted_at: datetime, default = null
 created_at: datetime
 updated_at: datetime
+// Implemented: commenting on sauce requests (store + destroy). Likes are not implemented yet.
 
 sauce_request_comment_likes
 id: int, pk
