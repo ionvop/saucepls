@@ -92,6 +92,7 @@ sauce_request_comments
 id: int, pk
 sauce_request_id: int, fk = sauce_requests.id
 user_id: int, fk = users.id
+parent_id: int, fk = sauce_request_comments.id, default = null // The comment this is a reply to. A null value means it is a top-level comment.
 content: str // e.g. "This looks like the artstyle of Snale on Twitter."
 deleted_at: datetime, default = null
 created_at: datetime
@@ -115,6 +116,24 @@ deleted_at: datetime, default = null
 created_at: datetime
 updated_at: datetime
 
+sauce_answer_comments
+id: int, pk
+sauce_answer_id: int, fk = sauce_answers.id
+user_id: int, fk = users.id
+parent_id: int, fk = sauce_answer_comments.id, default = null // The comment this is a reply to. A null value means it is a top-level comment.
+content: str // e.g. "Thanks for the source!"
+deleted_at: datetime, default = null
+created_at: datetime
+updated_at: datetime
+
+sauce_answer_comment_likes
+id: int, pk
+sauce_answer_comment_id: int, fk = sauce_answer_comments.id
+user_id: int, fk = users.id
+created_at: datetime
+updated_at: datetime
+unique(sauce_answer_comment_id, user_id)
+
 sauce_answer_likes
 id: int, pk
 sauce_answer_id: int, fk = sauce_answers.id
@@ -127,6 +146,7 @@ user_comments
 id: int, pk
 user_id: int, fk = users.id // The user who made the comment.
 target_user_id: int, fk = users.id // The user being commented on.
+parent_id: int, fk = user_comments.id, default = null // The comment this is a reply to. A null value means it is a top-level comment.
 content: str // e.g. "Thank you for your service, sauceman."
 deleted_at: datetime, default = null
 created_at: datetime
@@ -152,7 +172,7 @@ moderation_logs
 id: int, pk
 user_id: int, fk = users.id // The moderator who performed the action.
 action_type: str, enum = ["delete", "timeout", "restore"] // The type of action performed.
-target_type: str, enum = ["user", "sauce_request", "sauce_answer", "sauce_comment", "user_comment"] // The type of target.
+target_type: str, enum = ["user", "sauce_request", "sauce_answer", "sauce_comment", "sauce_answer_comment", "user_comment"] // The type of target.
 target_id: int // The ID of the target.
 details: json // Additional details about the action such as the reason, timeout duration, etc.
 created_at: datetime
@@ -161,7 +181,7 @@ updated_at: datetime
 user_reports
 id: int, pk
 user_id: int, fk = users.id // The user who reported an issue.
-target_type: str, enum = ["user", "sauce_request", "sauce_answer", "sauce_comment", "user_comment"] // The type of target.
+target_type: str, enum = ["user", "sauce_request", "sauce_answer", "sauce_comment", "sauce_answer_comment", "user_comment"] // The type of target.
 target_id: int // The ID of the target.
 category: str, enum = ["spam", "harassment", "other"] // The category of the report.
 reason: str // The reason for the report.
