@@ -1,4 +1,4 @@
-# Example of an endpoint response for SauceNao
+# Example of an endpoint response for SauceNAO
 
 ## Request
 
