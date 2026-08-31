@@ -265,6 +265,148 @@
                         No answers yet. Answers will be available soon.
                     </p>
                 </div>
+
+                {{-- Comments --}}
+                <div class="mt-6 border-t border-white/10 pt-6">
+                    <h2 class="text-sm font-semibold uppercase tracking-wide text-gray-400">
+                        Comments
+                        @if ($sauceRequest->comments->isNotEmpty())
+                            <span class="text-gray-500">({{ $sauceRequest->comments->count() }})</span>
+                        @endif
+                    </h2>
+
+                    @auth
+                        <form method="POST" action="{{ route('sauce-requests.comments.store', $sauceRequest) }}"
+                            class="mt-4 flex flex-col gap-2">
+                            @csrf
+
+                            <textarea name="content" rows="3" maxlength="5000"
+                                placeholder="Share a thought or help identify the sauce..."
+                                class="w-full rounded-lg border border-white/10 bg-[#111111] px-3 py-2 text-sm text-white placeholder-gray-500 outline-none transition focus:border-[#5555AA] focus:ring-2 focus:ring-[#5555AA]/40">{{ old('content') }}</textarea>
+
+                            @error('content')
+                                <p class="text-xs text-red-400">{{ $message }}</p>
+                            @enderror
+
+                            <div class="flex items-center justify-end">
+                                <button type="submit"
+                                    class="rounded-lg bg-[#5555AA] px-3 py-1.5 text-sm font-medium text-white transition hover:bg-[#6666BB]">
+                                    Post comment
+                                </button>
+                            </div>
+                        </form>
+                    @else
+                        <p class="mt-4 text-sm text-gray-500">
+                            <a href="{{ route('login') }}" class="font-medium text-[#8888CC] hover:text-white">Log in</a>
+                            to join the discussion.
+                        </p>
+                    @endauth
+
+                    @if ($sauceRequest->comments->isNotEmpty())
+                        <div class="mt-6 flex flex-col gap-4">
+                            @foreach ($sauceRequest->comments as $comment)
+                                <div class="rounded-xl border border-white/10 bg-white/[0.02] p-4">
+                                    {{-- Comment header --}}
+                                    <div class="flex items-center gap-2 text-sm text-gray-400">
+                                        @if ($comment->user?->avatar_url)
+                                            <img src="{{ $comment->user->avatar_url }}" alt="{{ $comment->user->username }}"
+                                                class="h-6 w-6 rounded-full object-cover">
+                                        @else
+                                            <span class="flex h-6 w-6 items-center justify-center rounded-full bg-[#5555AA]/20 text-xs font-bold text-[#8888CC]">
+                                                {{ strtoupper(substr($comment->user?->username ?? '?', 0, 1)) }}
+                                            </span>
+                                        @endif
+                                        <a href="{{ route('profile.show', $comment->user?->username ?? '') }}"
+                                            class="font-medium text-gray-200 hover:text-white">
+                                            {{ $comment->user?->username ?? 'Unknown' }}
+                                        </a>
+                                        <span>·</span>
+                                        <span>{{ $comment->created_at?->format('M j, Y') }}</span>
+
+                                        @if ($comment->user_id === auth()->id() || $isStaff)
+                                            <form method="POST"
+                                                action="{{ route('sauce-requests.comments.destroy', [$sauceRequest, $comment]) }}"
+                                                class="ml-auto">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit"
+                                                    class="inline-flex items-center gap-1 text-xs font-medium text-gray-500 transition hover:text-red-400">
+                                                    <x-lucide-trash-2 class="h-3.5 w-3.5" />
+                                                    Delete
+                                                </button>
+                                            </form>
+                                        @endif
+                                    </div>
+
+                                    {{-- Comment body --}}
+                                    <p class="mt-2 whitespace-pre-line text-sm text-gray-300">{{ $comment->content }}</p>
+
+                                    {{-- Replies --}}
+                                    @if ($comment->replies->isNotEmpty())
+                                        <div class="mt-3 flex flex-col gap-3 border-l border-white/10 pl-4">
+                                            @foreach ($comment->replies as $reply)
+                                                <div>
+                                                    <div class="flex items-center gap-2 text-sm text-gray-400">
+                                                        @if ($reply->user?->avatar_url)
+                                                            <img src="{{ $reply->user->avatar_url }}" alt="{{ $reply->user->username }}"
+                                                                class="h-5 w-5 rounded-full object-cover">
+                                                        @else
+                                                            <span class="flex h-5 w-5 items-center justify-center rounded-full bg-[#5555AA]/20 text-[10px] font-bold text-[#8888CC]">
+                                                                {{ strtoupper(substr($reply->user?->username ?? '?', 0, 1)) }}
+                                                            </span>
+                                                        @endif
+                                                        <a href="{{ route('profile.show', $reply->user?->username ?? '') }}"
+                                                            class="font-medium text-gray-200 hover:text-white">
+                                                            {{ $reply->user?->username ?? 'Unknown' }}
+                                                        </a>
+                                                        <span>·</span>
+                                                        <span>{{ $reply->created_at?->format('M j, Y') }}</span>
+
+                                                        @if ($reply->user_id === auth()->id() || $isStaff)
+                                                            <form method="POST"
+                                                                action="{{ route('sauce-requests.comments.destroy', [$sauceRequest, $reply]) }}"
+                                                                class="ml-auto">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit"
+                                                                    class="inline-flex items-center gap-1 text-xs font-medium text-gray-500 transition hover:text-red-400">
+                                                                    <x-lucide-trash-2 class="h-3.5 w-3.5" />
+                                                                    Delete
+                                                                </button>
+                                                            </form>
+                                                        @endif
+                                                    </div>
+                                                    <p class="mt-1 whitespace-pre-line text-sm text-gray-300">{{ $reply->content }}</p>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    @endif
+
+                                    {{-- Reply form --}}
+                                    @auth
+                                        <form method="POST"
+                                            action="{{ route('sauce-requests.comments.store', $sauceRequest) }}"
+                                            class="mt-3 flex flex-col gap-2">
+                                            @csrf
+                                            <input type="hidden" name="parent_id" value="{{ $comment->id }}">
+                                            <textarea name="content" rows="2" maxlength="5000"
+                                                placeholder="Reply to {{ $comment->user?->username ?? 'this comment' }}..."
+                                                class="w-full rounded-lg border border-white/10 bg-[#111111] px-3 py-2 text-sm text-white placeholder-gray-500 outline-none transition focus:border-[#5555AA] focus:ring-2 focus:ring-[#5555AA]/40"></textarea>
+                                            <div class="flex items-center justify-end">
+                                                <button type="submit"
+                                                    class="rounded-lg bg-[#5555AA] px-3 py-1.5 text-sm font-medium text-white transition hover:bg-[#6666BB]">
+                                                    Reply
+                                                </button>
+                                            </div>
+                                        </form>
+                                    @endauth
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <p class="mt-4 text-sm text-gray-500">No comments yet. Be the first to comment.</p>
+                    @endif
+                </div>
             </div>
         </div>
     </div>
