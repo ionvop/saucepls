@@ -77,10 +77,12 @@ Alpine.data('explicitContentDialog', () => ({
 Alpine.data('confirmDialog', () => ({
     open: false,
     message: '',
+    title: 'Delete',
     confirmAction: null,
 
-    ask(message, action) {
+    ask(message, title, action) {
         this.message = message;
+        this.title = title;
         this.confirmAction = action;
         this.open = true;
     },
