@@ -7,17 +7,29 @@ description: str, default = "# About Me\n\nThis user has not written a bio yet."
 type: str, default = "member", enum = ["member", "moderator", "admin"] // The type of user.
 remember_token: str, default = null // Laravel's "remember me" persistent token.
 avatar_path: str, default = null // The path to the user's avatar image.
+username_changed_at: datetime, default = null // The last time the user changed their username. Used to enforce the username change cooldown.
 last_seen_at: datetime, default = null // The last time the user was seen online.
 banned_until: datetime, default = null // The future time in which the user will be unbanned.
+hide_nsfw: bool, default = false // Whether the user hides explicit (NSFW) content.
 deleted_at: datetime, default = null // Soft delete indicator.
 created_at: datetime
 updated_at: datetime
+
+sessions
+// Laravel's native sessions table.
+id: str, pk
+user_id: int, fk = users.id, nullable, indexed
+ip_address: str, nullable
+user_agent: text, nullable
+payload: longText
+last_activity: int, indexed
 
 email_codes
 id: int, pk
 email: str // The email being verified.
 code_hash: str // The hash of the code.
-created_at: datetime // If time exceeds 5 minutes, the code will be deleted.
+expires_at: datetime, default = null // When the code expires. A null value is treated as expired.
+created_at: datetime
 updated_at: datetime
 
 sauce_requests
@@ -27,9 +39,10 @@ title: str, default = "Sauce pls" // The title of the sauce request. e.g. "Who d
 description: str, default = "" // Additional context for the image. e.g. "I found this on Discord and it looks so cute."
 text: str, default = "" // The text extracted from the image if it contains any. e.g. "capybara ?! capybara ! !! ! coconute doggy o my gosh"
 image_path: str // The path to the image file.
-accepted_sauce: int, fk = sauce_answers.id, default = null // The accepted sauce.
-phash64: str // Used if someone tries to upload a duplicate request to an already existing sauce request.
+accepted_sauce: int, default = null // The accepted sauce. The foreign key to sauce_answers.id is intentionally omitted for now because it points back to a table that does not exist yet (circular reference). It will be added once the sauce_answers table is created.
+phash64: str, default = null // Used if someone tries to upload a duplicate request to an already existing sauce request. Nullable because GIFs skip the pre-post pipeline and are stored without a perceptual hash.
 is_explicit: bool, default = true // Whether the image contains explicit content.
+published_at: datetime, default = null // When the request was actually posted. Drafts created during the pre-post pipeline have a null value until the user clicks "Post request" on the details page.
 deleted_at: datetime, default = null
 created_at: datetime
 updated_at: datetime
@@ -61,9 +74,17 @@ sauce_request_tagging_history
 id: int, pk
 sauce_request_id: int, fk = sauce_requests.id
 user_id: int, fk = users.id // The user who made the change.
-added_tags: json // Tags added by this change.
-removed_tags: json // Tags removed by this change.
-tags_snapshot: json // Full resulting tag state immediately after this change.
+added_tags: json, default = null // Tags added by this change.
+removed_tags: json, default = null // Tags removed by this change.
+tags_snapshot: json, default = null // Full resulting tag state immediately after this change.
+created_at: datetime
+updated_at: datetime
+
+sauce_request_text_history
+id: int, pk
+sauce_request_id: int, fk = sauce_requests.id
+user_id: int, fk = users.id // The user who made the change.
+text_snapshot: text, default = null // Full extracted text immediately after this change.
 created_at: datetime
 updated_at: datetime
 
