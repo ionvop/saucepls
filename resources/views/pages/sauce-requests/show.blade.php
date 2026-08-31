@@ -293,7 +293,7 @@
                                 class="w-full rounded-lg border border-white/10 bg-[#111111] px-3 py-2 text-sm text-white placeholder-gray-500 outline-none transition focus:border-[#5555AA] focus:ring-2 focus:ring-[#5555AA]/40">{{ old('content') }}</textarea>
 
                             <input type="url" name="url" maxlength="2048"
-                                placeholder="Source link (optional) — e.g. https://x.com/..."
+                                placeholder="Source link (optional) — e.g. https://www.pixiv.net/en/artworks/..."
                                 class="w-full rounded-lg border border-white/10 bg-[#111111] px-3 py-2 text-sm text-white placeholder-gray-500 outline-none transition focus:border-[#5555AA] focus:ring-2 focus:ring-[#5555AA]/40" value="{{ old('url') }}">
 
                             @error('content')
