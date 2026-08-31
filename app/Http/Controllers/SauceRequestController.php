@@ -320,8 +320,6 @@ class SauceRequestController extends Controller
             'is_explicit' => $validated['is_explicit'] ?? true,
         ]);
 
-        $this->tags->sync($sauceRequest, (string) ($validated['tags'] ?? ''), $request->user());
-
         return redirect()
             ->route('sauce-requests.show', $sauceRequest)
             ->with('status', 'Your sauce request has been updated.');
