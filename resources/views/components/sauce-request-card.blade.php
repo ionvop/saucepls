@@ -51,7 +51,7 @@
                 @endif
                 {{ $sauceRequest->user?->username ?? 'Unknown' }}
             </span>
-            <span>{{ $sauceRequest->created_at?->diffForHumans() }}</span>
+            <span data-time="{{ $sauceRequest->created_at?->toIso8601String() }}" data-format="relative">{{ $sauceRequest->created_at?->diffForHumans() }}</span>
         </div>
     </div>
 </a>
