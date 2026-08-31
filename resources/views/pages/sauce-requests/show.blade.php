@@ -218,9 +218,9 @@
                                 @csrf
                                 @method('PUT')
 
-                                <input type="text" name="tags" value="{{ old('tags', $sauceRequest->tags->pluck('name')->implode(' ')) }}"
+                                <textarea name="tags" rows="2"
                                     placeholder="Space-separated tags (e.g. 1girl black_hair smile)" maxlength="1000"
-                                    class="w-full rounded-lg border border-white/10 bg-[#111111] px-3 py-2 text-sm text-white placeholder-gray-500 outline-none transition focus:border-[#5555AA] focus:ring-2 focus:ring-[#5555AA]/40">
+                                    class="w-full resize-y rounded-lg border border-white/10 bg-[#111111] px-3 py-2 text-sm text-white placeholder-gray-500 outline-none transition focus:border-[#5555AA] focus:ring-2 focus:ring-[#5555AA]/40">{{ old('tags', $sauceRequest->tags->pluck('name')->implode(' ')) }}</textarea>
                                 <p class="text-xs text-gray-500">
                                     Space-separated, lowercase, alphanumeric, hyphens, and underscores only.
                                 </p>
