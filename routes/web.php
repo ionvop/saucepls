@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SauceAnswerController;
 use App\Http\Controllers\SauceRequestCommentController;
 use App\Http\Controllers\SauceRequestController;
 use App\Http\Controllers\SettingsController;
@@ -99,6 +100,30 @@ Route::middleware('auth')->group(function () {
     Route::delete('/sauce-requests/{sauceRequest}/comments/{comment}/like', [SauceRequestCommentController::class, 'unlike'])
         ->middleware('throttle:comment_likes')
         ->name('sauce-requests.comments.unlike');
+
+    // --- Answers ---
+    Route::post('/sauce-requests/{sauceRequest}/answers', [SauceAnswerController::class, 'store'])
+        ->middleware('throttle:community_edits')
+        ->name('sauce-requests.answers.store');
+    Route::delete('/sauce-requests/{sauceRequest}/answers/{answer}', [SauceAnswerController::class, 'destroy'])
+        ->middleware('throttle:community_edits')
+        ->name('sauce-requests.answers.destroy');
+
+    // --- Answer likes ---
+    Route::post('/sauce-requests/{sauceRequest}/answers/{answer}/like', [SauceAnswerController::class, 'like'])
+        ->middleware('throttle:comment_likes')
+        ->name('sauce-requests.answers.like');
+    Route::delete('/sauce-requests/{sauceRequest}/answers/{answer}/like', [SauceAnswerController::class, 'unlike'])
+        ->middleware('throttle:comment_likes')
+        ->name('sauce-requests.answers.unlike');
+
+    // --- Accepting answers ---
+    Route::post('/sauce-requests/{sauceRequest}/answers/{answer}/accept', [SauceAnswerController::class, 'accept'])
+        ->middleware('throttle:community_edits')
+        ->name('sauce-requests.answers.accept');
+    Route::delete('/sauce-requests/{sauceRequest}/answers/{answer}/accept', [SauceAnswerController::class, 'unaccept'])
+        ->middleware('throttle:community_edits')
+        ->name('sauce-requests.answers.unaccept');
 })->scopeBindings();
 
 // --- Public profile routes ---
