@@ -66,4 +66,49 @@ class SauceRequestCommentController extends Controller
 
         return back()->with('status', 'The comment has been deleted.');
     }
+
+    /**
+     * Like a comment on a published sauce request. Any authenticated user
+     * may like any comment (including replies). Liking is idempotent: a
+     * user can like a given comment at most once.
+     */
+    public function like(Request $request, SauceRequest $sauceRequest, SauceRequestComment $comment): RedirectResponse
+    {
+        // Likes are only shown on published requests, so drafts are treated
+        // as if they do not exist.
+        if ($sauceRequest->published_at === null) {
+            abort(404);
+        }
+
+        // The comment must belong to the sauce request in the URL.
+        abort_unless($comment->sauce_request_id === $sauceRequest->id, 422);
+
+        $request->user()->commentLikes()->firstOrCreate([
+            'sauce_request_comment_id' => $comment->id,
+        ]);
+
+        return back()->with('status', 'You liked this comment.');
+    }
+
+    /**
+     * Unlike a comment. Unlikeing is idempotent: unliking a comment that
+     * was never liked is a no-op.
+     */
+    public function unlike(Request $request, SauceRequest $sauceRequest, SauceRequestComment $comment): RedirectResponse
+    {
+        // Likes are only shown on published requests, so drafts are treated
+        // as if they do not exist.
+        if ($sauceRequest->published_at === null) {
+            abort(404);
+        }
+
+        // The comment must belong to the sauce request in the URL.
+        abort_unless($comment->sauce_request_id === $sauceRequest->id, 422);
+
+        $request->user()->commentLikes()
+            ->where('sauce_request_comment_id', $comment->id)
+            ->delete();
+
+        return back()->with('status', 'You unliked this comment.');
+    }
 }
