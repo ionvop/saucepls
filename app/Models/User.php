@@ -94,6 +94,14 @@ class User extends Authenticatable
     }
 
     /**
+     * The likes the user has given to sauce request comments.
+     */
+    public function commentLikes(): HasMany
+    {
+        return $this->hasMany(SauceRequestCommentLike::class);
+    }
+
+    /**
      * Whether the user is a moderator or admin (i.e. not a regular member).
      */
     public function isStaff(): bool
