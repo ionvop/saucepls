@@ -91,6 +91,14 @@ Route::middleware('auth')->group(function () {
     Route::delete('/sauce-requests/{sauceRequest}/comments/{comment}', [SauceRequestCommentController::class, 'destroy'])
         ->middleware('throttle:community_edits')
         ->name('sauce-requests.comments.destroy');
+
+    // --- Comment likes ---
+    Route::post('/sauce-requests/{sauceRequest}/comments/{comment}/like', [SauceRequestCommentController::class, 'like'])
+        ->middleware('throttle:comment_likes')
+        ->name('sauce-requests.comments.like');
+    Route::delete('/sauce-requests/{sauceRequest}/comments/{comment}/like', [SauceRequestCommentController::class, 'unlike'])
+        ->middleware('throttle:comment_likes')
+        ->name('sauce-requests.comments.unlike');
 })->scopeBindings();
 
 // --- Public profile routes ---
