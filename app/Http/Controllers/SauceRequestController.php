@@ -271,6 +271,11 @@ class SauceRequestController extends Controller
 
         $userId = $request->user()?->id;
 
+        // Answers sort by likes by default, with an option to sort by most
+        // recent. The accepted answer is always pinned to the top.
+        $sort = $request->query('sort', 'likes');
+        $sort = in_array($sort, ['likes', 'recent'], true) ? $sort : 'likes';
+
         $sauceRequest->load([
             'user',
             'tags',
@@ -284,12 +289,30 @@ class SauceRequestController extends Controller
                 'likes as liked_by_me' => fn ($likes) => $likes->where('user_id', $userId),
             ]),
             'comments.replies.user',
+            'answers' => fn ($query) => $query
+                ->withCount([
+                    'likes as likes_count',
+                    'likes as liked_by_me' => fn ($likes) => $likes->where('user_id', $userId),
+                ])
+                ->when($sort === 'recent', fn ($q) => $q->latest('id'))
+                ->when($sort === 'likes', fn ($q) => $q->orderByDesc('likes_count')->orderByDesc('id')),
+            'answers.user',
         ]);
+
+        // Pin the accepted answer to the top of the list regardless of the
+        // active sort, so the solved answer is always the first thing seen.
+        if ($sauceRequest->accepted_sauce !== null) {
+            $sauceRequest->setRelation(
+                'answers',
+                $sauceRequest->answers->sortByDesc(fn ($answer) => $answer->id === $sauceRequest->accepted_sauce)->values(),
+            );
+        }
 
         return view('pages.sauce-requests.show', [
             'sauceRequest' => $sauceRequest,
             'isOwner' => $request->user()?->is($sauceRequest->user) ?? false,
             'isStaff' => $request->user()?->isStaff() ?? false,
+            'sort' => $sort,
         ]);
     }
 
