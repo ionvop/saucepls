@@ -269,7 +269,12 @@ class SauceRequestController extends Controller
             abort(404);
         }
 
-        $sauceRequest->load(['user', 'tags']);
+        $sauceRequest->load([
+            'user',
+            'tags',
+            'comments.user',
+            'comments.replies.user',
+        ]);
 
         return view('pages.sauce-requests.show', [
             'sauceRequest' => $sauceRequest,
