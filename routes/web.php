@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SauceRequestCommentController;
 use App\Http\Controllers\SauceRequestController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SauceRequestTagController;
@@ -82,6 +83,14 @@ Route::middleware('auth')->group(function () {
     Route::post('/sauce-requests/{sauceRequest}/text/history/{textHistory}/restore', [SauceRequestTextHistoryController::class, 'restore'])
         ->middleware('throttle:community_edits')
         ->name('sauce-requests.text.history.restore');
+
+    // --- Comments ---
+    Route::post('/sauce-requests/{sauceRequest}/comments', [SauceRequestCommentController::class, 'store'])
+        ->middleware('throttle:community_edits')
+        ->name('sauce-requests.comments.store');
+    Route::delete('/sauce-requests/{sauceRequest}/comments/{comment}', [SauceRequestCommentController::class, 'destroy'])
+        ->middleware('throttle:community_edits')
+        ->name('sauce-requests.comments.destroy');
 })->scopeBindings();
 
 // --- Public profile routes ---
