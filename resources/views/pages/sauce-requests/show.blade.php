@@ -323,6 +323,31 @@
                                         <span>·</span>
                                         <span>{{ $comment->created_at?->format('M j, Y') }}</span>
 
+                                        @auth
+                                            @if ($comment->liked_by_me)
+                                                <form method="POST"
+                                                    action="{{ route('sauce-requests.comments.unlike', [$sauceRequest, $comment]) }}">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" title="Unlike"
+                                                        class="inline-flex items-center gap-1 text-xs font-medium text-[#8888CC] transition hover:text-white">
+                                                        <x-lucide-heart class="h-3.5 w-3.5 fill-current" />
+                                                        {{ $comment->likes_count }}
+                                                    </button>
+                                                </form>
+                                            @else
+                                                <form method="POST"
+                                                    action="{{ route('sauce-requests.comments.like', [$sauceRequest, $comment]) }}">
+                                                    @csrf
+                                                    <button type="submit" title="Like"
+                                                        class="inline-flex items-center gap-1 text-xs font-medium text-gray-500 transition hover:text-[#8888CC]">
+                                                        <x-lucide-heart class="h-3.5 w-3.5" />
+                                                        {{ $comment->likes_count }}
+                                                    </button>
+                                                </form>
+                                            @endif
+                                        @endauth
+
                                         @if ($comment->user_id === auth()->id() || $isStaff)
                                             <form method="POST"
                                                 action="{{ route('sauce-requests.comments.destroy', [$sauceRequest, $comment]) }}"
@@ -361,6 +386,31 @@
                                                         </a>
                                                         <span>·</span>
                                                         <span>{{ $reply->created_at?->format('M j, Y') }}</span>
+
+                                                        @auth
+                                                            @if ($reply->liked_by_me)
+                                                                <form method="POST"
+                                                                    action="{{ route('sauce-requests.comments.unlike', [$sauceRequest, $reply]) }}">
+                                                                    @csrf
+                                                                    @method('DELETE')
+                                                                    <button type="submit" title="Unlike"
+                                                                        class="inline-flex items-center gap-1 text-xs font-medium text-[#8888CC] transition hover:text-white">
+                                                                        <x-lucide-heart class="h-3.5 w-3.5 fill-current" />
+                                                                        {{ $reply->likes_count }}
+                                                                    </button>
+                                                                </form>
+                                                            @else
+                                                                <form method="POST"
+                                                                    action="{{ route('sauce-requests.comments.like', [$sauceRequest, $reply]) }}">
+                                                                    @csrf
+                                                                    <button type="submit" title="Like"
+                                                                        class="inline-flex items-center gap-1 text-xs font-medium text-gray-500 transition hover:text-[#8888CC]">
+                                                                        <x-lucide-heart class="h-3.5 w-3.5" />
+                                                                        {{ $reply->likes_count }}
+                                                                    </button>
+                                                                </form>
+                                                            @endif
+                                                        @endauth
 
                                                         @if ($reply->user_id === auth()->id() || $isStaff)
                                                             <form method="POST"
