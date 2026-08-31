@@ -57,8 +57,8 @@ function relativeTime(date) {
 
     for (const [unit, secondsInUnit] of units) {
         if (abs >= secondsInUnit) {
-            const value = Math.round(seconds / secondsInUnit);
-            return `${value} ${unit}${Math.abs(value) === 1 ? '' : 's'} ago`;
+            const value = Math.round(abs / secondsInUnit);
+            return `${value} ${unit}${value === 1 ? '' : 's'} ago`;
         }
     }
 
