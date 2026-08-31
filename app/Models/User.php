@@ -86,6 +86,14 @@ class User extends Authenticatable
     }
 
     /**
+     * The comments written by the user.
+     */
+    public function comments(): HasMany
+    {
+        return $this->hasMany(SauceRequestComment::class);
+    }
+
+    /**
      * Whether the user is a moderator or admin (i.e. not a regular member).
      */
     public function isStaff(): bool
