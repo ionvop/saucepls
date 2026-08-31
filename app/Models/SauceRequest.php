@@ -88,6 +88,16 @@ class SauceRequest extends Model
     }
 
     /**
+     * The top-level comments on this sauce request, newest first.
+     */
+    public function comments(): HasMany
+    {
+        return $this->hasMany(SauceRequestComment::class)
+            ->whereNull('parent_id')
+            ->latest('id');
+    }
+
+    /**
      * The absolute URL to the request's image.
      */
     protected function imageUrl(): Attribute
