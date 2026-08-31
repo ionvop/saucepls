@@ -87,7 +87,7 @@
                         {{ $sauceRequest->user?->username ?? 'Unknown' }}
                     </a>
                     <span>·</span>
-                    <span>{{ $sauceRequest->created_at?->format('M j, Y') }}</span>
+                    <span data-time="{{ $sauceRequest->created_at?->toIso8601String() }}" data-format="date">{{ $sauceRequest->created_at?->format('M j, Y') }}</span>
                 </div>
 
                 {{-- Description --}}
@@ -321,7 +321,7 @@
                                             {{ $comment->user?->username ?? 'Unknown' }}
                                         </a>
                                         <span>·</span>
-                                        <span>{{ $comment->created_at?->format('M j, Y') }}</span>
+                                        <span data-time="{{ $comment->created_at?->toIso8601String() }}" data-format="date">{{ $comment->created_at?->format('M j, Y') }}</span>
 
                                         @auth
                                             @if ($comment->liked_by_me)
@@ -385,7 +385,7 @@
                                                             {{ $reply->user?->username ?? 'Unknown' }}
                                                         </a>
                                                         <span>·</span>
-                                                        <span>{{ $reply->created_at?->format('M j, Y') }}</span>
+                                                        <span data-time="{{ $reply->created_at?->toIso8601String() }}" data-format="date">{{ $reply->created_at?->format('M j, Y') }}</span>
 
                                                         @auth
                                                             @if ($reply->liked_by_me)
