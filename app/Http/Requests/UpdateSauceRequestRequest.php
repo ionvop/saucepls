@@ -21,7 +21,6 @@ class UpdateSauceRequestRequest extends FormRequest
             'title' => ['nullable', 'string', 'max:120'],
             'description' => ['nullable', 'string', 'max:5000'],
             'is_explicit' => ['sometimes', 'boolean'],
-            'tags' => ['nullable', 'string', 'max:1000'],
         ];
     }
 }
