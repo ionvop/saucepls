@@ -99,12 +99,73 @@
                 @endif
 
                 {{-- OCR text --}}
-                @if ($sauceRequest->text)
-                    <div class="mt-6 border-t border-white/10 pt-6">
-                        <h2 class="text-sm font-semibold uppercase tracking-wide text-gray-400">Text in image</h2>
-                        <p class="mt-2 whitespace-pre-line text-gray-300">{{ $sauceRequest->text }}</p>
-                    </div>
-                @endif
+                <div class="mt-6 border-t border-white/10 pt-6">
+                    <h2 class="text-sm font-semibold uppercase tracking-wide text-gray-400">Text in image</h2>
+
+                    @auth
+                        <div x-data="{ editing: false }">
+                            {{-- Display mode: plain text + edit button --}}
+                            <div x-show="!editing" x-cloak>
+                                @if ($sauceRequest->text)
+                                    <p class="mt-2 whitespace-pre-line text-gray-300">{{ $sauceRequest->text }}</p>
+                                @else
+                                    <p class="mt-2 text-sm text-gray-500">No text detected.</p>
+                                @endif
+
+                                <div class="mt-3 flex flex-wrap items-center gap-2">
+                                    <button type="button" @click="editing = true"
+                                        class="inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-2.5 py-1 text-xs font-medium text-gray-300 transition hover:border-white/20 hover:text-white">
+                                        <x-lucide-pencil class="h-3.5 w-3.5" />
+                                        Edit text
+                                    </button>
+
+                                    <a href="{{ route('sauce-requests.text.history', $sauceRequest) }}"
+                                        class="inline-flex items-center gap-1.5 text-xs font-medium text-gray-400 transition hover:text-white">
+                                        <x-lucide-history class="h-3.5 w-3.5" />
+                                        View text history
+                                    </a>
+                                </div>
+                            </div>
+
+                            {{-- Edit mode: single editable field replacing the whole text --}}
+                            <form x-show="editing" x-cloak
+                                method="POST" action="{{ route('sauce-requests.text.update', $sauceRequest) }}"
+                                class="mt-3 flex flex-col gap-2">
+                                @csrf
+                                @method('PUT')
+
+                                <textarea name="text" rows="4" maxlength="5000"
+                                    placeholder="Any visible text detected in the image."
+                                    class="w-full rounded-lg border border-white/10 bg-[#111111] px-3 py-2 text-sm text-white placeholder-gray-500 outline-none transition focus:border-[#5555AA] focus:ring-2 focus:ring-[#5555AA]/40">{{ old('text', $sauceRequest->text) }}</textarea>
+                                <p class="text-xs text-gray-500">
+                                    Replaces the extracted text. Edit or clear it as needed.
+                                </p>
+
+                                <div class="flex items-center gap-2">
+                                    <button type="submit"
+                                        class="rounded-lg bg-[#5555AA] px-3 py-1.5 text-sm font-medium text-white transition hover:bg-[#6666BB]">
+                                        Save
+                                    </button>
+                                    <button type="button" @click="editing = false"
+                                        class="rounded-lg border border-white/10 px-3 py-1.5 text-sm font-medium text-gray-300 transition hover:border-white/20 hover:text-white">
+                                        Cancel
+                                    </button>
+                                </div>
+
+                                @error('text')
+                                    <p class="text-xs text-red-400">{{ $message }}</p>
+                                @enderror
+                            </form>
+                        </div>
+                    @else
+                        {{-- Guest: read-only text --}}
+                        @if ($sauceRequest->text)
+                            <p class="mt-2 whitespace-pre-line text-gray-300">{{ $sauceRequest->text }}</p>
+                        @else
+                            <p class="mt-2 text-sm text-gray-500">No text detected.</p>
+                        @endif
+                    @endauth
+                </div>
 
                 {{-- Tags --}}
                 <div class="mt-6 border-t border-white/10 pt-6">
