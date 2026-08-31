@@ -59,12 +59,13 @@ class SauceRequest extends Model
     }
 
     /**
-     * The tags attached to the sauce request.
+     * The tags attached to the sauce request, sorted alphabetically.
      */
     public function tags(): BelongsToMany
     {
         return $this->belongsToMany(Tag::class, 'sauce_request_tags')
-            ->withTimestamps();
+            ->withTimestamps()
+            ->orderBy('tags.name');
     }
 
     /**
