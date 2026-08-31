@@ -58,6 +58,7 @@
 
                             <button type="button"
                                 @click="$dispatch('open-confirm', {
+                                    title: 'Delete sauce request',
                                     message: 'Delete this sauce request? This cannot be undone.',
                                     action: () => $refs.deleteForm.submit(),
                                 })"
@@ -305,7 +306,7 @@
                     @if ($sauceRequest->comments->isNotEmpty())
                         <div class="mt-6 flex flex-col gap-4">
                             @foreach ($sauceRequest->comments as $comment)
-                                <div class="rounded-xl border border-white/10 bg-white/[0.02] p-4">
+                                <div x-data class="rounded-xl border border-white/10 bg-white/[0.02] p-4">
                                     {{-- Comment header --}}
                                     <div class="flex items-center gap-2 text-sm text-gray-400">
                                         @if ($comment->user?->avatar_url)
@@ -349,17 +350,22 @@
                                         @endauth
 
                                         @if ($comment->user_id === auth()->id() || $isStaff)
-                                            <form method="POST"
+                                            <form x-ref="deleteCommentForm" method="POST"
                                                 action="{{ route('sauce-requests.comments.destroy', [$sauceRequest, $comment]) }}"
-                                                class="ml-auto">
+                                                class="hidden">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit"
-                                                    class="inline-flex items-center gap-1 text-xs font-medium text-gray-500 transition hover:text-red-400">
-                                                    <x-lucide-trash-2 class="h-3.5 w-3.5" />
-                                                    Delete
-                                                </button>
                                             </form>
+                                            <button type="button"
+                                                @click="$dispatch('open-confirm', {
+                                                    title: 'Delete comment',
+                                                    message: 'Delete this comment? This cannot be undone.',
+                                                    action: () => $refs.deleteCommentForm.submit(),
+                                                })"
+                                                class="ml-auto inline-flex items-center gap-1 text-xs font-medium text-gray-500 transition hover:text-red-400">
+                                                <x-lucide-trash-2 class="h-3.5 w-3.5" />
+                                                Delete
+                                            </button>
                                         @endif
                                     </div>
 
@@ -370,7 +376,7 @@
                                     @if ($comment->replies->isNotEmpty())
                                         <div class="mt-3 flex flex-col gap-3 border-l border-white/10 pl-4">
                                             @foreach ($comment->replies as $reply)
-                                                <div>
+                                                <div x-data>
                                                     <div class="flex items-center gap-2 text-sm text-gray-400">
                                                         @if ($reply->user?->avatar_url)
                                                             <img src="{{ $reply->user->avatar_url }}" alt="{{ $reply->user->username }}"
@@ -413,17 +419,22 @@
                                                         @endauth
 
                                                         @if ($reply->user_id === auth()->id() || $isStaff)
-                                                            <form method="POST"
+                                                            <form x-ref="deleteReplyForm" method="POST"
                                                                 action="{{ route('sauce-requests.comments.destroy', [$sauceRequest, $reply]) }}"
-                                                                class="ml-auto">
+                                                                class="hidden">
                                                                 @csrf
                                                                 @method('DELETE')
-                                                                <button type="submit"
-                                                                    class="inline-flex items-center gap-1 text-xs font-medium text-gray-500 transition hover:text-red-400">
-                                                                    <x-lucide-trash-2 class="h-3.5 w-3.5" />
-                                                                    Delete
-                                                                </button>
                                                             </form>
+                                                            <button type="button"
+                                                                @click="$dispatch('open-confirm', {
+                                                                    title: 'Delete reply',
+                                                                    message: 'Delete this reply? This cannot be undone.',
+                                                                    action: () => $refs.deleteReplyForm.submit(),
+                                                                })"
+                                                                class="ml-auto inline-flex items-center gap-1 text-xs font-medium text-gray-500 transition hover:text-red-400">
+                                                                <x-lucide-trash-2 class="h-3.5 w-3.5" />
+                                                                Delete
+                                                            </button>
                                                         @endif
                                                     </div>
                                                     <p class="mt-1 whitespace-pre-line text-sm text-gray-300">{{ $reply->content }}</p>
@@ -469,7 +480,7 @@
         x-transition.opacity
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
         @keydown.escape.window="cancel()"
-        @open-confirm.window="ask($event.detail.message, $event.detail.action)"
+        @open-confirm.window="ask($event.detail.message, $event.detail.title, $event.detail.action)"
     >
         <div
             class="w-full max-w-md rounded-2xl border border-white/10 bg-[#111111] p-6 shadow-2xl"
@@ -480,7 +491,7 @@
                     <x-lucide-trash-2 class="h-5 w-5 text-red-400" />
                 </div>
                 <div>
-                    <h2 class="text-lg font-bold text-white">Delete sauce request</h2>
+                    <h2 class="text-lg font-bold text-white" x-text="title"></h2>
                     <p class="mt-1 text-sm text-gray-400" x-text="message"></p>
                 </div>
             </div>
