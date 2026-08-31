@@ -14,6 +14,7 @@ use App\Services\PerceptualHashService;
 use App\Services\SauceNaoService;
 use App\Services\TagInferenceService;
 use App\Services\TagService;
+use App\Services\TextService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -29,6 +30,7 @@ class SauceRequestController extends Controller
         private readonly TagInferenceService $tagInference,
         private readonly SauceNaoService $sauceNao,
         private readonly TagService $tags,
+        private readonly TextService $text,
         private readonly ImageCompressionService $imageCompression,
     ) {}
 
@@ -227,8 +229,11 @@ class SauceRequestController extends Controller
     {
         $validated = $request->validated();
 
+        // Set the final text (recording a history entry if it changed from
+        // the draft) and publish the request.
+        $this->text->update($sauceRequest, (string) ($validated['text'] ?? ''), $request->user());
+
         $sauceRequest->update([
-            'text' => $validated['text'] ?? '',
             'published_at' => now(),
         ]);
 
