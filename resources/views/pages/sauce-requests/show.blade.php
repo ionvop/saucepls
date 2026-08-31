@@ -42,7 +42,7 @@
                     @endif
 
                     @if ($isOwner || $isStaff)
-                        <div class="ml-auto flex items-center gap-2">
+                        <div class="ml-auto flex items-center gap-2" x-data>
                             @if ($isOwner)
                                 <a href="{{ route('sauce-requests.edit', $sauceRequest) }}"
                                     class="inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-3 py-1.5 text-xs font-medium text-gray-300 transition hover:border-white/20 hover:text-white">
@@ -51,17 +51,20 @@
                                 </a>
                             @endif
 
-                            <form method="POST" action="{{ route('sauce-requests.destroy', $sauceRequest) }}"
-                                onsubmit="return confirm('Delete this sauce request? This cannot be undone.')">
+                            <form x-ref="deleteForm" method="POST" action="{{ route('sauce-requests.destroy', $sauceRequest) }}" class="hidden">
                                 @csrf
                                 @method('DELETE')
-
-                                <button type="submit"
-                                    class="inline-flex items-center gap-1.5 rounded-lg border border-red-500/30 px-3 py-1.5 text-xs font-medium text-red-300 transition hover:border-red-500/60 hover:bg-red-500/10 hover:text-red-200">
-                                    <x-lucide-trash-2 class="h-3.5 w-3.5" />
-                                    Delete
-                                </button>
                             </form>
+
+                            <button type="button"
+                                @click="$dispatch('open-confirm', {
+                                    message: 'Delete this sauce request? This cannot be undone.',
+                                    action: () => $refs.deleteForm.submit(),
+                                })"
+                                class="inline-flex items-center gap-1.5 rounded-lg border border-red-500/30 px-3 py-1.5 text-xs font-medium text-red-300 transition hover:border-red-500/60 hover:bg-red-500/10 hover:text-red-200">
+                                <x-lucide-trash-2 class="h-3.5 w-3.5" />
+                                Delete
+                            </button>
                         </div>
                     @endif
                 </div>
@@ -201,6 +204,49 @@
                         No answers yet. Answers will be available soon.
                     </p>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Delete confirmation modal --}}
+    <div
+        x-data="confirmDialog"
+        x-show="open"
+        x-cloak
+        x-transition.opacity
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+        @keydown.escape.window="cancel()"
+        @open-confirm.window="ask($event.detail.message, $event.detail.action)"
+    >
+        <div
+            class="w-full max-w-md rounded-2xl border border-white/10 bg-[#111111] p-6 shadow-2xl"
+            @click.outside="cancel()"
+        >
+            <div class="flex items-start gap-3">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-500/15">
+                    <x-lucide-trash-2 class="h-5 w-5 text-red-400" />
+                </div>
+                <div>
+                    <h2 class="text-lg font-bold text-white">Delete sauce request</h2>
+                    <p class="mt-1 text-sm text-gray-400" x-text="message"></p>
+                </div>
+            </div>
+
+            <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+                <button
+                    type="button"
+                    @click="cancel()"
+                    class="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-gray-300 transition hover:border-white/20 hover:text-white"
+                >
+                    Cancel
+                </button>
+                <button
+                    type="button"
+                    @click="confirm()"
+                    class="rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-600"
+                >
+                    Delete
+                </button>
             </div>
         </div>
     </div>
