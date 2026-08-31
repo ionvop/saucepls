@@ -269,10 +269,20 @@ class SauceRequestController extends Controller
             abort(404);
         }
 
+        $userId = $request->user()?->id;
+
         $sauceRequest->load([
             'user',
             'tags',
+            'comments' => fn ($query) => $query->withCount([
+                'likes as likes_count',
+                'likes as liked_by_me' => fn ($likes) => $likes->where('user_id', $userId),
+            ]),
             'comments.user',
+            'comments.replies' => fn ($query) => $query->withCount([
+                'likes as likes_count',
+                'likes as liked_by_me' => fn ($likes) => $likes->where('user_id', $userId),
+            ]),
             'comments.replies.user',
         ]);
 
