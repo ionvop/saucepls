@@ -77,6 +77,16 @@ class SauceRequest extends Model
     }
 
     /**
+     * The extracted-text changes recorded against this sauce request,
+     * newest first.
+     */
+    public function textHistory(): HasMany
+    {
+        return $this->hasMany(SauceRequestTextHistory::class)
+            ->latest('id');
+    }
+
+    /**
      * The absolute URL to the request's image.
      */
     protected function imageUrl(): Attribute
