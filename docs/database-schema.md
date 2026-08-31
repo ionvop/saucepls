@@ -117,6 +117,7 @@ url: str // Link to the source if applicable such as Pixiv, Twitter, etc. e.g. "
 deleted_at: datetime, default = null
 created_at: datetime
 updated_at: datetime
+// Implemented: providing answers (store + destroy), liking answers (like + unlike), and accepting answers (accept + unaccept). The accepted answer is pinned to the top of the answers list. Answers sort by likes by default with an option to sort by most recent.
 
 sauce_answer_comments
 id: int, pk
@@ -143,6 +144,7 @@ user_id: int, fk = users.id
 created_at: datetime
 updated_at: datetime
 unique(sauce_answer_id, user_id)
+// Implemented: liking sauce answers.
 
 user_comments
 id: int, pk
