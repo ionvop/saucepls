@@ -63,4 +63,12 @@ class SauceRequestComment extends Model
     {
         return $this->hasMany(self::class, 'parent_id');
     }
+
+    /**
+     * The likes this comment has received.
+     */
+    public function likes(): HasMany
+    {
+        return $this->hasMany(SauceRequestCommentLike::class);
+    }
 }
