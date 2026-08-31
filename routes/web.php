@@ -9,6 +9,8 @@ use App\Http\Controllers\SauceRequestController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SauceRequestTagController;
 use App\Http\Controllers\SauceRequestTagHistoryController;
+use App\Http\Controllers\SauceRequestTextController;
+use App\Http\Controllers\SauceRequestTextHistoryController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -61,14 +63,25 @@ Route::middleware('auth')->group(function () {
 
     // --- Community tagging ---
     Route::put('/sauce-requests/{sauceRequest}/tags', [SauceRequestTagController::class, 'update'])
-        ->middleware('throttle:tagging')
+        ->middleware('throttle:community_edits')
         ->name('sauce-requests.tags.update');
 
     // --- Tagging history ---
     Route::get('/sauce-requests/{sauceRequest}/tags/history', [SauceRequestTagHistoryController::class, 'index'])->name('sauce-requests.tags.history');
     Route::post('/sauce-requests/{sauceRequest}/tags/history/{taggingHistory}/restore', [SauceRequestTagHistoryController::class, 'restore'])
-        ->middleware('throttle:tagging')
+        ->middleware('throttle:community_edits')
         ->name('sauce-requests.tags.history.restore');
+
+    // --- Community extracted-text editing ---
+    Route::put('/sauce-requests/{sauceRequest}/text', [SauceRequestTextController::class, 'update'])
+        ->middleware('throttle:community_edits')
+        ->name('sauce-requests.text.update');
+
+    // --- Extracted-text history ---
+    Route::get('/sauce-requests/{sauceRequest}/text/history', [SauceRequestTextHistoryController::class, 'index'])->name('sauce-requests.text.history');
+    Route::post('/sauce-requests/{sauceRequest}/text/history/{textHistory}/restore', [SauceRequestTextHistoryController::class, 'restore'])
+        ->middleware('throttle:community_edits')
+        ->name('sauce-requests.text.history.restore');
 })->scopeBindings();
 
 // --- Public profile routes ---
