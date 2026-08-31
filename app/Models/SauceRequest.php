@@ -98,6 +98,22 @@ class SauceRequest extends Model
     }
 
     /**
+     * The sauce answers provided for this sauce request.
+     */
+    public function answers(): HasMany
+    {
+        return $this->hasMany(SauceAnswer::class);
+    }
+
+    /**
+     * The accepted sauce answer, or null when the request is unsolved.
+     */
+    public function acceptedAnswer(): BelongsTo
+    {
+        return $this->belongsTo(SauceAnswer::class, 'accepted_sauce');
+    }
+
+    /**
      * The absolute URL to the request's image.
      */
     protected function imageUrl(): Attribute
