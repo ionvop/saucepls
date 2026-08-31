@@ -47,7 +47,7 @@
                                         {{ $entry->user?->username ?? 'Unknown' }}
                                     </a>
                                     <span class="text-gray-500">·</span>
-                                    <span class="text-gray-400">{{ $entry->created_at?->format('M j, Y g:i A') }}</span>
+                                    <span class="text-gray-400" data-time="{{ $entry->created_at?->toIso8601String() }}" data-format="datetime">{{ $entry->created_at?->format('M j, Y g:i A') }}</span>
                                 </div>
 
                                 <div class="mt-3">
