@@ -65,7 +65,7 @@ it('stores a snapshot of the resulting tags on each history entry', function () 
     $history = SauceRequestTaggingHistory::orderBy('id')->get();
 
     expect($history[0]->tags_snapshot)->toBe(['1girl', 'smile']);
-    expect($history[1]->tags_snapshot)->toBe(['1girl', 'smile', 'cat_ears']);
+    expect($history[1]->tags_snapshot)->toBe(['1girl', 'cat_ears', 'smile']);
     expect($history[2]->tags_snapshot)->toBe(['1girl', 'cat_ears']);
 });
 
@@ -90,12 +90,12 @@ it('restores tags to the state after a given history entry', function () {
         ->assertRedirect();
 
     expect($sauceRequest->fresh()->tags->pluck('name')->all())
-        ->toBe(['1girl', 'smile', 'cat_ears']);
+        ->toBe(['1girl', 'cat_ears', 'smile']);
 
     // The restore itself is recorded as a compensating entry.
     $compensating = SauceRequestTaggingHistory::latest('id')->firstOrFail();
     expect($compensating->added_tags)->toBe(['smile']);
-    expect($compensating->tags_snapshot)->toBe(['1girl', 'smile', 'cat_ears']);
+    expect($compensating->tags_snapshot)->toBe(['1girl', 'cat_ears', 'smile']);
 });
 
 // ---------------------------------------------------------------------------
