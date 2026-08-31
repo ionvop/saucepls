@@ -108,16 +108,58 @@ class ImageCompressionService
     /**
      * Load the image into a GD resource based on its MIME type.
      *
+     * Palette (indexed) images are converted to truecolor because
+     * imagewebp() cannot encode palette images.
+     *
      * @return \GdImage|null
      */
     protected function load(string $path, ?string $mime)
     {
-        return match ($mime) {
+        $image = match ($mime) {
             'image/jpeg' => @imagecreatefromjpeg($path),
             'image/png' => @imagecreatefrompng($path),
             'image/webp' => @imagecreatefromwebp($path),
             default => null,
         };
+
+        if ($image === null) {
+            return null;
+        }
+
+        return $this->toTrueColor($image);
+    }
+
+    /**
+     * Convert a palette (indexed) image to truecolor so it can be
+     * encoded to WebP. Truecolor images are returned unchanged.
+     *
+     * @param  \GdImage  $image
+     * @return \GdImage
+     */
+    protected function toTrueColor($image)
+    {
+        if (imageistruecolor($image)) {
+            return $image;
+        }
+
+        $width = imagesx($image);
+        $height = imagesy($image);
+
+        $trueColor = imagecreatetruecolor($width, $height);
+
+        if ($trueColor === false) {
+            return $image;
+        }
+
+        // Preserve transparency for images that have it.
+        imagealphablending($trueColor, false);
+        imagesavealpha($trueColor, true);
+
+        imagecopy($trueColor, $image, 0, 0, 0, 0, $width, $height);
+
+        imagedestroy($image);
+
+        return $trueColor;
     }
 
     /**
