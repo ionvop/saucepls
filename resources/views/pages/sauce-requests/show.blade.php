@@ -259,12 +259,184 @@
                     @endauth
                 </div>
 
-                {{-- Answers placeholder --}}
+                {{-- Answers --}}
                 <div class="mt-6 border-t border-white/10 pt-6">
-                    <h2 class="text-sm font-semibold uppercase tracking-wide text-gray-400">Answers</h2>
-                    <p class="mt-2 text-sm text-gray-500">
-                        No answers yet. Answers will be available soon.
-                    </p>
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                        <h2 class="text-sm font-semibold uppercase tracking-wide text-gray-400">
+                            Answers
+                            @if ($sauceRequest->answers->isNotEmpty())
+                                <span class="text-gray-500">({{ $sauceRequest->answers->count() }})</span>
+                            @endif
+                        </h2>
+
+                        @if ($sauceRequest->answers->isNotEmpty())
+                            <div class="flex items-center gap-1 rounded-lg border border-white/10 p-0.5 text-xs font-medium">
+                                <a href="{{ route('sauce-requests.show', ['sauceRequest' => $sauceRequest, 'sort' => 'likes']) }}"
+                                    class="rounded-md px-2.5 py-1 transition {{ $sort === 'likes' ? 'bg-[#5555AA] text-white' : 'text-gray-400 hover:text-white' }}">
+                                    Most liked
+                                </a>
+                                <a href="{{ route('sauce-requests.show', ['sauceRequest' => $sauceRequest, 'sort' => 'recent']) }}"
+                                    class="rounded-md px-2.5 py-1 transition {{ $sort === 'recent' ? 'bg-[#5555AA] text-white' : 'text-gray-400 hover:text-white' }}">
+                                    Most recent
+                                </a>
+                            </div>
+                        @endif
+                    </div>
+
+                    @auth
+                        <form method="POST" action="{{ route('sauce-requests.answers.store', $sauceRequest) }}"
+                            class="mt-4 flex flex-col gap-2">
+                            @csrf
+
+                            <textarea name="content" rows="3" maxlength="5000"
+                                placeholder="Know the sauce? Share it here..."
+                                class="w-full rounded-lg border border-white/10 bg-[#111111] px-3 py-2 text-sm text-white placeholder-gray-500 outline-none transition focus:border-[#5555AA] focus:ring-2 focus:ring-[#5555AA]/40">{{ old('content') }}</textarea>
+
+                            <input type="url" name="url" maxlength="2048"
+                                placeholder="Source link (optional) — e.g. https://x.com/..."
+                                class="w-full rounded-lg border border-white/10 bg-[#111111] px-3 py-2 text-sm text-white placeholder-gray-500 outline-none transition focus:border-[#5555AA] focus:ring-2 focus:ring-[#5555AA]/40" value="{{ old('url') }}">
+
+                            @error('content')
+                                <p class="text-xs text-red-400">{{ $message }}</p>
+                            @enderror
+                            @error('url')
+                                <p class="text-xs text-red-400">{{ $message }}</p>
+                            @enderror
+
+                            <div class="flex items-center justify-end">
+                                <button type="submit"
+                                    class="rounded-lg bg-[#5555AA] px-3 py-1.5 text-sm font-medium text-white transition hover:bg-[#6666BB]">
+                                    Post answer
+                                </button>
+                            </div>
+                        </form>
+                    @else
+                        <p class="mt-4 text-sm text-gray-500">
+                            <a href="{{ route('login') }}" class="font-medium text-[#8888CC] hover:text-white">Log in</a>
+                            to provide an answer.
+                        </p>
+                    @endauth
+
+                    @if ($sauceRequest->answers->isNotEmpty())
+                        <div class="mt-6 flex flex-col gap-4">
+                            @foreach ($sauceRequest->answers as $answer)
+                                @php
+                                    $isAccepted = $sauceRequest->accepted_sauce === $answer->id;
+                                @endphp
+                                <div x-data
+                                    class="rounded-xl border p-4 {{ $isAccepted ? 'border-green-500/40 bg-green-500/[0.06]' : 'border-white/10 bg-white/[0.02]' }}">
+                                    {{-- Answer header --}}
+                                    <div class="flex items-center gap-2 text-sm text-gray-400">
+                                        @if ($isAccepted)
+                                            <span class="inline-flex items-center gap-1 rounded-full bg-green-500/20 px-2.5 py-0.5 text-xs font-semibold text-green-300">
+                                                <x-lucide-check class="h-3.5 w-3.5" />
+                                                Accepted
+                                            </span>
+                                        @endif
+
+                                        @if ($answer->user?->avatar_url)
+                                            <img src="{{ $answer->user->avatar_url }}" alt="{{ $answer->user->username }}"
+                                                class="h-6 w-6 rounded-full object-cover">
+                                        @else
+                                            <span class="flex h-6 w-6 items-center justify-center rounded-full bg-[#5555AA]/20 text-xs font-bold text-[#8888CC]">
+                                                {{ strtoupper(substr($answer->user?->username ?? '?', 0, 1)) }}
+                                            </span>
+                                        @endif
+                                        <a href="{{ route('profile.show', $answer->user?->username ?? '') }}"
+                                            class="font-medium text-gray-200 hover:text-white">
+                                            {{ $answer->user?->username ?? 'Unknown' }}
+                                        </a>
+                                        <span>·</span>
+                                        <span data-time="{{ $answer->created_at?->toIso8601String() }}" data-format="date">{{ $answer->created_at?->format('M j, Y') }}</span>
+
+                                        @auth
+                                            @if ($answer->liked_by_me)
+                                                <form method="POST"
+                                                    action="{{ route('sauce-requests.answers.unlike', [$sauceRequest, $answer]) }}">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" title="Unlike"
+                                                        class="inline-flex items-center gap-1 text-xs font-medium text-[#8888CC] transition hover:text-white">
+                                                        <x-lucide-heart class="h-3.5 w-3.5 fill-current" />
+                                                        {{ $answer->likes_count }}
+                                                    </button>
+                                                </form>
+                                            @else
+                                                <form method="POST"
+                                                    action="{{ route('sauce-requests.answers.like', [$sauceRequest, $answer]) }}">
+                                                    @csrf
+                                                    <button type="submit" title="Like"
+                                                        class="inline-flex items-center gap-1 text-xs font-medium text-gray-500 transition hover:text-[#8888CC]">
+                                                        <x-lucide-heart class="h-3.5 w-3.5" />
+                                                        {{ $answer->likes_count }}
+                                                    </button>
+                                                </form>
+                                            @endif
+                                        @endauth
+
+                                        @if ($isOwner || $isStaff)
+                                            <div class="ml-auto flex items-center gap-2">
+                                                @if ($isAccepted)
+                                                    <form method="POST"
+                                                        action="{{ route('sauce-requests.answers.unaccept', [$sauceRequest, $answer]) }}">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit"
+                                                            class="inline-flex items-center gap-1 text-xs font-medium text-green-300 transition hover:text-green-200">
+                                                            <x-lucide-undo-2 class="h-3.5 w-3.5" />
+                                                            Un-accept
+                                                        </button>
+                                                    </form>
+                                                @else
+                                                    <form method="POST"
+                                                        action="{{ route('sauce-requests.answers.accept', [$sauceRequest, $answer]) }}">
+                                                        @csrf
+                                                        <button type="submit"
+                                                            class="inline-flex items-center gap-1 text-xs font-medium text-gray-400 transition hover:text-green-300">
+                                                            <x-lucide-check class="h-3.5 w-3.5" />
+                                                            Accept
+                                                        </button>
+                                                    </form>
+                                                @endif
+
+                                                @if ($answer->user_id === auth()->id() || $isStaff)
+                                                    <form x-ref="deleteAnswerForm" method="POST"
+                                                        action="{{ route('sauce-requests.answers.destroy', [$sauceRequest, $answer]) }}"
+                                                        class="hidden">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                    </form>
+                                                    <button type="button"
+                                                        @click="$dispatch('open-confirm', {
+                                                            title: 'Delete answer',
+                                                            message: 'Delete this answer? This cannot be undone.',
+                                                            action: () => $refs.deleteAnswerForm.submit(),
+                                                        })"
+                                                        class="inline-flex items-center gap-1 text-xs font-medium text-gray-500 transition hover:text-red-400">
+                                                        <x-lucide-trash-2 class="h-3.5 w-3.5" />
+                                                        Delete
+                                                    </button>
+                                                @endif
+                                            </div>
+                                        @endif
+                                    </div>
+
+                                    {{-- Answer body --}}
+                                    <p class="mt-2 whitespace-pre-line text-sm text-gray-300">{{ $answer->content }}</p>
+
+                                    @if ($answer->url)
+                                        <a href="{{ $answer->url }}" target="_blank" rel="noopener noreferrer"
+                                            class="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-[#8888CC] transition hover:text-white">
+                                            <x-lucide-external-link class="h-3.5 w-3.5" />
+                                            Source
+                                        </a>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <p class="mt-4 text-sm text-gray-500">No answers yet. Be the first to provide the sauce.</p>
+                    @endif
                 </div>
 
                 {{-- Comments --}}
