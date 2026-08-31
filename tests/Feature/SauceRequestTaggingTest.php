@@ -207,7 +207,7 @@ it('lets any authenticated user replace the full tag set', function () {
         ->assertRedirect();
 
     expect($sauceRequest->fresh()->tags->pluck('name')->all())
-        ->toBe(['cute', 'cat_ears']);
+        ->toBe(['cat_ears', 'cute']);
 
     $history = SauceRequestTaggingHistory::latest('id')->firstOrFail();
     expect($history->user_id)->toBe($member->id);
