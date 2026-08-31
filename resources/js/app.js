@@ -65,6 +65,37 @@ Alpine.data('explicitContentDialog', () => ({
  * user toggles the switch. Uses the same cookie format as the first-visit
  * dialog so the feed's guest filtering picks it up immediately.
  */
+/**
+ * Reusable confirmation dialog.
+ *
+ * Replaces native `confirm()` calls with a styled Alpine modal. Call
+ * `ask(message, action)` to open it with a message and the action to run
+ * when the user confirms. The action is only invoked from the modal's
+ * confirm button, never from the element that opened it.
+ */
+Alpine.data('confirmDialog', () => ({
+    open: false,
+    message: '',
+    confirmAction: null,
+
+    ask(message, action) {
+        this.message = message;
+        this.confirmAction = action;
+        this.open = true;
+    },
+
+    confirm() {
+        this.open = false;
+        if (typeof this.confirmAction === 'function') {
+            this.confirmAction();
+        }
+    },
+
+    cancel() {
+        this.open = false;
+    },
+}));
+
 Alpine.data('guestNsfwToggle', () => ({
     hideNsfw: false,
 
