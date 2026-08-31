@@ -23,7 +23,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        $this->configureTaggingRateLimiter();
+        $this->configureCommunityEditsRateLimiter();
         $this->configureUploadRateLimiter();
     }
 
@@ -48,14 +48,15 @@ class AppServiceProvider extends ServiceProvider
     }
 
     /**
-     * Rate limit community tag modifications to prevent tag-wars.
+     * Rate limit community tag and extracted-text modifications to prevent
+     * tag-wars and text-wars.
      *
      * Owners of the sauce request and staff (moderators/admins) are exempt.
      * Everyone else shares a single per-user budget across all requests.
      */
-    protected function configureTaggingRateLimiter(): void
+    protected function configureCommunityEditsRateLimiter(): void
     {
-        RateLimiter::for('tagging', function (Request $request) {
+        RateLimiter::for('community_edits', function (Request $request) {
             $user = $request->user();
 
             $sauceRequestId = $request->route('sauceRequest');
