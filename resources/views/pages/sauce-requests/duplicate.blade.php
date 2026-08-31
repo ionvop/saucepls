@@ -56,7 +56,7 @@
                     <p class="mt-1 text-sm text-gray-400">
                         Posted by {{ $duplicate->user?->username ?? 'Unknown' }}
                         <span>·</span>
-                        {{ $duplicate->created_at?->format('M j, Y') }}
+                        <span data-time="{{ $duplicate->created_at?->toIso8601String() }}" data-format="date">{{ $duplicate->created_at?->format('M j, Y') }}</span>
                     </p>
                 </div>
             </a>
