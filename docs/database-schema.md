@@ -97,7 +97,7 @@ content: str // e.g. "This looks like the artstyle of Snale on Twitter."
 deleted_at: datetime, default = null
 created_at: datetime
 updated_at: datetime
-// Implemented: commenting on sauce requests (store + destroy). Likes are not implemented yet.
+// Implemented: commenting on sauce requests (store + destroy) and liking comments (like + unlike).
 
 sauce_request_comment_likes
 id: int, pk
@@ -106,6 +106,7 @@ user_id: int, fk = users.id
 created_at: datetime
 updated_at: datetime
 unique(sauce_request_comment_id, user_id)
+// Implemented: liking sauce request comments.
 
 sauce_answers
 id: int, pk
