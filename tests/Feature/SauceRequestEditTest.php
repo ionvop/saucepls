@@ -119,9 +119,9 @@ it('keeps the existing image and phash when updating', function () {
 
 it('allows the owner to edit a solved request', function () {
     $owner = User::factory()->create();
-    $sauceRequest = makeSauceRequest($owner, [
-        'accepted_sauce' => 1,
-    ]);
+    $sauceRequest = makeSauceRequest($owner);
+    $answer = makeAnswer($sauceRequest, User::factory()->create());
+    $sauceRequest->update(['accepted_sauce' => $answer->id]);
 
     $this->actingAs($owner)
         ->put(route('sauce-requests.update', $sauceRequest), [
