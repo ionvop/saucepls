@@ -37,7 +37,7 @@
                     </div>
 
                     <p class="mt-1 text-sm text-gray-400">
-                        Joined {{ $user->created_at?->format('F Y') }}
+                        Joined <span data-time="{{ $user->created_at?->toIso8601String() }}" data-format="month-year">{{ $user->created_at?->format('F Y') }}</span>
                     </p>
                 </div>
 
