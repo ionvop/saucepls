@@ -24,7 +24,27 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureCommunityEditsRateLimiter();
+        $this->configureCommentLikesRateLimiter();
         $this->configureUploadRateLimiter();
+    }
+
+    /**
+     * Rate limit comment likes to prevent a user from spamming the like and
+     * unlike buttons.
+     *
+     * Staff (moderators/admins) are exempt.
+     */
+    protected function configureCommentLikesRateLimiter(): void
+    {
+        RateLimiter::for('comment_likes', function (Request $request) {
+            $user = $request->user();
+
+            if ($user && $user->isStaff()) {
+                return Limit::none();
+            }
+
+            return Limit::perMinute(20)->by($user?->id ?? $request->ip());
+        });
     }
 
     /**
