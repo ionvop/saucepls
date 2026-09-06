@@ -50,10 +50,28 @@
                             Edit profile
                         </a>
                     @else
-                        <span class="inline-flex items-center gap-2 rounded-lg border border-white/10 px-4 py-2 text-sm text-gray-400">
-                            <x-lucide-user class="h-4 w-4" />
-                            Follow
-                        </span>
+                        @auth
+                            @if ($isFollowing)
+                                <form method="POST" action="{{ route('profile.unfollow', $user) }}">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit"
+                                        class="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm text-white transition hover:bg-white/10">
+                                        <x-lucide-user-check class="h-4 w-4" />
+                                        Following
+                                    </button>
+                                </form>
+                            @else
+                                <form method="POST" action="{{ route('profile.follow', $user) }}">
+                                    @csrf
+                                    <button type="submit"
+                                        class="inline-flex items-center gap-2 rounded-lg bg-[#5555AA] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#6666BB]">
+                                        <x-lucide-user-plus class="h-4 w-4" />
+                                        Follow
+                                    </button>
+                                </form>
+                            @endif
+                        @endauth
                     @endif
                 </div>
             </div>
@@ -75,7 +93,7 @@
                 <p class="mt-1 text-sm text-gray-400">Sauce answers</p>
             </div>
             <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-center">
-                <p class="text-2xl font-bold text-white">0</p>
+                <p class="text-2xl font-bold text-white">{{ $user->followers_count }}</p>
                 <p class="mt-1 text-sm text-gray-400">Followers</p>
             </div>
         </div>
