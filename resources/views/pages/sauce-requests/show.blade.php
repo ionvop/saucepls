@@ -4,10 +4,10 @@
 
 @section('content')
     <div class="mx-auto max-w-3xl">
-        <a href="{{ route('sauce-requests.index') }}"
+        <a href="{{ route('search') }}"
             class="inline-flex items-center gap-2 text-sm text-gray-400 transition hover:text-white">
             <x-lucide-arrow-left class="h-4 w-4" />
-            Back to sauce requests
+            Back to search
         </a>
 
         <div class="mt-4 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03]">
