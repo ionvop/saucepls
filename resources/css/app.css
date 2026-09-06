@@ -9,6 +9,12 @@
     display: none !important;
 }
 
+/* Report a dark color-scheme so native form controls (e.g. disclosure dropdown
+   popups, date pickers, scrollbars) render dark instead of white-on-white. */
+html.dark {
+    color-scheme: dark;
+}
+
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
