@@ -68,12 +68,12 @@ it('allows guests to view the followers and following lists', function () {
 });
 
 it('returns 404 for an unknown user on the followers page', function () {
-    $this->get('/u/999999/followers')
+    $this->get('/u/unknown-user/followers')
         ->assertNotFound();
 });
 
 it('returns 404 for an unknown user on the following page', function () {
-    $this->get('/u/999999/following')
+    $this->get('/u/unknown-user/following')
         ->assertNotFound();
 });
 
