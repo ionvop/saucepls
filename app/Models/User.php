@@ -134,6 +134,14 @@ class User extends Authenticatable
     }
 
     /**
+     * The sauce requests the user has bookmarked to track their progress.
+     */
+    public function bookmarks(): HasMany
+    {
+        return $this->hasMany(SauceRequestBookmark::class);
+    }
+
+    /**
      * Whether the user is a moderator or admin (i.e. not a regular member).
      */
     public function isStaff(): bool
