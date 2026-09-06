@@ -50,6 +50,19 @@ function something()
 }
 
 /**
+ * Build an empty inference result matching
+ * App\Services\TagInferenceService::inferWithRating()'s return shape.
+ */
+function emptyInferenceResult(): array
+{
+    return [
+        'tags' => [],
+        'rating' => null,
+        'rating_confidence' => null,
+    ];
+}
+
+/**
  * Create a sauce request owned by the given user.
  */
 function makeSauceRequest(
