@@ -101,6 +101,196 @@
             </div>
         </div>
 
+        {{-- Sauce requests made by this user --}}
+        <div class="mt-6 rounded-2xl border border-white/10 bg-white/[0.02] p-6">
+            <div class="flex items-center justify-between gap-4">
+                <h2 class="text-lg font-semibold text-white">
+                    Sauce requests
+                    @if ($user->sauce_requests_count > 0)
+                        <span class="text-gray-500">({{ $user->sauce_requests_count }})</span>
+                    @endif
+                </h2>
+                @if ($user->sauce_requests_count > 0)
+                    <a href="{{ route('profile.requests', $user) }}"
+                        class="text-sm font-medium text-[#8888CC] transition hover:text-white">
+                        View all
+                    </a>
+                @endif
+            </div>
+
+            @if ($requests->isNotEmpty())
+                <div class="mt-4 grid gap-4 sm:grid-cols-2">
+                    @foreach ($requests as $request)
+                        <a href="{{ route('sauce-requests.show', $request) }}"
+                            class="group flex flex-col rounded-xl border border-white/10 bg-white/[0.03] p-4 transition hover:border-[#5555AA]/40 hover:bg-white/[0.05]">
+                            <div class="flex items-center gap-1.5">
+                                @if ($request->isAccepted())
+                                    <span class="inline-flex items-center gap-1 rounded-full bg-green-500/20 px-2.5 py-0.5 text-xs font-semibold text-green-300">
+                                        <x-lucide-check class="h-3 w-3" />
+                                        Solved
+                                    </span>
+                                @endif
+                                @if ($request->is_explicit)
+                                    <span class="rounded-full bg-red-500/20 px-2.5 py-0.5 text-xs font-semibold text-red-300">
+                                        NSFW
+                                    </span>
+                                @endif
+                            </div>
+                            <h3 class="mt-2 truncate text-sm font-semibold text-white group-hover:text-[#8888CC]">
+                                {{ $request->title }}
+                            </h3>
+                            <span class="mt-auto pt-2 text-xs text-gray-500">
+                                <span data-time="{{ $request->created_at?->toIso8601String() }}" data-format="relative">{{ $request->created_at?->diffForHumans() }}</span>
+                            </span>
+                        </a>
+                    @endforeach
+                </div>
+            @else
+                <p class="mt-4 text-sm text-gray-500">No sauce requests yet.</p>
+            @endif
+        </div>
+
+        {{-- Sauce requests bookmarked by this user --}}
+        <div class="mt-6 rounded-2xl border border-white/10 bg-white/[0.02] p-6">
+            <div class="flex items-center justify-between gap-4">
+                <h2 class="text-lg font-semibold text-white">
+                    Bookmarked sauce requests
+                    @if ($user->bookmarks_count > 0)
+                        <span class="text-gray-500">({{ $user->bookmarks_count }})</span>
+                    @endif
+                </h2>
+                @if ($user->bookmarks_count > 0)
+                    <a href="{{ route('profile.bookmarks', $user) }}"
+                        class="text-sm font-medium text-[#8888CC] transition hover:text-white">
+                        View all
+                    </a>
+                @endif
+            </div>
+
+            @if ($bookmarks->isNotEmpty())
+                <div class="mt-4 grid gap-4 sm:grid-cols-2">
+                    @foreach ($bookmarks as $bookmark)
+                        <a href="{{ route('sauce-requests.show', $bookmark->request) }}"
+                            class="group flex flex-col rounded-xl border border-white/10 bg-white/[0.03] p-4 transition hover:border-[#5555AA]/40 hover:bg-white/[0.05]">
+                            <div class="flex items-center gap-1.5">
+                                @if ($bookmark->request->isAccepted())
+                                    <span class="inline-flex items-center gap-1 rounded-full bg-green-500/20 px-2.5 py-0.5 text-xs font-semibold text-green-300">
+                                        <x-lucide-check class="h-3 w-3" />
+                                        Solved
+                                    </span>
+                                @endif
+                                @if ($bookmark->request->is_explicit)
+                                    <span class="rounded-full bg-red-500/20 px-2.5 py-0.5 text-xs font-semibold text-red-300">
+                                        NSFW
+                                    </span>
+                                @endif
+                            </div>
+                            <h3 class="mt-2 truncate text-sm font-semibold text-white group-hover:text-[#8888CC]">
+                                {{ $bookmark->request->title }}
+                            </h3>
+                            <span class="mt-auto pt-2 text-xs text-gray-500">
+                                <span data-time="{{ $bookmark->request->created_at?->toIso8601String() }}" data-format="relative">{{ $bookmark->request->created_at?->diffForHumans() }}</span>
+                            </span>
+                        </a>
+                    @endforeach
+                </div>
+            @else
+                <p class="mt-4 text-sm text-gray-500">No bookmarked sauce requests.</p>
+            @endif
+        </div>
+
+        {{-- Sauce answers made by this user --}}
+        <div class="mt-6 rounded-2xl border border-white/10 bg-white/[0.02] p-6">
+            <div class="flex items-center justify-between gap-4">
+                <h2 class="text-lg font-semibold text-white">
+                    Sauce answers
+                    @if ($user->sauce_answers_count > 0)
+                        <span class="text-gray-500">({{ $user->sauce_answers_count }})</span>
+                    @endif
+                </h2>
+                @if ($user->sauce_answers_count > 0)
+                    <a href="{{ route('profile.answers', $user) }}"
+                        class="text-sm font-medium text-[#8888CC] transition hover:text-white">
+                        View all
+                    </a>
+                @endif
+            </div>
+
+            @if ($answers->isNotEmpty())
+                <div class="mt-4 flex flex-col gap-3">
+                    @foreach ($answers as $answer)
+                        <div class="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                            <p class="whitespace-pre-line text-sm text-gray-300">{{ $answer->content }}</p>
+                            @if ($answer->sauceRequest)
+                                <a href="{{ route('sauce-requests.show', $answer->sauceRequest) }}"
+                                    class="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-[#8888CC] transition hover:text-white">
+                                    <x-lucide-external-link class="h-3 w-3" />
+                                    <span class="truncate">{{ $answer->sauceRequest->title }}</span>
+                                </a>
+                            @endif
+                            <div class="mt-2 flex items-center gap-3 text-xs text-gray-500">
+                                <span data-time="{{ $answer->created_at?->toIso8601String() }}" data-format="relative">{{ $answer->created_at?->diffForHumans() }}</span>
+                                @if (isset($answer->likes_count) && $answer->likes_count > 0)
+                                    <span class="inline-flex items-center gap-1">
+                                        <x-lucide-heart class="h-3 w-3" />
+                                        {{ $answer->likes_count }}
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <p class="mt-4 text-sm text-gray-500">No sauce answers yet.</p>
+            @endif
+        </div>
+
+        {{-- Comments made by this user --}}
+        <div class="mt-6 rounded-2xl border border-white/10 bg-white/[0.02] p-6">
+            <div class="flex items-center justify-between gap-4">
+                <h2 class="text-lg font-semibold text-white">
+                    Comments made
+                    @if ($user->comments_count > 0)
+                        <span class="text-gray-500">({{ $user->comments_count }})</span>
+                    @endif
+                </h2>
+                @if ($user->comments_count > 0)
+                    <a href="{{ route('profile.comments', $user) }}"
+                        class="text-sm font-medium text-[#8888CC] transition hover:text-white">
+                        View all
+                    </a>
+                @endif
+            </div>
+
+            @if ($comments->isNotEmpty())
+                <div class="mt-4 flex flex-col gap-3">
+                    @foreach ($comments as $comment)
+                        <div class="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                            <p class="whitespace-pre-line text-sm text-gray-300">{{ $comment->content }}</p>
+                            @if ($comment->sauceRequest)
+                                <a href="{{ route('sauce-requests.show', $comment->sauceRequest) }}"
+                                    class="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-[#8888CC] transition hover:text-white">
+                                    <x-lucide-external-link class="h-3 w-3" />
+                                    <span class="truncate">{{ $comment->sauceRequest->title }}</span>
+                                </a>
+                            @endif
+                            <div class="mt-2 flex items-center gap-3 text-xs text-gray-500">
+                                <span data-time="{{ $comment->created_at?->toIso8601String() }}" data-format="relative">{{ $comment->created_at?->diffForHumans() }}</span>
+                                @if (isset($comment->likes_count) && $comment->likes_count > 0)
+                                    <span class="inline-flex items-center gap-1">
+                                        <x-lucide-heart class="h-3 w-3" />
+                                        {{ $comment->likes_count }}
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <p class="mt-4 text-sm text-gray-500">No comments made yet.</p>
+            @endif
+        </div>
+
         {{-- Comments --}}
         <div class="mt-6 rounded-2xl border border-white/10 bg-white/[0.02] p-6">
             <h2 class="text-lg font-semibold text-white">
