@@ -15,6 +15,7 @@ use App\Http\Controllers\SauceRequestTagController;
 use App\Http\Controllers\SauceRequestTagHistoryController;
 use App\Http\Controllers\SauceRequestTextController;
 use App\Http\Controllers\SauceRequestTextHistoryController;
+use App\Http\Controllers\UserCommentController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -158,6 +159,22 @@ Route::middleware('auth')->group(function () {
     Route::delete('/u/{user}/follow', [FollowController::class, 'unfollow'])
         ->middleware('throttle:follows')
         ->name('profile.unfollow');
+
+    // --- Profile comments ---
+    Route::post('/u/{user}/comments', [UserCommentController::class, 'store'])
+        ->middleware('throttle:community_edits')
+        ->name('profile.comments.store');
+    Route::delete('/u/{user}/comments/{comment}', [UserCommentController::class, 'destroy'])
+        ->middleware('throttle:community_edits')
+        ->name('profile.comments.destroy');
+
+    // --- Profile comment likes ---
+    Route::post('/u/{user}/comments/{comment}/like', [UserCommentController::class, 'like'])
+        ->middleware('throttle:comment_likes')
+        ->name('profile.comments.like');
+    Route::delete('/u/{user}/comments/{comment}/like', [UserCommentController::class, 'unlike'])
+        ->middleware('throttle:comment_likes')
+        ->name('profile.comments.unlike');
 })->scopeBindings();
 
 // --- Public profile routes ---
