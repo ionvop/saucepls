@@ -92,6 +92,27 @@ class ProfileController extends Controller
     }
 
     /**
+     * Show a paginated list of the user's sauce answers that have been
+     * accepted as the correct answer on their sauce request.
+     */
+    public function acceptedAnswers(User $user): View
+    {
+        $answers = $user->sauceAnswers()
+            ->select('sauce_answers.*')
+            ->join('sauce_requests', 'sauce_requests.accepted_sauce', 'sauce_answers.id')
+            ->whereNotNull('sauce_requests.accepted_sauce')
+            ->with(['user', 'sauceRequest'])
+            ->withCount('likes as likes_count')
+            ->latest('sauce_answers.id')
+            ->paginate(12);
+
+        return view('pages.profile-accepted-answers', [
+            'user' => $user,
+            'answers' => $answers,
+        ]);
+    }
+
+    /**
      * Show the edit form for the authenticated user's own profile.
      */
     public function edit(Request $request): View
