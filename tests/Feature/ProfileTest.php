@@ -1,6 +1,9 @@
 <?php
 
 use App\Models\SauceAnswer;
+use App\Models\SauceRequest;
+use App\Models\SauceRequestBookmark;
+use App\Models\SauceRequestComment;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -94,6 +97,61 @@ it('shows accepted answers, followers, and following counts on the profile', fun
             && $user->followers_count === 2
             && $user->follows_count === 3
         );
+});
+
+it('shows previews for the user activity sections', function () {
+    $owner = User::factory()->create(['username' => 'activity_user']);
+
+    // A published request owned by the user.
+    $request = makeSauceRequest($owner, ['title' => 'My request']);
+
+    // A sauce answer by the user.
+    SauceAnswer::create([
+        'sauce_request_id' => $request->id,
+        'user_id' => $owner->id,
+        'content' => 'Artist is Snale.',
+    ]);
+
+    // A top-level comment by the user on their own request.
+    SauceRequestComment::create([
+        'sauce_request_id' => $request->id,
+        'user_id' => $owner->id,
+        'parent_id' => null,
+        'content' => 'This looks like Snale.',
+    ]);
+
+    $this->get(route('profile.show', $owner->username))
+        ->assertOk()
+        ->assertSee('Sauce requests')
+        ->assertSee('Sauce answers')
+        ->assertSee('Comments made')
+        ->assertSee('My request')
+        ->assertSee('Artist is Snale.')
+        ->assertSee('This looks like Snale.');
+});
+
+it('keeps the profile comments section below the activity sections', function () {
+    $owner = User::factory()->create(['username' => 'layout_user']);
+    $viewer = User::factory()->create();
+    makeSauceRequest($owner, ['title' => 'Layout request']);
+
+    $response = $this->actingAs($viewer)->get(route('profile.show', $owner->username));
+
+    $response->assertOk();
+
+    // The "comments made by this user" preview should appear before the
+    // profile comment form, so the profile comments section stays at the
+    // bottom.
+    $content = $response->getContent();
+    $madeAt = strpos($content, 'Comments made');
+    $formAt = strpos($content, route('profile.comments.store', $owner));
+
+    $this->assertNotFalse($madeAt, 'The "Comments made" activity section should render.');
+    $this->assertNotFalse($formAt, 'The profile comments form should render.');
+    $this->assertTrue(
+        $madeAt < $formAt,
+        'The profile comments section should render below the activity sections.'
+    );
 });
 
 // ---------------------------------------------------------------------------
