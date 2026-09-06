@@ -123,11 +123,11 @@ sauce_answer_comments
 id: int, pk
 sauce_answer_id: int, fk = sauce_answers.id
 user_id: int, fk = users.id
-parent_id: int, fk = sauce_answer_comments.id, default = null // The comment this is a reply to. A null value means it is a top-level comment.
 content: str // e.g. "Thanks for the source!"
 deleted_at: datetime, default = null
 created_at: datetime
 updated_at: datetime
+// Implemented: commenting on sauce answers (store + destroy) and liking comments (like + unlike). Comments are flat replies, so there is no nesting.
 
 sauce_answer_comment_likes
 id: int, pk
@@ -136,6 +136,7 @@ user_id: int, fk = users.id
 created_at: datetime
 updated_at: datetime
 unique(sauce_answer_comment_id, user_id)
+// Implemented: liking sauce answer comments.
 
 sauce_answer_likes
 id: int, pk
