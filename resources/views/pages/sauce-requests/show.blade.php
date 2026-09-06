@@ -323,7 +323,7 @@
                                 @php
                                     $isAccepted = $sauceRequest->accepted_sauce === $answer->id;
                                 @endphp
-                                <div x-data
+                                <div x-data="{ showAnswerCommentForm: false }"
                                     class="rounded-xl border p-4 {{ $isAccepted ? 'border-green-500/40 bg-green-500/[0.06]' : 'border-white/10 bg-white/[0.02]' }}">
                                     {{-- Answer header --}}
                                     <div class="flex items-center gap-2 text-sm text-gray-400">
@@ -435,9 +435,18 @@
                                     {{-- Answer comments --}}
                                     <div class="mt-4 border-t border-white/10 pt-3">
                                         @auth
+                                            <button type="button"
+                                                @click="showAnswerCommentForm = !showAnswerCommentForm"
+                                                class="inline-flex items-center gap-1.5 text-sm font-medium text-[#8888CC] transition hover:text-white">
+                                                <x-lucide-message-circle-plus class="h-4 w-4" />
+                                                <span x-text="showAnswerCommentForm ? 'Close' : 'Comment'"></span>
+                                            </button>
+
                                             <form method="POST"
                                                 action="{{ route('sauce-requests.answers.comments.store', [$sauceRequest, $answer]) }}"
-                                                class="flex flex-col gap-2">
+                                                class="mt-3 flex flex-col gap-2"
+                                                x-show="showAnswerCommentForm"
+                                                x-cloak>
                                                 @csrf
                                                 <textarea name="content" rows="2" maxlength="5000"
                                                     placeholder="Reply to this answer..."
@@ -576,7 +585,7 @@
                     @if ($sauceRequest->comments->isNotEmpty())
                         <div class="mt-6 flex flex-col gap-4">
                             @foreach ($sauceRequest->comments as $comment)
-                                <div x-data class="rounded-xl border border-white/10 bg-white/[0.02] p-4">
+                                <div x-data="{ showReplyForm: false }" class="rounded-xl border border-white/10 bg-white/[0.02] p-4">
                                     {{-- Comment header --}}
                                     <div class="flex items-center gap-2 text-sm text-gray-400">
                                         @if ($comment->user?->avatar_url)
@@ -715,9 +724,18 @@
 
                                     {{-- Reply form --}}
                                     @auth
+                                        <button type="button"
+                                            @click="showReplyForm = !showReplyForm"
+                                            class="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-[#8888CC] transition hover:text-white">
+                                            <x-lucide-message-circle-plus class="h-4 w-4" />
+                                            <span x-text="showReplyForm ? 'Close' : 'Reply'"></span>
+                                        </button>
+
                                         <form method="POST"
                                             action="{{ route('sauce-requests.comments.store', $sauceRequest) }}"
-                                            class="mt-3 flex flex-col gap-2">
+                                            class="mt-3 flex flex-col gap-2"
+                                            x-show="showReplyForm"
+                                            x-cloak>
                                             @csrf
                                             <input type="hidden" name="parent_id" value="{{ $comment->id }}">
                                             <textarea name="content" rows="2" maxlength="5000"
