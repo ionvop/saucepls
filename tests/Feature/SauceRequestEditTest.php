@@ -379,7 +379,7 @@ it('hides unpublished drafts from the public feed', function () {
         'published_at' => null,
     ]);
 
-    $this->get(route('sauce-requests.index'))
+    $this->get(route('search'))
         ->assertOk()
         ->assertSee('Published request')
         ->assertDontSee('Hidden draft');
