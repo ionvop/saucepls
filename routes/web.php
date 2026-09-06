@@ -64,6 +64,14 @@ Route::middleware('auth')->group(function () {
     Route::put('/sauce-requests/{sauceRequest}', [SauceRequestController::class, 'update'])->name('sauce-requests.update');
     Route::delete('/sauce-requests/{sauceRequest}', [SauceRequestController::class, 'destroy'])->name('sauce-requests.destroy');
 
+    // --- Bookmarks ---
+    Route::post('/sauce-requests/{sauceRequest}/bookmark', [SauceRequestController::class, 'bookmark'])
+        ->middleware('throttle:bookmarks')
+        ->name('sauce-requests.bookmark');
+    Route::delete('/sauce-requests/{sauceRequest}/bookmark', [SauceRequestController::class, 'unbookmark'])
+        ->middleware('throttle:bookmarks')
+        ->name('sauce-requests.unbookmark');
+
     // --- Community tagging ---
     Route::put('/sauce-requests/{sauceRequest}/tags', [SauceRequestTagController::class, 'update'])
         ->middleware('throttle:community_edits')
