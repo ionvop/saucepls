@@ -4,7 +4,8 @@
  * The server renders every timestamp as an ISO-8601 UTC string inside a
  * `data-time` attribute, keeping the original UTC text as a no-JavaScript
  * fallback. On load this module replaces that text with a version formatted
- * in the visitor's local timezone using `Intl.DateTimeFormat`.
+ * in the visitor's local timezone using `Intl.DateTimeFormat`, and sets the
+ * absolute datetime as a tooltip (`title`) on the element.
  *
  * Supported `data-format` values:
  *   - `date`       -> "M j, Y"            (e.g. "Aug 31, 2026")
@@ -86,10 +87,8 @@ function render(el) {
     const format = el.dataset.format || 'date';
     const text = format === 'relative' ? relativeTime(date) : formatDate(date, format);
 
-    // Keep the original UTC value as a tooltip for absolute formats.
-    if (format !== 'relative') {
-        el.title = formatDate(date, 'datetime');
-    }
+    // Keep the absolute datetime as a tooltip for every format.
+    el.title = formatDate(date, 'datetime');
 
     el.textContent = text;
 }
