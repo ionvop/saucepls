@@ -192,7 +192,11 @@ Route::get('/u/{username}', [ProfileController::class, 'show'])->name('profile.s
 Route::get('/settings', [SettingsController::class, 'edit'])->name('settings');
 
 // --- Public sauce request routes ---
-Route::get('/sauce-requests', [SauceRequestController::class, 'index'])->name('sauce-requests.index');
+// The browse feed lives at /search (see SauceRequestController::search).
+// The old /sauce-requests index is kept as a redirect so existing links and
+// bookmarks keep working. The /sauce-requests/{sauceRequest} show route is
+// unaffected.
+Route::redirect('/sauce-requests', '/search');
 Route::get('/sauce-requests/{sauceRequest}', [SauceRequestController::class, 'show'])->name('sauce-requests.show');
 
 Route::get('/search', [SauceRequestController::class, 'search'])->name('search');
