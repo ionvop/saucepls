@@ -57,11 +57,12 @@ class UserComment extends Model
 
     /**
      * The replies to this comment. Replies are limited to one level deep,
-     * so these are always top-level comments' direct children.
+     * so these are always top-level comments' direct children. Oldest first.
      */
     public function replies(): HasMany
     {
-        return $this->hasMany(self::class, 'parent_id');
+        return $this->hasMany(self::class, 'parent_id')
+            ->oldest('id');
     }
 
     /**
