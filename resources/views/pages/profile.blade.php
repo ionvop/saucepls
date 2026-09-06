@@ -150,9 +150,26 @@
                                 <h3 class="mt-1 truncate text-sm font-semibold text-white group-hover:text-[#8888CC]">
                                     {{ $request->title }}
                                 </h3>
-                                <span class="mt-auto block pt-1 text-xs text-gray-500">
-                                    <span data-time="{{ $request->created_at?->toIso8601String() }}" data-format="relative">{{ $request->created_at?->diffForHumans() }}</span>
-                                </span>
+                                <div class="mt-auto flex items-center justify-between pt-1 text-xs text-gray-500">
+                                    <span class="inline-flex items-center gap-1.5">
+                                        @if ($request->user?->avatar_url)
+                                            <img src="{{ $request->user->avatar_url }}" alt="{{ $request->user->username }}"
+                                                class="h-5 w-5 rounded-full object-cover">
+                                        @else
+                                            <span class="flex h-5 w-5 items-center justify-center rounded-full bg-[#5555AA]/20 text-[10px] font-bold text-[#8888CC]">
+                                                {{ strtoupper(substr($request->user?->username ?? '?', 0, 1)) }}
+                                            </span>
+                                        @endif
+                                        {{ $request->user?->username ?? 'Unknown' }}
+                                    </span>
+                                    <span class="inline-flex items-center gap-1.5">
+                                        <span title="{{ $request->bookmarks_count }} bookmark{{ $request->bookmarks_count === 1 ? '' : 's' }}">
+                                            <x-lucide-bookmark class="inline-block h-3.5 w-3.5" />
+                                            <span class="align-middle">{{ $request->bookmarks_count }}</span>
+                                        </span>
+                                        <span data-time="{{ $request->created_at?->toIso8601String() }}" data-format="relative">{{ $request->created_at?->diffForHumans() }}</span>
+                                    </span>
+                                </div>
                             </div>
                         </a>
                     @endforeach
@@ -211,9 +228,26 @@
                                 <h3 class="mt-1 truncate text-sm font-semibold text-white group-hover:text-[#8888CC]">
                                     {{ $bookmark->request->title }}
                                 </h3>
-                                <span class="mt-auto block pt-1 text-xs text-gray-500">
-                                    <span data-time="{{ $bookmark->request->created_at?->toIso8601String() }}" data-format="relative">{{ $bookmark->request->created_at?->diffForHumans() }}</span>
-                                </span>
+                                <div class="mt-auto flex items-center justify-between pt-1 text-xs text-gray-500">
+                                    <span class="inline-flex items-center gap-1.5">
+                                        @if ($bookmark->request->user?->avatar_url)
+                                            <img src="{{ $bookmark->request->user->avatar_url }}" alt="{{ $bookmark->request->user->username }}"
+                                                class="h-5 w-5 rounded-full object-cover">
+                                        @else
+                                            <span class="flex h-5 w-5 items-center justify-center rounded-full bg-[#5555AA]/20 text-[10px] font-bold text-[#8888CC]">
+                                                {{ strtoupper(substr($bookmark->request->user?->username ?? '?', 0, 1)) }}
+                                            </span>
+                                        @endif
+                                        {{ $bookmark->request->user?->username ?? 'Unknown' }}
+                                    </span>
+                                    <span class="inline-flex items-center gap-1.5">
+                                        <span title="{{ $bookmark->request->bookmarks_count }} bookmark{{ $bookmark->request->bookmarks_count === 1 ? '' : 's' }}">
+                                            <x-lucide-bookmark class="inline-block h-3.5 w-3.5" />
+                                            <span class="align-middle">{{ $bookmark->request->bookmarks_count }}</span>
+                                        </span>
+                                        <span data-time="{{ $bookmark->request->created_at?->toIso8601String() }}" data-format="relative">{{ $bookmark->request->created_at?->diffForHumans() }}</span>
+                                    </span>
+                                </div>
                             </div>
                         </a>
                     @endforeach
