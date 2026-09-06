@@ -27,6 +27,7 @@ class AppServiceProvider extends ServiceProvider
         $this->configureCommentLikesRateLimiter();
         $this->configureUploadRateLimiter();
         $this->configureBookmarksRateLimiter();
+        $this->configureFollowsRateLimiter();
     }
 
     /**
@@ -38,6 +39,25 @@ class AppServiceProvider extends ServiceProvider
     protected function configureBookmarksRateLimiter(): void
     {
         RateLimiter::for('bookmarks', function (Request $request) {
+            $user = $request->user();
+
+            if ($user && $user->isStaff()) {
+                return Limit::none();
+            }
+
+            return Limit::perMinute(20)->by($user?->id ?? $request->ip());
+        });
+    }
+
+    /**
+     * Rate limit follow toggles to prevent a user from spamming the follow
+     * and unfollow buttons.
+     *
+     * Staff (moderators/admins) are exempt.
+     */
+    protected function configureFollowsRateLimiter(): void
+    {
+        RateLimiter::for('follows', function (Request $request) {
             $user = $request->user();
 
             if ($user && $user->isStaff()) {
