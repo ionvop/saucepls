@@ -82,19 +82,19 @@
             </div>
         </div>
 
-        {{-- Placeholder sections (posts, sauces, comments not implemented yet) --}}
+        {{-- Profile statistics --}}
         <div class="mt-6 grid gap-6 sm:grid-cols-3">
             <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-center">
-                <p class="text-2xl font-bold text-white">0</p>
-                <p class="mt-1 text-sm text-gray-400">Sauce requests</p>
-            </div>
-            <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-center">
-                <p class="text-2xl font-bold text-white">0</p>
-                <p class="mt-1 text-sm text-gray-400">Sauce answers</p>
+                <p class="text-2xl font-bold text-white">{{ $user->accepted_answers_count }}</p>
+                <p class="mt-1 text-sm text-gray-400">Accepted sauce answers</p>
             </div>
             <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-center">
                 <p class="text-2xl font-bold text-white">{{ $user->followers_count }}</p>
                 <p class="mt-1 text-sm text-gray-400">Followers</p>
+            </div>
+            <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-center">
+                <p class="text-2xl font-bold text-white">{{ $user->follows_count }}</p>
+                <p class="mt-1 text-sm text-gray-400">Following</p>
             </div>
         </div>
 
