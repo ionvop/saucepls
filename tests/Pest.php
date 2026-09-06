@@ -80,3 +80,19 @@ function makeSauceRequest(
         'published_at' => now(),
     ], $attributes));
 }
+
+/**
+ * Create a sauce answer on the given sauce request.
+ */
+function makeAnswer(
+    \App\Models\SauceRequest $sauceRequest,
+    \App\Models\User $user,
+    array $attributes = [],
+): \App\Models\SauceAnswer {
+    return \App\Models\SauceAnswer::create(array_merge([
+        'sauce_request_id' => $sauceRequest->id,
+        'user_id' => $user->id,
+        'content' => 'Artist is Snale.',
+        'url' => null,
+    ], $attributes));
+}
