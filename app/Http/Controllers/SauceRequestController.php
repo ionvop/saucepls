@@ -57,6 +57,50 @@ class SauceRequestController extends Controller
     }
 
     /**
+     * Search published sauce requests by keyword, with a solved/unsolved
+     * filter and a sort order (recent, popular, or trending).
+     */
+    public function search(Request $request): View
+    {
+        $hideNsfw = auth()->check()
+            ? auth()->user()->hide_nsfw
+            : (bool) $request->cookie('hide_nsfw');
+
+        // filter: all (default) | solved | unsolved
+        $filter = $request->query('filter', 'all');
+        $filter = in_array($filter, ['all', 'solved', 'unsolved'], true) ? $filter : 'all';
+
+        // sort: recent (default) | popular | trending
+        $sort = $request->query('sort', 'recent');
+        $sort = in_array($sort, ['recent', 'popular', 'trending'], true) ? $sort : 'recent';
+
+        $sauceRequests = SauceRequest::query()
+            ->with('user')
+            ->withCount('bookmarks as bookmarks_count')
+            ->published()
+            ->when($hideNsfw, fn ($query) => $query->where('is_explicit', false))
+            ->when(trim((string) $request->query('q')), fn ($query, $q) => $query->search($q))
+            ->when($filter === 'solved', fn ($query) => $query->solved())
+            ->when($filter === 'unsolved', fn ($query) => $query->unsolved())
+            ->when(
+                $sort,
+                fn ($query) => match ($sort) {
+                    'popular' => $query->popular(),
+                    'trending' => $query->trending(),
+                    default => $query->latest('published_at')->orderByDesc('id'),
+                },
+            )
+            ->paginate(12);
+
+        return view('pages.search', [
+            'sauceRequests' => $sauceRequests,
+            'q' => (string) $request->query('q'),
+            'filter' => $filter,
+            'sort' => $sort,
+        ]);
+    }
+
+    /**
      * Show the form to create a new sauce request.
      */
     public function create(): View
