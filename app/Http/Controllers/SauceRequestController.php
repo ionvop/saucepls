@@ -45,6 +45,7 @@ class SauceRequestController extends Controller
 
         $sauceRequests = SauceRequest::query()
             ->with('user')
+            ->withCount('bookmarks as bookmarks_count')
             ->published()
             ->when($hideNsfw, fn ($query) => $query->where('is_explicit', false))
             ->latest()
@@ -315,9 +316,10 @@ class SauceRequestController extends Controller
             );
         }
 
-        // Whether the current user has bookmarked the request, exposed as
-        // bookmarked_by_me so the view can render the toggle state.
+        // Bookmark stats for the request: bookmarked_by_me so the view can
+        // render the toggle state, and bookmarks_count for the total count.
         $sauceRequest->loadCount([
+            'bookmarks as bookmarks_count',
             'bookmarks as bookmarked_by_me' => fn ($query) => $query->where('user_id', $userId),
         ]);
 
