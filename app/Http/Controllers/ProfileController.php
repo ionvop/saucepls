@@ -92,7 +92,10 @@ class ProfileController extends Controller
         $bookmarks = $user->bookmarks()
             ->join('sauce_requests', 'sauce_requests.id', 'sauce_request_bookmarks.sauce_request_id')
             ->whereNotNull('sauce_requests.published_at')
-            ->with('request.user')
+            ->with([
+                'request.user',
+                'request' => fn ($query) => $query->withCount('bookmarks as bookmarks_count'),
+            ])
             ->latest('sauce_request_bookmarks.id')
             ->limit(5)
             ->get();
