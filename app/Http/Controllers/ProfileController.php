@@ -58,6 +58,40 @@ class ProfileController extends Controller
     }
 
     /**
+     * Show a paginated list of the users who follow the given user.
+     */
+    public function followers(User $user): View
+    {
+        $users = $user->followers()
+            ->withCount('followers as followers_count')
+            ->latest('follows.created_at')
+            ->paginate(24);
+
+        return view('pages.profile-followers', [
+            'user' => $user,
+            'users' => $users,
+            'type' => 'followers',
+        ]);
+    }
+
+    /**
+     * Show a paginated list of the users the given user follows.
+     */
+    public function following(User $user): View
+    {
+        $users = $user->following()
+            ->withCount('followers as followers_count')
+            ->latest('follows.created_at')
+            ->paginate(24);
+
+        return view('pages.profile-followers', [
+            'user' => $user,
+            'users' => $users,
+            'type' => 'following',
+        ]);
+    }
+
+    /**
      * Show the edit form for the authenticated user's own profile.
      */
     public function edit(Request $request): View
