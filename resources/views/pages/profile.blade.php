@@ -84,10 +84,11 @@
 
         {{-- Profile statistics --}}
         <div class="mt-6 grid gap-6 sm:grid-cols-3">
-            <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-center">
+            <a href="{{ route('profile.accepted-answers', $user) }}"
+                class="group block rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-center transition hover:border-white/20">
                 <p class="text-2xl font-bold text-white">{{ $user->accepted_answers_count }}</p>
-                <p class="mt-1 text-sm text-gray-400">Accepted sauce answers</p>
-            </div>
+                <p class="mt-1 text-sm text-gray-400 transition group-hover:text-white">Accepted sauce answers</p>
+            </a>
             <a href="{{ route('profile.followers', $user) }}"
                 class="group block rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-center transition hover:border-white/20">
                 <p class="text-2xl font-bold text-white">{{ $user->followers_count }}</p>
