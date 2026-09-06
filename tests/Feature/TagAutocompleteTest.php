@@ -59,6 +59,41 @@ test('suggestions are sorted by usage count then alphabetically', function () {
         ->assertJsonPath('tags.0.usage_count', 2);
 });
 
+test('usage count excludes soft-deleted requests', function () {
+    $owner = User::factory()->create();
+
+    $published = makeSauceRequest($owner, ['published_at' => now()]);
+    tagSauceRequest($published, 'red_eyes');
+
+    // A soft-deleted request carrying the same tag must not inflate the count.
+    $deleted = makeSauceRequest($owner, ['published_at' => now()]);
+    tagSauceRequest($deleted, 'red_eyes');
+    $deleted->delete();
+
+    $this->getJson(route('tags.autocomplete', ['q' => 're']))
+        ->assertOk()
+        ->assertJsonPath('tags.0.name', 'red_eyes')
+        ->assertJsonPath('tags.0.usage_count', 1)
+        ->assertJsonCount(1, 'tags');
+});
+
+test('usage count excludes draft (unpublished) requests', function () {
+    $owner = User::factory()->create();
+
+    $published = makeSauceRequest($owner, ['published_at' => now()]);
+    tagSauceRequest($published, 'red_eyes');
+
+    // A draft (no published_at) carrying the same tag must not inflate the count.
+    $draft = makeSauceRequest($owner, ['published_at' => null]);
+    tagSauceRequest($draft, 'red_eyes');
+
+    $this->getJson(route('tags.autocomplete', ['q' => 're']))
+        ->assertOk()
+        ->assertJsonPath('tags.0.name', 'red_eyes')
+        ->assertJsonPath('tags.0.usage_count', 1)
+        ->assertJsonCount(1, 'tags');
+});
+
 test('suggestions only match at the start of the tag name', function () {
     $owner = User::factory()->create();
 
