@@ -64,6 +64,11 @@
                         @endif
                     @endauth
 
+                    <span class="inline-flex items-center gap-1 text-xs text-gray-400" title="{{ $sauceRequest->bookmarks_count }} bookmark{{ $sauceRequest->bookmarks_count === 1 ? '' : 's' }}">
+                        <x-lucide-bookmark class="h-3.5 w-3.5" />
+                        {{ $sauceRequest->bookmarks_count }}
+                    </span>
+
                     @if ($isOwner || $isStaff)
                         <div class="ml-auto flex items-center gap-2" x-data>
                             @if ($isOwner)
