@@ -177,11 +177,12 @@ class User extends Authenticatable
     }
 
     /**
-     * The comments other users have left on this user's profile.
+     * The comments other users have left on this user's profile, newest first.
      */
     public function receivedProfileComments(): HasMany
     {
-        return $this->hasMany(UserComment::class, 'profile_user_id');
+        return $this->hasMany(UserComment::class, 'profile_user_id')
+            ->latest('id');
     }
 
     /**
