@@ -153,4 +153,122 @@ Alpine.data('guestNsfwToggle', () => ({
     },
 }));
 
+/**
+ * Tag autocomplete for the search field on the search page.
+ *
+ * Watches the `q` input. A suggestion dropdown is shown only when:
+ *   1. the text cursor is at the very end of the value, and
+ *   2. the user has paused typing (debounce), and
+ *   3. the last word of the query is at least two characters.
+ * The last word is used as a prefix to fetch matching tags. Selecting a
+ * suggestion replaces only that trailing word with the chosen tag name.
+ */
+Alpine.data('tagSuggestions', ({ endpoint }) => ({
+    value: '',
+    open: false,
+    suggestions: [],
+    highlightIndex: -1,
+    debounceTimer: null,
+    controller: null,
+
+    init() {
+        // Re-run the last word/caret logic and debounced fetch on every
+        // keystroke, including when no actual value change occurs.
+        this.$watch('value', () => this.scheduleLookup());
+    },
+
+    /**
+     * Extract the trailing word from the current query value.
+     */
+    currentWord() {
+        const match = this.value.match(/(\S+)$/);
+        return match ? match[1] : '';
+    },
+
+    scheduleLookup() {
+        clearTimeout(this.debounceTimer);
+        this.debounceTimer = setTimeout(() => this.lookup(), 350);
+    },
+
+    /**
+     * Check the caret is at the end and fetch suggestions for the last word.
+     */
+    async lookup() {
+        if (this.$refs.input.selectionStart !== this.$refs.input.value.length) {
+            this.close();
+            return;
+        }
+
+        const word = this.currentWord();
+        if (word.length < 2) {
+            this.close();
+            return;
+        }
+
+        // Drop any suggestions already present in the query (avoid duplicates).
+        const used = this.value.split(/\s+/).map((token) => token.toLowerCase());
+
+        try {
+            if (this.controller) {
+                this.controller.abort();
+            }
+            const controller = new AbortController();
+            this.controller = controller;
+
+            const response = await fetch(`${endpoint}?q=${encodeURIComponent(word)}`, {
+                signal: controller.signal,
+                headers: { Accept: 'application/json' },
+            });
+
+            if (!response.ok || controller.signal.aborted) {
+                return;
+            }
+
+            const data = await response.json();
+            this.suggestions = (data.tags ?? [])
+                .filter((tag) => !used.includes(tag.name.toLowerCase()))
+                .slice(0, 10);
+            this.highlightIndex = this.suggestions.length > 0 ? 0 : -1;
+            this.open = this.suggestions.length > 0;
+        } catch (error) {
+            // Ignore aborted or network errors; just close.
+            this.close();
+        }
+    },
+
+    /**
+     * Replace the trailing word in the query with the chosen tag name.
+     */
+    select(index) {
+        const suggestion = this.suggestions[index];
+        if (!suggestion) {
+            return;
+        }
+
+        const trailing = this.currentWord();
+        const withoutTrailing = this.value.slice(0, this.value.length - trailing.length);
+        const separator = withoutTrailing.endsWith(' ') ? '' : ' ';
+        this.value = `${withoutTrailing}${separator}${suggestion.name} `;
+        this.close();
+
+        // Keep focus in the field so the user can keep typing.
+        this.$nextTick(() => this.$refs.input.focus());
+    },
+
+    moveHighlight(direction) {
+        if (!this.open || this.suggestions.length === 0) {
+            return;
+        }
+
+        const count = this.suggestions.length;
+        this.highlightIndex = (this.highlightIndex + direction + count) % count;
+    },
+
+    close() {
+        this.open = false;
+        this.suggestions = [];
+        this.highlightIndex = -1;
+    },
+}));
+
 Alpine.start();
