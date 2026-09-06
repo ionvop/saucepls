@@ -7,19 +7,6 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-/**
- * Create a sauce answer on the given sauce request.
- */
-function makeAnswer(SauceRequest $sauceRequest, User $user, array $attributes = []): SauceAnswer
-{
-    return SauceAnswer::create(array_merge([
-        'sauce_request_id' => $sauceRequest->id,
-        'user_id' => $user->id,
-        'content' => 'Artist is Snale.',
-        'url' => null,
-    ], $attributes));
-}
-
 // ---------------------------------------------------------------------------
 // Posting answers
 // ---------------------------------------------------------------------------
