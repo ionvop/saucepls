@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\EmailLoginController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\FollowController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SauceAnswerController;
 use App\Http\Controllers\SauceAnswerCommentController;
@@ -149,6 +150,14 @@ Route::middleware('auth')->group(function () {
     Route::delete('/sauce-requests/{sauceRequest}/answers/{answer}/accept', [SauceAnswerController::class, 'unaccept'])
         ->middleware('throttle:community_edits')
         ->name('sauce-requests.answers.unaccept');
+
+    // --- Following ---
+    Route::post('/u/{user}/follow', [FollowController::class, 'follow'])
+        ->middleware('throttle:follows')
+        ->name('profile.follow');
+    Route::delete('/u/{user}/follow', [FollowController::class, 'unfollow'])
+        ->middleware('throttle:follows')
+        ->name('profile.unfollow');
 })->scopeBindings();
 
 // --- Public profile routes ---
