@@ -59,6 +59,215 @@ class SauceRequest extends Model
     }
 
     /**
+     * Scope the query to only solved sauce requests (those with an
+     * accepted answer).
+     */
+    public function scopeSolved(Builder $query): Builder
+    {
+        return $query->whereNotNull('accepted_sauce');
+    }
+
+    /**
+     * Scope the query to only unsolved sauce requests (those without an
+     * accepted answer).
+     */
+    public function scopeUnsolved(Builder $query): Builder
+    {
+        return $query->whereNull('accepted_sauce');
+    }
+
+    /**
+     * Scope the query by a search string.
+     *
+     * The search entry is parsed word by word and only sauce requests that
+     * contain all of the words are returned. Each word can match the title,
+     * description, extracted text, or a tag name.
+     *
+     * Supports the search syntax from docs/proposal.md:
+     *  - Quoted phrases: "coconut doggy" matches the exact phrase.
+     *  - Typed prefixes: tag:1girl text:"coconut doggy" narrow a word to a
+     *    single field.
+     *  - Exclusions: a leading hyphen (e.g. -kitty) excludes requests that
+     *    contain the word anywhere.
+     *
+     * @param  string|null  $search
+     */
+    public function scopeSearch(Builder $query, ?string $search): Builder
+    {
+        $search = trim((string) $search);
+
+        if ($search === '') {
+            return $query;
+        }
+
+        foreach ($this->tokenizeSearch($search) as $word) {
+            $query->where(function (Builder $sub) use ($word) {
+                $this->applyWordMatches($sub, $word);
+            });
+        }
+
+        return $query;
+    }
+
+    /**
+     * Scope the query to order by most bookmarks first.
+     */
+    public function scopePopular(Builder $query): Builder
+    {
+        return $query
+            ->orderByDesc('bookmarks_count')
+            ->orderByDesc('id');
+    }
+
+    /**
+     * Scope the query to order by the number of bookmarks received within
+     * the past week, most first.
+     */
+    public function scopeTrending(Builder $query): Builder
+    {
+        $query->withCount([
+            'bookmarks as trending_bookmarks_count' => fn (Builder $bookmarks) => $bookmarks
+                ->where('created_at', '>=', now()->subWeek()),
+        ]);
+
+        return $query
+            ->orderByDesc('trending_bookmarks_count')
+            ->orderByDesc('id');
+    }
+
+    /**
+     * Tokenize a raw search string into word groups.
+     *
+     * @return array<int, array{field: string|null, exclude: bool, term: string}>
+     */
+    private function tokenizeSearch(string $search): array
+    {
+        $words = [];
+
+        if (preg_match_all('/"([^"]*)"|(\S+)/', $search, $matches, PREG_SET_ORDER) === false) {
+            return $words;
+        }
+
+        foreach ($matches as $match) {
+            $raw = $match[1] !== '' ? $match[1] : $match[2];
+
+            if ($raw === '') {
+                continue;
+            }
+
+            $exclude = str_starts_with($raw, '-');
+            $field = null;
+
+            if (preg_match('/^(tag|text):"([^"]*)"$/i', $raw, $typed) === 1) {
+                $field = strtolower($typed[1]);
+                $raw = $typed[2];
+                $exclude = false;
+            } elseif (preg_match('/^(tag|text):(\S+)$/i', $raw, $typed) === 1) {
+                $field = strtolower($typed[1]);
+                $raw = $typed[2];
+            } elseif ($exclude) {
+                $raw = ltrim($raw, '-');
+            }
+
+            if ($raw === '') {
+                continue;
+            }
+
+            $words[] = [
+                'field' => $field,
+                'exclude' => $exclude,
+                'term' => $raw,
+            ];
+        }
+
+        return $words;
+    }
+
+    /**
+     * Apply a single search word's filters inside a shared where group.
+     *
+     * @param  array{field: string|null, exclude: bool, term: string}  $word
+     */
+    private function applyWordMatches(Builder $query, array $word): void
+    {
+        $term = $this->normalizeSearchTerm($word['term']);
+
+        if ($word['field'] === 'tag') {
+            $this->applyTagMatch($query, $term, $word['exclude']);
+
+            return;
+        }
+
+        if ($word['field'] === 'text') {
+            $this->applyTextMatch($query, $term, $word['exclude']);
+
+            return;
+        }
+
+        $this->applyGeneralMatch($query, $term, $word['exclude']);
+    }
+
+    /**
+     * Match a search term against the request's tags.
+     */
+    private function applyTagMatch(Builder $query, string $term, bool $exclude): void
+    {
+        if ($exclude) {
+            $query->whereDoesntHave('tags', fn (Builder $tags) => $tags->whereLike('tags.name', '%'.$term.'%'));
+
+            return;
+        }
+
+        $query->whereHas('tags', fn (Builder $tags) => $tags->whereLike('tags.name', '%'.$term.'%'));
+    }
+
+    /**
+     * Match a search term against the extracted text only.
+     */
+    private function applyTextMatch(Builder $query, string $term, bool $exclude): void
+    {
+        if ($exclude) {
+            $query->whereNotLike('text', '%'.$term.'%');
+
+            return;
+        }
+
+        $query->whereLike('text', '%'.$term.'%');
+    }
+
+    /**
+     * Match a search term against the title, description, extracted text,
+     * or any tag name.
+     */
+    private function applyGeneralMatch(Builder $query, string $term, bool $exclude): void
+    {
+        $columns = fn (Builder $sub) => $sub
+            ->whereLike('title', '%'.$term.'%')
+            ->orWhereLike('description', '%'.$term.'%')
+            ->orWhereLike('text', '%'.$term.'%')
+            ->orWhereHas('tags', fn (Builder $tags) => $tags->whereLike('tags.name', '%'.$term.'%'));
+
+        if ($exclude) {
+            $query->whereNot($columns);
+
+            return;
+        }
+
+        $query->where($columns);
+    }
+
+    /**
+     * Normalize a search term for comparison against stored (normalized)
+     * values. Tag names and extracted text preserve their casing for
+     * LIKE matching, so this is a no-op except for trimming to the same
+     * alphabet rules tags use.
+     */
+    private function normalizeSearchTerm(string $term): string
+    {
+        return trim($term);
+    }
+
+    /**
      * The tags attached to the sauce request, sorted alphabetically.
      */
     public function tags(): BelongsToMany
