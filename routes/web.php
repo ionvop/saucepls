@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SauceAnswerController;
+use App\Http\Controllers\SauceAnswerCommentController;
 use App\Http\Controllers\SauceRequestCommentController;
 use App\Http\Controllers\SauceRequestController;
 use App\Http\Controllers\SettingsController;
@@ -116,6 +117,22 @@ Route::middleware('auth')->group(function () {
     Route::delete('/sauce-requests/{sauceRequest}/answers/{answer}/like', [SauceAnswerController::class, 'unlike'])
         ->middleware('throttle:comment_likes')
         ->name('sauce-requests.answers.unlike');
+
+    // --- Answer comments ---
+    Route::post('/sauce-requests/{sauceRequest}/answers/{answer}/comments', [SauceAnswerCommentController::class, 'store'])
+        ->middleware('throttle:community_edits')
+        ->name('sauce-requests.answers.comments.store');
+    Route::delete('/sauce-requests/{sauceRequest}/answers/{answer}/comments/{comment}', [SauceAnswerCommentController::class, 'destroy'])
+        ->middleware('throttle:community_edits')
+        ->name('sauce-requests.answers.comments.destroy');
+
+    // --- Answer comment likes ---
+    Route::post('/sauce-requests/{sauceRequest}/answers/{answer}/comments/{comment}/like', [SauceAnswerCommentController::class, 'like'])
+        ->middleware('throttle:comment_likes')
+        ->name('sauce-requests.answers.comments.like');
+    Route::delete('/sauce-requests/{sauceRequest}/answers/{answer}/comments/{comment}/like', [SauceAnswerCommentController::class, 'unlike'])
+        ->middleware('throttle:comment_likes')
+        ->name('sauce-requests.answers.comments.unlike');
 
     // --- Accepting answers ---
     Route::post('/sauce-requests/{sauceRequest}/answers/{answer}/accept', [SauceAnswerController::class, 'accept'])
