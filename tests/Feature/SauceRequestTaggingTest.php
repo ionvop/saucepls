@@ -82,9 +82,9 @@ it('persists user-entered tags when publishing a sauce request', function () {
         ->andReturn('');
 
     $this->mock(TagInferenceService::class)
-        ->shouldReceive('infer')
+        ->shouldReceive('inferWithRating')
         ->once()
-        ->andReturn([]);
+        ->andReturn(emptyInferenceResult());
 
     $this->actingAs($user)
         ->post(route('sauce-requests.upload'), [
@@ -120,9 +120,9 @@ it('records tagging history when publishing a sauce request', function () {
         ->andReturn('');
 
     $this->mock(TagInferenceService::class)
-        ->shouldReceive('infer')
+        ->shouldReceive('inferWithRating')
         ->once()
-        ->andReturn([]);
+        ->andReturn(emptyInferenceResult());
 
     $this->actingAs($user)
         ->post(route('sauce-requests.upload'), [
