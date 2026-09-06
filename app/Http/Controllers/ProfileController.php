@@ -39,7 +39,15 @@ class ProfileController extends Controller
                 ->exists();
         }
 
-        $user->loadCount('followers');
+        // Profile statistics: followers, following, and the number of the
+        // user's sauce answers that have been accepted as the correct answer.
+        $user->loadCount([
+            'followers',
+            'follows',
+            'sauceAnswers as accepted_answers_count' => fn ($answers) => $answers
+                ->join('sauce_requests', 'sauce_requests.accepted_sauce', 'sauce_answers.id')
+                ->whereNotNull('sauce_requests.accepted_sauce'),
+        ]);
 
         return view('pages.profile', [
             'user' => $user,
