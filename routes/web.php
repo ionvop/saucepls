@@ -162,6 +162,8 @@ Route::middleware('auth')->group(function () {
 
 // --- Public profile routes ---
 Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
+Route::get('/u/{user}/followers', [ProfileController::class, 'followers'])->name('profile.followers');
+Route::get('/u/{user}/following', [ProfileController::class, 'following'])->name('profile.following');
 Route::get('/u/{username}', [ProfileController::class, 'show'])->name('profile.show');
 
 // --- Settings (guest-accessible; authed users save via the auth-only PUT route) ---
