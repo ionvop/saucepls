@@ -72,20 +72,6 @@
                     @enderror
                 </div>
 
-                {{-- Explicit toggle --}}
-                <div class="flex items-center justify-between rounded-lg border border-white/10 bg-[#111111] px-4 py-3">
-                    <div>
-                        <p class="text-sm font-medium text-gray-300">Explicit content</p>
-                        <p class="text-xs text-gray-500">Mark this image as containing explicit content.</p>
-                    </div>
-                    <label class="relative inline-flex cursor-pointer items-center">
-                        <input type="checkbox" name="is_explicit" value="1" class="peer sr-only"
-                            {{ old('is_explicit', true) ? 'checked' : '' }}>
-                        <div class="h-6 w-11 rounded-full bg-white/10 transition peer-checked:bg-[#5555AA]"></div>
-                        <div class="absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white transition peer-checked:translate-x-5"></div>
-                    </label>
-                </div>
-
                 {{-- Actions --}}
                 <div class="flex items-center justify-end gap-3">
                     <a href="{{ route('sauce-requests.index') }}"
