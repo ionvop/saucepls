@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UpdateProfileRequest;
+use App\Models\SauceRequest;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -67,12 +68,60 @@ class ProfileController extends Controller
             'receivedProfileComments.replies.user',
         ]);
 
+        // Activity counts for the section headers: published sauce requests,
+        // bookmarked published requests, sauce answers, and top-level sauce
+        // request comments authored by the user.
+        $user->loadCount([
+            'sauceRequests as sauce_requests_count' => fn ($query) => $query->published(),
+            'bookmarks as bookmarks_count' => fn ($query) => $query
+                ->join('sauce_requests', 'sauce_requests.id', 'sauce_request_bookmarks.sauce_request_id')
+                ->whereNotNull('sauce_requests.published_at'),
+            'sauceAnswers as sauce_answers_count',
+            'comments as comments_count' => fn ($query) => $query->whereNull('parent_id'),
+        ]);
+
+        // Activity previews: the latest few items for each section.
+        $requests = $user->sauceRequests()
+            ->published()
+            ->with('user')
+            ->withCount('bookmarks as bookmarks_count')
+            ->latest()
+            ->limit(5)
+            ->get();
+
+        $bookmarks = $user->bookmarks()
+            ->join('sauce_requests', 'sauce_requests.id', 'sauce_request_bookmarks.sauce_request_id')
+            ->whereNotNull('sauce_requests.published_at')
+            ->with('request.user')
+            ->latest('sauce_request_bookmarks.id')
+            ->limit(5)
+            ->get();
+
+        $answers = $user->sauceAnswers()
+            ->with(['user', 'sauceRequest'])
+            ->withCount('likes as likes_count')
+            ->latest('sauce_answers.id')
+            ->limit(5)
+            ->get();
+
+        $comments = $user->comments()
+            ->whereNull('parent_id')
+            ->with(['sauceRequest', 'user'])
+            ->withCount('likes as likes_count')
+            ->latest('sauce_request_comments.id')
+            ->limit(5)
+            ->get();
+
         return view('pages.profile', [
             'user' => $user,
             'isOwner' => $isOwner,
             'isFollowing' => $isFollowing,
             'isStaff' => $request->user()?->isStaff() ?? false,
             'bioHtml' => $this->renderMarkdown($user->description),
+            'requests' => $requests,
+            'bookmarks' => $bookmarks,
+            'answers' => $answers,
+            'comments' => $comments,
         ]);
     }
 
@@ -128,6 +177,86 @@ class ProfileController extends Controller
         return view('pages.profile-accepted-answers', [
             'user' => $user,
             'answers' => $answers,
+        ]);
+    }
+
+    /**
+     * Show a paginated list of the user's published sauce requests.
+     */
+    public function requests(User $user): View
+    {
+        $sauceRequests = $user->sauceRequests()
+            ->published()
+            ->with('user')
+            ->withCount('bookmarks as bookmarks_count')
+            ->latest()
+            ->paginate(12);
+
+        return view('pages.profile-requests', [
+            'user' => $user,
+            'sauceRequests' => $sauceRequests,
+            'title' => 'Sauce requests',
+            'emptyMessage' => "{$user->username} has no sauce requests yet.",
+        ]);
+    }
+
+    /**
+     * Show a paginated list of the published sauce requests the user has
+     * bookmarked, ordered by when they were bookmarked.
+     */
+    public function bookmarks(User $user): View
+    {
+        $sauceRequests = SauceRequest::query()
+            ->join('sauce_request_bookmarks', 'sauce_request_bookmarks.sauce_request_id', 'sauce_requests.id')
+            ->where('sauce_request_bookmarks.user_id', $user->id)
+            ->whereNotNull('sauce_requests.published_at')
+            ->select('sauce_requests.*')
+            ->with('user')
+            ->withCount('bookmarks as bookmarks_count')
+            ->latest('sauce_request_bookmarks.id')
+            ->paginate(12);
+
+        return view('pages.profile-requests', [
+            'user' => $user,
+            'sauceRequests' => $sauceRequests,
+            'title' => 'Bookmarked sauce requests',
+            'emptyMessage' => "{$user->username} has no bookmarked sauce requests.",
+        ]);
+    }
+
+    /**
+     * Show a paginated list of the sauce answers the user has provided.
+     */
+    public function answers(User $user): View
+    {
+        $answers = $user->sauceAnswers()
+            ->with(['user', 'sauceRequest'])
+            ->withCount('likes as likes_count')
+            ->latest('sauce_answers.id')
+            ->paginate(12);
+
+        return view('pages.profile-answers', [
+            'user' => $user,
+            'answers' => $answers,
+        ]);
+    }
+
+    /**
+     * Show a paginated list of the top-level sauce request comments the user
+     * has written.
+     */
+    public function comments(User $user): View
+    {
+        $comments = $user->comments()
+            ->whereNull('parent_id')
+            ->with(['sauceRequest', 'user'])
+            ->withCount('likes as likes_count')
+            ->latest('sauce_request_comments.id')
+            ->paginate(12);
+
+        return view('pages.profile-comments', [
+            'user' => $user,
+            'comments' => $comments,
         ]);
     }
 
