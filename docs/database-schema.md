@@ -61,6 +61,7 @@ user_id: int, fk = users.id // The user who bookmarked the sauce request to trac
 created_at: datetime
 updated_at: datetime
 unique(sauce_request_id, user_id)
+// Implemented: bookmarking sauce requests.
 
 sauce_request_tags
 id: int, pk
