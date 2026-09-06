@@ -182,6 +182,10 @@ Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
 Route::get('/u/{user}/followers', [ProfileController::class, 'followers'])->name('profile.followers');
 Route::get('/u/{user}/following', [ProfileController::class, 'following'])->name('profile.following');
 Route::get('/u/{user}/accepted-answers', [ProfileController::class, 'acceptedAnswers'])->name('profile.accepted-answers');
+Route::get('/u/{user}/requests', [ProfileController::class, 'requests'])->name('profile.requests');
+Route::get('/u/{user}/bookmarks', [ProfileController::class, 'bookmarks'])->name('profile.bookmarks');
+Route::get('/u/{user}/answers', [ProfileController::class, 'answers'])->name('profile.answers');
+Route::get('/u/{user}/comments', [ProfileController::class, 'comments'])->name('profile.comments');
 Route::get('/u/{username}', [ProfileController::class, 'show'])->name('profile.show');
 
 // --- Settings (guest-accessible; authed users save via the auth-only PUT route) ---
