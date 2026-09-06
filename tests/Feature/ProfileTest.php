@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\SauceAnswer;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -55,6 +56,44 @@ it('renders the bio as markdown', function () {
         ->assertOk()
         ->assertSee('<h1', false)
         ->assertSee('<strong>bold</strong>', false);
+});
+
+it('shows accepted answers, followers, and following counts on the profile', function () {
+    $owner = User::factory()->create(['username' => 'stats_user']);
+
+    // Two followers follow the owner.
+    $followerA = User::factory()->create();
+    $followerB = User::factory()->create();
+    $this->actingAs($followerA)->post(route('profile.follow', $owner));
+    $this->actingAs($followerB)->post(route('profile.follow', $owner));
+
+    // The owner follows three users.
+    foreach (range(1, 3) as $i) {
+        $this->actingAs($owner)->post(route('profile.follow', User::factory()->create()));
+    }
+
+    // The owner has one accepted answer (and one unaccepted answer that
+    // should not count).
+    $sauceRequest = makeSauceRequest($owner);
+    $accepted = SauceAnswer::create([
+        'sauce_request_id' => $sauceRequest->id,
+        'user_id' => $owner->id,
+        'content' => 'Artist is Snale.',
+    ]);
+    $sauceRequest->update(['accepted_sauce' => $accepted->id]);
+    SauceAnswer::create([
+        'sauce_request_id' => $sauceRequest->id,
+        'user_id' => $owner->id,
+        'content' => 'Not accepted.',
+    ]);
+
+    $this->get(route('profile.show', $owner->username))
+        ->assertOk()
+        ->assertViewHas('user', fn ($user) =>
+            $user->accepted_answers_count === 1
+            && $user->followers_count === 2
+            && $user->follows_count === 3
+        );
 });
 
 // ---------------------------------------------------------------------------
