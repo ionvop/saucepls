@@ -195,9 +195,7 @@ Route::get('/settings', [SettingsController::class, 'edit'])->name('settings');
 Route::get('/sauce-requests', [SauceRequestController::class, 'index'])->name('sauce-requests.index');
 Route::get('/sauce-requests/{sauceRequest}', [SauceRequestController::class, 'show'])->name('sauce-requests.show');
 
-Route::get('/search', function () {
-    return view('pages.search');
-})->name('search');
+Route::get('/search', [SauceRequestController::class, 'search'])->name('search');
 
 Route::get('/notifications', function () {
     return view('pages.notifications');
