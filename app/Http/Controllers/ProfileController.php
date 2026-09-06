@@ -49,10 +49,29 @@ class ProfileController extends Controller
                 ->whereNotNull('sauce_requests.accepted_sauce'),
         ]);
 
+        // Profile comments: top-level comments with their one-level-deep
+        // replies, each with like counts and whether the viewer liked them.
+        $userId = $request->user()?->id;
+        $user->load([
+            'receivedProfileComments' => fn ($query) => $query
+                ->whereNull('parent_id')
+                ->withCount([
+                    'likes as likes_count',
+                    'likes as liked_by_me' => fn ($likes) => $likes->where('user_id', $userId),
+                ]),
+            'receivedProfileComments.user',
+            'receivedProfileComments.replies' => fn ($query) => $query->withCount([
+                'likes as likes_count',
+                'likes as liked_by_me' => fn ($likes) => $likes->where('user_id', $userId),
+            ]),
+            'receivedProfileComments.replies.user',
+        ]);
+
         return view('pages.profile', [
             'user' => $user,
             'isOwner' => $isOwner,
             'isFollowing' => $isFollowing,
+            'isStaff' => $request->user()?->isStaff() ?? false,
             'bioHtml' => $this->renderMarkdown($user->description),
         ]);
     }
