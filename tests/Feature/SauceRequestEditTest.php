@@ -164,9 +164,9 @@ it('creates a draft sauce request when uploading an image', function () {
         ->andReturn('');
 
     $this->mock(TagInferenceService::class)
-        ->shouldReceive('infer')
+        ->shouldReceive('inferWithRating')
         ->once()
-        ->andReturn([]);
+        ->andReturn(emptyInferenceResult());
 
     $this->actingAs($user)
         ->post(route('sauce-requests.upload'), [
@@ -291,6 +291,36 @@ it('sets published_at when a draft is published', function () {
         ->assertRedirect(route('sauce-requests.show', $sauceRequest));
 
     expect($sauceRequest->fresh()->published_at)->not->toBeNull();
+});
+
+it('persists the explicit flag from the details page when publishing', function () {
+    $owner = User::factory()->create();
+    $sauceRequest = makeSauceRequest($owner, [
+        'is_explicit' => true,
+    ]);
+
+    $this->actingAs($owner)
+        ->post(route('sauce-requests.publish', $sauceRequest), [
+            'is_explicit' => '0',
+        ])
+        ->assertRedirect(route('sauce-requests.show', $sauceRequest));
+
+    expect($sauceRequest->fresh()->is_explicit)->toBeFalse();
+});
+
+it('keeps the inferred explicit flag when publishing without a toggle value', function () {
+    $owner = User::factory()->create();
+    $sauceRequest = makeSauceRequest($owner, [
+        'is_explicit' => false,
+    ]);
+
+    $this->actingAs($owner)
+        ->post(route('sauce-requests.publish', $sauceRequest), [
+            'text' => 'Edited text',
+        ])
+        ->assertRedirect(route('sauce-requests.show', $sauceRequest));
+
+    expect($sauceRequest->fresh()->is_explicit)->toBeFalse();
 });
 
 // ---------------------------------------------------------------------------
@@ -420,9 +450,9 @@ it('purges abandoned drafts when uploading a new image', function () {
         ->andReturn('');
 
     $this->mock(TagInferenceService::class)
-        ->shouldReceive('infer')
+        ->shouldReceive('inferWithRating')
         ->once()
-        ->andReturn([]);
+        ->andReturn(emptyInferenceResult());
 
     $this->actingAs($owner)
         ->post(route('sauce-requests.upload'), [
