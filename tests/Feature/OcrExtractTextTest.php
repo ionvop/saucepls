@@ -116,9 +116,9 @@ it('stores the OCR text as the initial value of the text field', function () {
         ->andReturn([]);
 
     $this->mock(TagInferenceService::class)
-        ->shouldReceive('infer')
+        ->shouldReceive('inferWithRating')
         ->once()
-        ->andReturn([]);
+        ->andReturn(emptyInferenceResult());
 
     Http::fake([
         'api.ocr.space/*' => Http::response(fakeOcrPayload('Extracted text from image')),
