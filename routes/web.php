@@ -15,6 +15,7 @@ use App\Http\Controllers\SauceRequestTagController;
 use App\Http\Controllers\SauceRequestTagHistoryController;
 use App\Http\Controllers\SauceRequestTextController;
 use App\Http\Controllers\SauceRequestTextHistoryController;
+use App\Http\Controllers\TagController;
 use App\Http\Controllers\UserCommentController;
 use Illuminate\Support\Facades\Route;
 
@@ -200,6 +201,11 @@ Route::redirect('/sauce-requests', '/search');
 Route::get('/sauce-requests/{sauceRequest}', [SauceRequestController::class, 'show'])->name('sauce-requests.show');
 
 Route::get('/search', [SauceRequestController::class, 'search'])->name('search');
+
+// Tag autocomplete suggestions for the search field.
+Route::get('/tags/autocomplete', [TagController::class, 'autocomplete'])
+    ->middleware('throttle:60,1')
+    ->name('tags.autocomplete');
 
 Route::get('/notifications', function () {
     return view('pages.notifications');
