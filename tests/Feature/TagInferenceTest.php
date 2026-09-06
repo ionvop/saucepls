@@ -66,6 +66,24 @@ it('filters out rating tags', function () {
     expect($tags)->toBe(['1girl']);
 });
 
+it('returns the rating and its confidence via inferWithRating', function () {
+    $path = tempnam(sys_get_temp_dir(), 'infer');
+
+    Http::fake([
+        'deepdanbooru.nsk.sh/*' => Http::response(fakeInferencePayload([
+            fakeInferenceItem('rating:safe', 0.99),
+            fakeInferenceItem('1girl', 0.98),
+            fakeInferenceItem('rating:explicit', 0.5),
+        ])),
+    ]);
+
+    $result = app(TagInferenceService::class)->inferWithRating($path);
+
+    expect($result['tags'])->toBe(['1girl'])
+        ->and($result['rating'])->toBe('safe')
+        ->and($result['rating_confidence'])->toBe(0.99);
+});
+
 it('returns an empty array when no tags are above the threshold', function () {
     $path = tempnam(sys_get_temp_dir(), 'infer');
 
@@ -151,4 +169,76 @@ it('stores the inferred tags as the initial value of the tags field', function (
     $this->get(route('sauce-requests.details', $sauceRequest))
         ->assertOk()
         ->assertSee('1girl black_hair');
+});
+
+it('turns the explicit flag off when inference is confidently rating:safe', function () {
+    $user = User::factory()->create();
+
+    $this->mock(DuplicateDetectionService::class)
+        ->shouldReceive('findDuplicate')
+        ->once()
+        ->andReturn(null);
+
+    $this->mock(SauceNaoService::class)
+        ->shouldReceive('lookup')
+        ->once()
+        ->andReturn([]);
+
+    Http::fake([
+        'deepdanbooru.nsk.sh/*' => Http::response(fakeInferencePayload([
+            fakeInferenceItem('rating:safe', 0.99),
+            fakeInferenceItem('rating:explicit', 0.01),
+            fakeInferenceItem('1girl', 0.98),
+        ])),
+        'api.ocr.space/*' => Http::response([
+            'ParsedResults' => [['ParsedText' => '']],
+            'OCRExitCode' => 1,
+            'IsErroredOnProcessing' => false,
+        ]),
+    ]);
+
+    $this->actingAs($user)
+        ->post(route('sauce-requests.upload'), [
+            'title' => 'Safe image',
+            'image' => UploadedFile::fake()->image('art.png'),
+        ])
+        ->assertRedirect(route('sauce-requests.details', SauceRequest::firstOrFail()));
+
+    expect(SauceRequest::firstOrFail()->is_explicit)->toBeFalse();
+});
+
+it('keeps the explicit flag on when inference is not confidently safe', function () {
+    $user = User::factory()->create();
+
+    $this->mock(DuplicateDetectionService::class)
+        ->shouldReceive('findDuplicate')
+        ->once()
+        ->andReturn(null);
+
+    $this->mock(SauceNaoService::class)
+        ->shouldReceive('lookup')
+        ->once()
+        ->andReturn([]);
+
+    Http::fake([
+        'deepdanbooru.nsk.sh/*' => Http::response(fakeInferencePayload([
+            fakeInferenceItem('rating:safe', 0.3),
+            fakeInferenceItem('rating:explicit', 0.95),
+            fakeInferenceItem('1girl', 0.98),
+        ])),
+        'api.ocr.space/*' => Http::response([
+            'ParsedResults' => [['ParsedText' => '']],
+            'OCRExitCode' => 1,
+            'IsErroredOnProcessing' => false,
+        ]),
+    ]);
+
+    $this->actingAs($user)
+        ->post(route('sauce-requests.upload'), [
+            'title' => 'Not safe',
+            'image' => UploadedFile::fake()->image('art.png'),
+        ])
+        ->assertRedirect(route('sauce-requests.details', SauceRequest::firstOrFail()));
+
+    expect(SauceRequest::firstOrFail()->is_explicit)->toBeTrue();
 });
