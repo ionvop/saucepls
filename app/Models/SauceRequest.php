@@ -106,6 +106,15 @@ class SauceRequest extends Model
     }
 
     /**
+     * The users who have bookmarked this sauce request to track its
+     * progress.
+     */
+    public function bookmarks(): HasMany
+    {
+        return $this->hasMany(SauceRequestBookmark::class);
+    }
+
+    /**
      * The accepted sauce answer, or null when the request is unsolved.
      */
     public function acceptedAnswer(): BelongsTo
