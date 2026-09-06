@@ -122,26 +122,38 @@
                 <div class="mt-4 grid gap-4 sm:grid-cols-2">
                     @foreach ($requests as $request)
                         <a href="{{ route('sauce-requests.show', $request) }}"
-                            class="group flex flex-col rounded-xl border border-white/10 bg-white/[0.03] p-4 transition hover:border-[#5555AA]/40 hover:bg-white/[0.05]">
-                            <div class="flex items-center gap-1.5">
-                                @if ($request->isAccepted())
-                                    <span class="inline-flex items-center gap-1 rounded-full bg-green-500/20 px-2.5 py-0.5 text-xs font-semibold text-green-300">
-                                        <x-lucide-check class="h-3 w-3" />
-                                        Solved
-                                    </span>
-                                @endif
-                                @if ($request->is_explicit)
-                                    <span class="rounded-full bg-red-500/20 px-2.5 py-0.5 text-xs font-semibold text-red-300">
-                                        NSFW
-                                    </span>
+                            class="group flex items-stretch overflow-hidden rounded-xl border border-white/10 bg-white/[0.03] transition hover:border-[#5555AA]/40 hover:bg-white/[0.05]">
+                            <div class="relative w-24 shrink-0 bg-[#1a1a1a]">
+                                @if ($request->image_url)
+                                    <img src="{{ $request->image_url }}" alt="{{ $request->title }}"
+                                        class="h-full w-full object-cover">
+                                @else
+                                    <div class="flex h-full w-full items-center justify-center text-gray-600">
+                                        <x-lucide-image class="h-6 w-6" />
+                                    </div>
                                 @endif
                             </div>
-                            <h3 class="mt-2 truncate text-sm font-semibold text-white group-hover:text-[#8888CC]">
-                                {{ $request->title }}
-                            </h3>
-                            <span class="mt-auto pt-2 text-xs text-gray-500">
-                                <span data-time="{{ $request->created_at?->toIso8601String() }}" data-format="relative">{{ $request->created_at?->diffForHumans() }}</span>
-                            </span>
+                            <div class="min-w-0 flex-1 p-3">
+                                <div class="flex items-center gap-1.5">
+                                    @if ($request->isAccepted())
+                                        <span class="inline-flex items-center gap-1 rounded-full bg-green-500/20 px-2.5 py-0.5 text-xs font-semibold text-green-300">
+                                            <x-lucide-check class="h-3 w-3" />
+                                            Solved
+                                        </span>
+                                    @endif
+                                    @if ($request->is_explicit)
+                                        <span class="rounded-full bg-red-500/20 px-2.5 py-0.5 text-xs font-semibold text-red-300">
+                                            NSFW
+                                        </span>
+                                    @endif
+                                </div>
+                                <h3 class="mt-1 truncate text-sm font-semibold text-white group-hover:text-[#8888CC]">
+                                    {{ $request->title }}
+                                </h3>
+                                <span class="mt-auto block pt-1 text-xs text-gray-500">
+                                    <span data-time="{{ $request->created_at?->toIso8601String() }}" data-format="relative">{{ $request->created_at?->diffForHumans() }}</span>
+                                </span>
+                            </div>
                         </a>
                     @endforeach
                 </div>
@@ -171,26 +183,38 @@
                 <div class="mt-4 grid gap-4 sm:grid-cols-2">
                     @foreach ($bookmarks as $bookmark)
                         <a href="{{ route('sauce-requests.show', $bookmark->request) }}"
-                            class="group flex flex-col rounded-xl border border-white/10 bg-white/[0.03] p-4 transition hover:border-[#5555AA]/40 hover:bg-white/[0.05]">
-                            <div class="flex items-center gap-1.5">
-                                @if ($bookmark->request->isAccepted())
-                                    <span class="inline-flex items-center gap-1 rounded-full bg-green-500/20 px-2.5 py-0.5 text-xs font-semibold text-green-300">
-                                        <x-lucide-check class="h-3 w-3" />
-                                        Solved
-                                    </span>
-                                @endif
-                                @if ($bookmark->request->is_explicit)
-                                    <span class="rounded-full bg-red-500/20 px-2.5 py-0.5 text-xs font-semibold text-red-300">
-                                        NSFW
-                                    </span>
+                            class="group flex items-stretch overflow-hidden rounded-xl border border-white/10 bg-white/[0.03] transition hover:border-[#5555AA]/40 hover:bg-white/[0.05]">
+                            <div class="relative w-24 shrink-0 bg-[#1a1a1a]">
+                                @if ($bookmark->request->image_url)
+                                    <img src="{{ $bookmark->request->image_url }}" alt="{{ $bookmark->request->title }}"
+                                        class="h-full w-full object-cover">
+                                @else
+                                    <div class="flex h-full w-full items-center justify-center text-gray-600">
+                                        <x-lucide-image class="h-6 w-6" />
+                                    </div>
                                 @endif
                             </div>
-                            <h3 class="mt-2 truncate text-sm font-semibold text-white group-hover:text-[#8888CC]">
-                                {{ $bookmark->request->title }}
-                            </h3>
-                            <span class="mt-auto pt-2 text-xs text-gray-500">
-                                <span data-time="{{ $bookmark->request->created_at?->toIso8601String() }}" data-format="relative">{{ $bookmark->request->created_at?->diffForHumans() }}</span>
-                            </span>
+                            <div class="min-w-0 flex-1 p-3">
+                                <div class="flex items-center gap-1.5">
+                                    @if ($bookmark->request->isAccepted())
+                                        <span class="inline-flex items-center gap-1 rounded-full bg-green-500/20 px-2.5 py-0.5 text-xs font-semibold text-green-300">
+                                            <x-lucide-check class="h-3 w-3" />
+                                            Solved
+                                        </span>
+                                    @endif
+                                    @if ($bookmark->request->is_explicit)
+                                        <span class="rounded-full bg-red-500/20 px-2.5 py-0.5 text-xs font-semibold text-red-300">
+                                            NSFW
+                                        </span>
+                                    @endif
+                                </div>
+                                <h3 class="mt-1 truncate text-sm font-semibold text-white group-hover:text-[#8888CC]">
+                                    {{ $bookmark->request->title }}
+                                </h3>
+                                <span class="mt-auto block pt-1 text-xs text-gray-500">
+                                    <span data-time="{{ $bookmark->request->created_at?->toIso8601String() }}" data-format="relative">{{ $bookmark->request->created_at?->diffForHumans() }}</span>
+                                </span>
+                            </div>
                         </a>
                     @endforeach
                 </div>
