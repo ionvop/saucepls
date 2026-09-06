@@ -111,7 +111,28 @@ class SauceRequestController extends Controller
         // will be replaced with real implementations later.
         $phash = $this->perceptualHash->hash($absolutePath);
         $text = $this->ocr->extractText($absolutePath);
-        $suggestedTags = $this->tagInference->infer($absolutePath);
+        $inference = $this->tagInference->inferWithRating($absolutePath);
+        $suggestedTags = $inference['tags'];
+
+        // The explicit flag is on by default and is only turned off when
+        // tag inference is confidently "safe" (the user can still override
+        // it on the details page before publishing).
+        $isExplicit = true;
+
+        if ($inference['rating'] === 'safe'
+            && $inference['rating_confidence'] !== null
+            && $inference['rating_confidence'] >= (float) config('services.tag_inference.threshold', 0.2)) {
+            $isExplicit = false;
+        }
+
+        // The flag is on by default and is only turned off when tag
+        // inference is confidently "safe" (the user can override it on the
+        // details page before publishing).
+        if ($inference['rating'] === 'safe'
+            && $inference['rating_confidence'] !== null
+            && $inference['rating_confidence'] >= (float) config('services.tag_inference.threshold', 0.2)) {
+            $isExplicit = false;
+        }
 
         $sauceRequest = SauceRequest::create([
             'user_id' => $request->user()->id,
@@ -120,7 +141,7 @@ class SauceRequestController extends Controller
             'text' => $text,
             'image_path' => $imagePath,
             'phash64' => $phash,
-            'is_explicit' => $validated['is_explicit'] ?? true,
+            'is_explicit' => $isExplicit,
         ]);
 
         // Persist the tags suggested by the model inference pipeline so
@@ -236,6 +257,9 @@ class SauceRequestController extends Controller
 
         $sauceRequest->update([
             'published_at' => now(),
+            // The explicit toggle now lives on the details (publish) page.
+            // When the checkbox is absent the draft's inferred value is kept.
+            'is_explicit' => $validated['is_explicit'] ?? $sauceRequest->is_explicit,
         ]);
 
         $this->tags->sync($sauceRequest, (string) ($validated['tags'] ?? ''), $request->user());
