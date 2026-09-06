@@ -25,7 +25,10 @@
         @else
             <div class="mt-6 flex flex-col gap-4">
                 @foreach ($answers as $answer)
-                    <div class="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                    @php
+                        $isAccepted = $answer->sauceRequest?->accepted_sauce === $answer->id;
+                    @endphp
+                    <div class="rounded-xl border p-4 {{ $isAccepted ? 'border-green-500/40 bg-green-500/[0.06]' : 'border-white/10 bg-white/[0.03]' }}">
                         {{-- Answer header --}}
                         <div class="flex items-center gap-2 text-sm text-gray-400">
                             @if ($answer->user?->avatar_url)
@@ -42,6 +45,13 @@
                             </a>
                             <span>·</span>
                             <span data-time="{{ $answer->created_at?->toIso8601String() }}" data-format="relative">{{ $answer->created_at?->diffForHumans() }}</span>
+
+                            @if ($isAccepted)
+                                <span class="inline-flex items-center gap-1 rounded-full bg-green-500/20 px-2.5 py-0.5 text-xs font-semibold text-green-300">
+                                    <x-lucide-check class="h-3.5 w-3.5" />
+                                    Accepted
+                                </span>
+                            @endif
 
                             @if (isset($answer->likes_count) && $answer->likes_count > 0)
                                 <span class="inline-flex items-center gap-1 text-xs font-medium text-gray-400">
