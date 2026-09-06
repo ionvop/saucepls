@@ -35,28 +35,6 @@ class SauceRequestController extends Controller
     ) {}
 
     /**
-     * Show a paginated feed of published sauce requests.
-     */
-    public function index(Request $request): View
-    {
-        $hideNsfw = auth()->check()
-            ? auth()->user()->hide_nsfw
-            : (bool) $request->cookie('hide_nsfw');
-
-        $sauceRequests = SauceRequest::query()
-            ->with('user')
-            ->withCount('bookmarks as bookmarks_count')
-            ->published()
-            ->when($hideNsfw, fn ($query) => $query->where('is_explicit', false))
-            ->latest()
-            ->paginate(12);
-
-        return view('pages.sauce-requests.index', [
-            'sauceRequests' => $sauceRequests,
-        ]);
-    }
-
-    /**
      * Search published sauce requests by keyword, with a solved/unsolved
      * filter and a sort order (recent, popular, or trending).
      */
@@ -450,7 +428,7 @@ class SauceRequestController extends Controller
         $sauceRequest->delete();
 
         return redirect()
-            ->route('sauce-requests.index')
+            ->route('search')
             ->with('status', 'Your sauce request has been deleted.');
     }
 
