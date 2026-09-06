@@ -169,6 +169,30 @@ class User extends Authenticatable
     }
 
     /**
+     * The comments the user has written on other users' profiles.
+     */
+    public function profileComments(): HasMany
+    {
+        return $this->hasMany(UserComment::class);
+    }
+
+    /**
+     * The comments other users have left on this user's profile.
+     */
+    public function receivedProfileComments(): HasMany
+    {
+        return $this->hasMany(UserComment::class, 'profile_user_id');
+    }
+
+    /**
+     * The likes the user has given to profile comments.
+     */
+    public function profileCommentLikes(): HasMany
+    {
+        return $this->hasMany(UserCommentLike::class);
+    }
+
+    /**
      * Whether the user is a moderator or admin (i.e. not a regular member).
      */
     public function isStaff(): bool
