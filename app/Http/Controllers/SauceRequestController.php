@@ -294,6 +294,13 @@ class SauceRequestController extends Controller
                     'likes as likes_count',
                     'likes as liked_by_me' => fn ($likes) => $likes->where('user_id', $userId),
                 ])
+                ->with([
+                    'comments' => fn ($comments) => $comments->withCount([
+                        'likes as likes_count',
+                        'likes as liked_by_me' => fn ($likes) => $likes->where('user_id', $userId),
+                    ]),
+                    'comments.user',
+                ])
                 ->when($sort === 'recent', fn ($q) => $q->latest('id'))
                 ->when($sort === 'likes', fn ($q) => $q->orderByDesc('likes_count')->orderByDesc('id')),
             'answers.user',
