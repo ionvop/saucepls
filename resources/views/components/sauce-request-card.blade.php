@@ -51,7 +51,13 @@
                 @endif
                 {{ $sauceRequest->user?->username ?? 'Unknown' }}
             </span>
-            <span data-time="{{ $sauceRequest->created_at?->toIso8601String() }}" data-format="relative">{{ $sauceRequest->created_at?->diffForHumans() }}</span>
+            <span class="inline-flex items-center gap-1.5">
+                <span title="{{ $sauceRequest->bookmarks_count }} bookmark{{ $sauceRequest->bookmarks_count === 1 ? '' : 's' }}">
+                    <x-lucide-bookmark class="inline-block h-3.5 w-3.5" />
+                    <span class="align-middle">{{ $sauceRequest->bookmarks_count }}</span>
+                </span>
+                <span data-time="{{ $sauceRequest->created_at?->toIso8601String() }}" data-format="relative">{{ $sauceRequest->created_at?->diffForHumans() }}</span>
+            </span>
         </div>
     </div>
 </a>
