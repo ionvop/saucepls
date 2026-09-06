@@ -41,6 +41,29 @@
                         </span>
                     @endif
 
+                    @auth
+                        @if ($sauceRequest->bookmarked_by_me)
+                            <form method="POST" action="{{ route('sauce-requests.unbookmark', $sauceRequest) }}">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" title="Remove bookmark"
+                                    class="inline-flex items-center gap-1.5 rounded-lg border border-[#5555AA]/40 px-3 py-1.5 text-xs font-medium text-[#8888CC] transition hover:border-[#5555AA]/60 hover:bg-[#5555AA]/10 hover:text-[#AAAACC]">
+                                    <x-lucide-bookmark class="h-3.5 w-3.5 fill-current" />
+                                    Bookmarked
+                                </button>
+                            </form>
+                        @else
+                            <form method="POST" action="{{ route('sauce-requests.bookmark', $sauceRequest) }}">
+                                @csrf
+                                <button type="submit" title="Bookmark this sauce request"
+                                    class="inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-3 py-1.5 text-xs font-medium text-gray-300 transition hover:border-white/20 hover:text-white">
+                                    <x-lucide-bookmark class="h-3.5 w-3.5" />
+                                    Bookmark
+                                </button>
+                            </form>
+                        @endif
+                    @endauth
+
                     @if ($isOwner || $isStaff)
                         <div class="ml-auto flex items-center gap-2" x-data>
                             @if ($isOwner)
