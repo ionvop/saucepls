@@ -175,4 +175,13 @@ class User extends Authenticatable
     {
         return $this->type !== 'member';
     }
+
+    /**
+     * The route key used for implicit route model binding, so public profile
+     * routes resolve users by their username rather than their primary key.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'username';
+    }
 }
