@@ -41,9 +41,9 @@ it('redirects to the sauce page when SauceNAO finds a match', function () {
         ->andReturn('');
 
     $this->mock(TagInferenceService::class)
-        ->shouldReceive('infer')
+        ->shouldReceive('inferWithRating')
         ->once()
-        ->andReturn([]);
+        ->andReturn(emptyInferenceResult());
 
     $this->mock(SauceNaoService::class)
         ->shouldReceive('lookup')
@@ -77,9 +77,9 @@ it('redirects to the details page when SauceNAO finds no match', function () {
         ->andReturn('');
 
     $this->mock(TagInferenceService::class)
-        ->shouldReceive('infer')
+        ->shouldReceive('inferWithRating')
         ->once()
-        ->andReturn([]);
+        ->andReturn(emptyInferenceResult());
 
     $this->mock(SauceNaoService::class)
         ->shouldReceive('lookup')
