@@ -26,6 +26,26 @@ class AppServiceProvider extends ServiceProvider
         $this->configureCommunityEditsRateLimiter();
         $this->configureCommentLikesRateLimiter();
         $this->configureUploadRateLimiter();
+        $this->configureBookmarksRateLimiter();
+    }
+
+    /**
+     * Rate limit bookmark toggles to prevent a user from spamming the
+     * bookmark and unbookmark buttons.
+     *
+     * Staff (moderators/admins) are exempt.
+     */
+    protected function configureBookmarksRateLimiter(): void
+    {
+        RateLimiter::for('bookmarks', function (Request $request) {
+            $user = $request->user();
+
+            if ($user && $user->isStaff()) {
+                return Limit::none();
+            }
+
+            return Limit::perMinute(20)->by($user?->id ?? $request->ip());
+        });
     }
 
     /**
