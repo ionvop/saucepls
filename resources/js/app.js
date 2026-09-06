@@ -4,6 +4,45 @@ import './time';
 window.Alpine = Alpine;
 
 /**
+ * Custom-styled dropdown used by `<x-select>`.
+ * Replaces native `<select>` popups (which render white-on-white in dark mode
+ * and can't be styled/inspected) with a DOM-rendered, styleable listbox.
+ */
+Alpine.data('dropdown', ({ name, value, options, selectedLabel }) => ({
+    name,
+    value,
+    options,
+    selectedLabel,
+    open: false,
+
+    toggle() {
+        this.open = !this.open;
+    },
+
+    close() {
+        this.open = false;
+    },
+
+    select(optionValue) {
+        this.value = optionValue;
+        this.selectedLabel = this.options[optionValue] ?? optionValue;
+        this.close();
+        this.$refs.button.focus();
+    },
+
+    moveFocus(direction) {
+        const optionValues = Object.keys(this.options);
+        let index = optionValues.indexOf(this.value);
+        if (index === -1) {
+            index = 0;
+        }
+        index = Math.min(Math.max(index + direction, 0), optionValues.length - 1);
+        this.value = optionValues[index];
+        this.selectedLabel = this.options[this.value];
+    },
+}));
+
+/**
  * Prompts the user before leaving the page unless an intentional action
  * (e.g. "Continue anyway", "Post request", "Cancel") has been clicked.
  * Used on the pre-post pages so an unposted sauce request is not abandoned
