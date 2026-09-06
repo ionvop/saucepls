@@ -76,29 +76,29 @@
                 </div>
             </div>
 
+            {{-- Profile statistics (top of bio) --}}
+            <div class="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-white/10 pt-5">
+                <a href="{{ route('profile.accepted-answers', $user) }}"
+                    class="group inline-flex items-baseline gap-1.5 text-sm">
+                    <span class="text-xl font-bold text-white">{{ $user->accepted_answers_count }}</span>
+                    <span class="text-gray-400 transition group-hover:text-white">Accepted sauce answers</span>
+                </a>
+                <a href="{{ route('profile.followers', $user) }}"
+                    class="group inline-flex items-baseline gap-1.5 text-sm">
+                    <span class="text-xl font-bold text-white">{{ $user->followers_count }}</span>
+                    <span class="text-gray-400 transition group-hover:text-white">Followers</span>
+                </a>
+                <a href="{{ route('profile.following', $user) }}"
+                    class="group inline-flex items-baseline gap-1.5 text-sm">
+                    <span class="text-xl font-bold text-white">{{ $user->follows_count }}</span>
+                    <span class="text-gray-400 transition group-hover:text-white">Following</span>
+                </a>
+            </div>
+
             {{-- Bio --}}
-            <div class="prose prose-invert mt-6 max-w-none border-t border-white/10 pt-6 text-gray-300">
+            <div class="prose prose-invert mt-5 max-w-none border-t border-white/10 pt-5 text-gray-300">
                 {!! $bioHtml !!}
             </div>
-        </div>
-
-        {{-- Profile statistics --}}
-        <div class="mt-6 grid gap-6 sm:grid-cols-3">
-            <a href="{{ route('profile.accepted-answers', $user) }}"
-                class="group block rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-center transition hover:border-white/20">
-                <p class="text-2xl font-bold text-white">{{ $user->accepted_answers_count }}</p>
-                <p class="mt-1 text-sm text-gray-400 transition group-hover:text-white">Accepted sauce answers</p>
-            </a>
-            <a href="{{ route('profile.followers', $user) }}"
-                class="group block rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-center transition hover:border-white/20">
-                <p class="text-2xl font-bold text-white">{{ $user->followers_count }}</p>
-                <p class="mt-1 text-sm text-gray-400 transition group-hover:text-white">Followers</p>
-            </a>
-            <a href="{{ route('profile.following', $user) }}"
-                class="group block rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-center transition hover:border-white/20">
-                <p class="text-2xl font-bold text-white">{{ $user->follows_count }}</p>
-                <p class="mt-1 text-sm text-gray-400 transition group-hover:text-white">Following</p>
-            </a>
         </div>
 
         <div class="mt-6 rounded-2xl border border-dashed border-white/10 p-10 text-center text-sm text-gray-500">
