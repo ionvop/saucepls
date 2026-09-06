@@ -431,6 +431,104 @@
                                             Source
                                         </a>
                                     @endif
+
+                                    {{-- Answer comments --}}
+                                    <div class="mt-4 border-t border-white/10 pt-3">
+                                        @auth
+                                            <form method="POST"
+                                                action="{{ route('sauce-requests.answers.comments.store', [$sauceRequest, $answer]) }}"
+                                                class="flex flex-col gap-2">
+                                                @csrf
+                                                <textarea name="content" rows="2" maxlength="5000"
+                                                    placeholder="Reply to this answer..."
+                                                    class="w-full rounded-lg border border-white/10 bg-[#111111] px-3 py-2 text-sm text-white placeholder-gray-500 outline-none transition focus:border-[#5555AA] focus:ring-2 focus:ring-[#5555AA]/40"></textarea>
+                                                @error('content')
+                                                    <p class="text-xs text-red-400">{{ $message }}</p>
+                                                @enderror
+                                                <div class="flex items-center justify-end">
+                                                    <button type="submit"
+                                                        class="rounded-lg bg-[#5555AA] px-3 py-1.5 text-sm font-medium text-white transition hover:bg-[#6666BB]">
+                                                        Comment
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        @else
+                                            <p class="text-xs text-gray-500">
+                                                <a href="{{ route('login') }}" class="font-medium text-[#8888CC] hover:text-white">Log in</a>
+                                                to reply to this answer.
+                                            </p>
+                                        @endauth
+
+                                        @if ($answer->comments->isNotEmpty())
+                                            <div class="mt-3 flex flex-col gap-3">
+                                                @foreach ($answer->comments as $comment)
+                                                    <div x-data>
+                                                        <div class="flex items-center gap-2 text-sm text-gray-400">
+                                                            @if ($comment->user?->avatar_url)
+                                                                <img src="{{ $comment->user->avatar_url }}" alt="{{ $comment->user->username }}"
+                                                                    class="h-5 w-5 rounded-full object-cover">
+                                                            @else
+                                                                <span class="flex h-5 w-5 items-center justify-center rounded-full bg-[#5555AA]/20 text-[10px] font-bold text-[#8888CC]">
+                                                                    {{ strtoupper(substr($comment->user?->username ?? '?', 0, 1)) }}
+                                                                </span>
+                                                            @endif
+                                                            <a href="{{ route('profile.show', $comment->user?->username ?? '') }}"
+                                                                class="font-medium text-gray-200 hover:text-white">
+                                                                {{ $comment->user?->username ?? 'Unknown' }}
+                                                            </a>
+                                                            <span>·</span>
+                                                            <span data-time="{{ $comment->created_at?->toIso8601String() }}" data-format="date">{{ $comment->created_at?->format('M j, Y') }}</span>
+
+                                                            @auth
+                                                                @if ($comment->liked_by_me)
+                                                                    <form method="POST"
+                                                                        action="{{ route('sauce-requests.answers.comments.unlike', [$sauceRequest, $answer, $comment]) }}">
+                                                                        @csrf
+                                                                        @method('DELETE')
+                                                                        <button type="submit" title="Unlike"
+                                                                            class="inline-flex items-center gap-1 text-xs font-medium text-[#8888CC] transition hover:text-white">
+                                                                            <x-lucide-heart class="h-3.5 w-3.5 fill-current" />
+                                                                            {{ $comment->likes_count }}
+                                                                        </button>
+                                                                    </form>
+                                                                @else
+                                                                    <form method="POST"
+                                                                        action="{{ route('sauce-requests.answers.comments.like', [$sauceRequest, $answer, $comment]) }}">
+                                                                        @csrf
+                                                                        <button type="submit" title="Like"
+                                                                            class="inline-flex items-center gap-1 text-xs font-medium text-gray-500 transition hover:text-[#8888CC]">
+                                                                            <x-lucide-heart class="h-3.5 w-3.5" />
+                                                                            {{ $comment->likes_count }}
+                                                                        </button>
+                                                                    </form>
+                                                                @endif
+                                                            @endauth
+
+                                                            @if ($comment->user_id === auth()->id() || $isStaff)
+                                                                <form x-ref="deleteAnswerCommentForm" method="POST"
+                                                                    action="{{ route('sauce-requests.answers.comments.destroy', [$sauceRequest, $answer, $comment]) }}"
+                                                                    class="hidden">
+                                                                    @csrf
+                                                                    @method('DELETE')
+                                                                </form>
+                                                                <button type="button"
+                                                                    @click="$dispatch('open-confirm', {
+                                                                        title: 'Delete comment',
+                                                                        message: 'Delete this comment? This cannot be undone.',
+                                                                        action: () => $refs.deleteAnswerCommentForm.submit(),
+                                                                    })"
+                                                                    class="ml-auto inline-flex items-center gap-1 text-xs font-medium text-gray-500 transition hover:text-red-400">
+                                                                    <x-lucide-trash-2 class="h-3.5 w-3.5" />
+                                                                    Delete
+                                                                </button>
+                                                            @endif
+                                                        </div>
+                                                        <p class="mt-1 whitespace-pre-line text-sm text-gray-300">{{ $comment->content }}</p>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        @endif
+                                    </div>
                                 </div>
                             @endforeach
                         </div>
