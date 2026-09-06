@@ -41,7 +41,7 @@ it('allows a moderator to delete a request owned by another user', function () {
 
     $this->actingAs($moderator)
         ->delete(route('sauce-requests.destroy', $sauceRequest))
-        ->assertRedirect(route('sauce-requests.index'));
+        ->assertRedirect(route('search'));
 
     $this->assertSoftDeleted('sauce_requests', ['id' => $sauceRequest->id]);
 });
@@ -53,7 +53,7 @@ it('allows an admin to delete a request owned by another user', function () {
 
     $this->actingAs($admin)
         ->delete(route('sauce-requests.destroy', $sauceRequest))
-        ->assertRedirect(route('sauce-requests.index'));
+        ->assertRedirect(route('search'));
 
     $this->assertSoftDeleted('sauce_requests', ['id' => $sauceRequest->id]);
 });
@@ -68,7 +68,7 @@ it('allows the owner to delete their own published request', function () {
 
     $this->actingAs($owner)
         ->delete(route('sauce-requests.destroy', $sauceRequest))
-        ->assertRedirect(route('sauce-requests.index'))
+        ->assertRedirect(route('search'))
         ->assertSessionHas('status', 'Your sauce request has been deleted.');
 
     $this->assertSoftDeleted('sauce_requests', ['id' => $sauceRequest->id]);
@@ -82,7 +82,7 @@ it('allows the owner to delete their own draft', function () {
 
     $this->actingAs($owner)
         ->delete(route('sauce-requests.destroy', $sauceRequest))
-        ->assertRedirect(route('sauce-requests.index'));
+        ->assertRedirect(route('search'));
 
     $this->assertSoftDeleted('sauce_requests', ['id' => $sauceRequest->id]);
 });
@@ -97,7 +97,7 @@ it('removes the uploaded image file when deleting', function () {
 
     $this->actingAs($owner)
         ->delete(route('sauce-requests.destroy', $sauceRequest))
-        ->assertRedirect(route('sauce-requests.index'));
+        ->assertRedirect(route('search'));
 
     Storage::disk('public')->assertMissing($file);
     $this->assertSoftDeleted('sauce_requests', ['id' => $sauceRequest->id]);
