@@ -25,23 +25,13 @@
                 <label class="inline-flex items-center gap-2 text-sm text-gray-400">
                     <x-lucide-filter class="h-4 w-4" />
                     Status
-                    <select name="filter"
-                        class="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-sm text-white focus:border-[#5555AA]/60 focus:outline-none">
-                        <option value="all" @selected($filter === 'all')>All</option>
-                        <option value="solved" @selected($filter === 'solved')>Solved</option>
-                        <option value="unsolved" @selected($filter === 'unsolved')>Unsolved</option>
-                    </select>
+                    <x-select name="filter" :value="$filter" :options="['all' => 'All', 'solved' => 'Solved', 'unsolved' => 'Unsolved']" />
                 </label>
 
                 <label class="inline-flex items-center gap-2 text-sm text-gray-400">
                     <x-lucide-arrow-down-up class="h-4 w-4" />
                     Sort
-                    <select name="sort"
-                        class="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-sm text-white focus:border-[#5555AA]/60 focus:outline-none">
-                        <option value="recent" @selected($sort === 'recent')>Recent</option>
-                        <option value="popular" @selected($sort === 'popular')>Popular</option>
-                        <option value="trending" @selected($sort === 'trending')>Trending</option>
-                    </select>
+                    <x-select name="sort" :value="$sort" :options="['recent' => 'Recent', 'popular' => 'Popular', 'trending' => 'Trending']" />
                 </label>
 
                 <button type="submit"
