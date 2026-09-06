@@ -53,4 +53,13 @@ class SauceAnswer extends Model
     {
         return $this->hasMany(SauceAnswerLike::class);
     }
+
+    /**
+     * The comments on this answer. Comments are flat replies, so there is
+     * no nesting.
+     */
+    public function comments(): HasMany
+    {
+        return $this->hasMany(SauceAnswerComment::class);
+    }
 }
