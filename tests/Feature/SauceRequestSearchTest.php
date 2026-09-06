@@ -40,6 +40,11 @@ function solveSauceRequest(SauceRequest $sauceRequest, User $user): SauceAnswer
 // The search page
 // ---------------------------------------------------------------------------
 
+it('redirects the old /sauce-requests index to the search page', function () {
+    $this->get('/sauce-requests')
+        ->assertRedirect(route('search'));
+});
+
 it('renders an empty state when no keyword is provided', function () {
     $this->get(route('search'))
         ->assertOk()
