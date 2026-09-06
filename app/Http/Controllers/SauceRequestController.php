@@ -315,6 +315,12 @@ class SauceRequestController extends Controller
             );
         }
 
+        // Whether the current user has bookmarked the request, exposed as
+        // bookmarked_by_me so the view can render the toggle state.
+        $sauceRequest->loadCount([
+            'bookmarks as bookmarked_by_me' => fn ($query) => $query->where('user_id', $userId),
+        ]);
+
         return view('pages.sauce-requests.show', [
             'sauceRequest' => $sauceRequest,
             'isOwner' => $request->user()?->is($sauceRequest->user) ?? false,
@@ -376,6 +382,44 @@ class SauceRequestController extends Controller
         return redirect()
             ->route('sauce-requests.index')
             ->with('status', 'Your sauce request has been deleted.');
+    }
+
+    /**
+     * Bookmark a sauce request so the user can track its progress.
+     *
+     * Bookmarks are only shown on published requests, so drafts are treated
+     * as if they do not exist.
+     */
+    public function bookmark(Request $request, SauceRequest $sauceRequest): RedirectResponse
+    {
+        if ($sauceRequest->published_at === null) {
+            abort(404);
+        }
+
+        $request->user()->bookmarks()->firstOrCreate([
+            'sauce_request_id' => $sauceRequest->id,
+        ]);
+
+        return back()->with('status', 'You bookmarked this sauce request.');
+    }
+
+    /**
+     * Remove the user's bookmark from a sauce request.
+     *
+     * Bookmarks are only shown on published requests, so drafts are treated
+     * as if they do not exist.
+     */
+    public function unbookmark(Request $request, SauceRequest $sauceRequest): RedirectResponse
+    {
+        if ($sauceRequest->published_at === null) {
+            abort(404);
+        }
+
+        $request->user()->bookmarks()
+            ->where('sauce_request_id', $sauceRequest->id)
+            ->delete();
+
+        return back()->with('status', 'You removed your bookmark.');
     }
 
     /**
