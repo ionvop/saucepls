@@ -347,7 +347,7 @@
                                             {{ $answer->user?->username ?? 'Unknown' }}
                                         </a>
                                         <span>·</span>
-                                        <span data-time="{{ $answer->created_at?->toIso8601String() }}" data-format="date">{{ $answer->created_at?->format('M j, Y') }}</span>
+                                        <span data-time="{{ $answer->created_at?->toIso8601String() }}" data-format="relative">{{ $answer->created_at?->diffForHumans() }}</span>
 
                                         @auth
                                             @if ($answer->liked_by_me)
@@ -486,7 +486,7 @@
                                                                 {{ $comment->user?->username ?? 'Unknown' }}
                                                             </a>
                                                             <span>·</span>
-                                                            <span data-time="{{ $comment->created_at?->toIso8601String() }}" data-format="date">{{ $comment->created_at?->format('M j, Y') }}</span>
+                                                            <span data-time="{{ $comment->created_at?->toIso8601String() }}" data-format="relative">{{ $comment->created_at?->diffForHumans() }}</span>
 
                                                             @auth
                                                                 @if ($comment->liked_by_me)
@@ -601,7 +601,7 @@
                                             {{ $comment->user?->username ?? 'Unknown' }}
                                         </a>
                                         <span>·</span>
-                                        <span data-time="{{ $comment->created_at?->toIso8601String() }}" data-format="date">{{ $comment->created_at?->format('M j, Y') }}</span>
+                                        <span data-time="{{ $comment->created_at?->toIso8601String() }}" data-format="relative">{{ $comment->created_at?->diffForHumans() }}</span>
 
                                         @auth
                                             @if ($comment->liked_by_me)
@@ -670,7 +670,7 @@
                                                             {{ $reply->user?->username ?? 'Unknown' }}
                                                         </a>
                                                         <span>·</span>
-                                                        <span data-time="{{ $reply->created_at?->toIso8601String() }}" data-format="date">{{ $reply->created_at?->format('M j, Y') }}</span>
+                                                        <span data-time="{{ $reply->created_at?->toIso8601String() }}" data-format="relative">{{ $reply->created_at?->diffForHumans() }}</span>
 
                                                         @auth
                                                             @if ($reply->liked_by_me)
