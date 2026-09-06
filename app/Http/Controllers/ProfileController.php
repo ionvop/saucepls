@@ -30,9 +30,21 @@ class ProfileController extends Controller
 
         $isOwner = $request->user()?->is($user) ?? false;
 
+        // Follow state: whether the viewing user follows the profile owner.
+        // Only relevant when the viewer is not the owner themselves.
+        $isFollowing = false;
+        if (! $isOwner && $request->user()) {
+            $isFollowing = $user->followers()
+                ->where('follower_id', $request->user()->id)
+                ->exists();
+        }
+
+        $user->loadCount('followers');
+
         return view('pages.profile', [
             'user' => $user,
             'isOwner' => $isOwner,
+            'isFollowing' => $isFollowing,
             'bioHtml' => $this->renderMarkdown($user->description),
         ]);
     }
