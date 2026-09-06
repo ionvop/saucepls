@@ -13,11 +13,55 @@
 
         {{-- Search controls --}}
         <form method="GET" action="{{ route('search') }}" class="mt-6 space-y-4">
-            {{-- Keyword --}}
-            <div class="relative">
-                <x-lucide-search class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
-                <input type="search" name="q" value="{{ $q }}" placeholder="Search sauce requests..."
-                    class="w-full rounded-lg border border-white/10 bg-white/[0.03] py-2 pl-10 pr-3 text-sm text-white placeholder-gray-500 focus:border-[#5555AA]/60 focus:outline-none focus:ring-1 focus:ring-[#5555AA]/40">
+            {{-- Keyword with tag autocomplete --}}
+            <div
+                class="relative"
+                x-data="tagSuggestions({ endpoint: @js(route('tags.autocomplete')) })"
+            >
+                <x-lucide-search class="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-gray-500" />
+                <input
+                    type="search"
+                    name="q"
+                    value="{{ $q }}"
+                    placeholder="Search sauce requests..."
+                    x-model="value"
+                    x-ref="input"
+                    @input="open = true"
+                    @keydown.arrow-down.prevent="moveHighlight(1)"
+                    @keydown.arrow-up.prevent="moveHighlight(-1)"
+                    @keydown.enter="open && suggestions.length ? (select(highlightIndex), $event.preventDefault()) : null"
+                    @keydown.tab="open ? (select(highlightIndex), $event.preventDefault()) : null"
+                    @keydown.escape="close()"
+                    @click.outside="close()"
+                    class="w-full rounded-lg border border-white/10 bg-white/[0.03] py-2 pl-10 pr-3 text-sm text-white placeholder-gray-500 focus:border-[#5555AA]/60 focus:outline-none focus:ring-1 focus:ring-[#5555AA]/40"
+                >
+
+                {{-- Suggestion dropdown --}}
+                <div
+                    x-show="open && suggestions.length"
+                    x-transition.opacity.duration.150ms
+                    x-cloak
+                    role="listbox"
+                    aria-label="Tag suggestions"
+                    class="absolute inset-x-0 top-full z-40 mt-1 overflow-hidden rounded-lg border border-white/10 bg-[#1a1a1a] py-1 shadow-xl shadow-black/40"
+                >
+                    <template x-for="(tag, index) in suggestions" :key="tag.id">
+                        <button
+                            type="button"
+                            role="option"
+                            :aria-selected="highlightIndex === index"
+                            @mouseenter="highlightIndex = index"
+                            @mousedown.prevent="select(index)"
+                            class="flex w-full items-center justify-between gap-3 px-3 py-1.5 text-left text-sm transition"
+                            :class="highlightIndex === index
+                                ? 'bg-[#5555AA]/20 font-medium text-white'
+                                : 'text-gray-200 hover:bg-white/5 hover:text-white'"
+                        >
+                            <span x-text="tag.name"></span>
+                            <span class="shrink-0 text-xs text-gray-500" x-text="`${tag.usage_count} request${tag.usage_count === 1 ? '' : 's'}`"></span>
+                        </button>
+                    </template>
+                </div>
             </div>
 
             {{-- Filter & sort --}}
