@@ -88,7 +88,7 @@
                         {{ $sauceRequest->user?->username ?? 'Unknown' }}
                     </a>
                     <span>·</span>
-                    <span data-time="{{ $sauceRequest->created_at?->toIso8601String() }}" data-format="date">{{ $sauceRequest->created_at?->format('M j, Y') }}</span>
+                    <span data-time="{{ $sauceRequest->created_at?->toIso8601String() }}" data-format="datetime">{{ $sauceRequest->created_at?->format('M j, Y g:i A') }}</span>
                 </div>
 
                 {{-- Description --}}
