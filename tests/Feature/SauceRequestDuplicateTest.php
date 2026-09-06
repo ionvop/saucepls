@@ -42,9 +42,9 @@ it('redirects to the duplicate page when a near-duplicate is found', function ()
         ->andReturn('');
 
     $this->mock(TagInferenceService::class)
-        ->shouldReceive('infer')
+        ->shouldReceive('inferWithRating')
         ->once()
-        ->andReturn([]);
+        ->andReturn(emptyInferenceResult());
 
     $this->mock(DuplicateDetectionService::class)
         ->shouldReceive('findDuplicate')
@@ -76,9 +76,9 @@ it('redirects to the details page when no duplicate is found', function () {
         ->andReturn('');
 
     $this->mock(TagInferenceService::class)
-        ->shouldReceive('infer')
+        ->shouldReceive('inferWithRating')
         ->once()
-        ->andReturn([]);
+        ->andReturn(emptyInferenceResult());
 
     $this->mock(SauceNaoService::class)
         ->shouldReceive('lookup')
@@ -152,8 +152,8 @@ it('rate limits sauce request uploads', function () {
         ->andReturn('');
 
     $this->mock(TagInferenceService::class)
-        ->shouldReceive('infer')
-        ->andReturn([]);
+        ->shouldReceive('inferWithRating')
+        ->andReturn(emptyInferenceResult());
 
     $this->actingAs($user);
 
