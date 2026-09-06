@@ -118,6 +118,22 @@ class User extends Authenticatable
     }
 
     /**
+     * The comments the user has written on sauce answers.
+     */
+    public function answerComments(): HasMany
+    {
+        return $this->hasMany(SauceAnswerComment::class);
+    }
+
+    /**
+     * The likes the user has given to sauce answer comments.
+     */
+    public function answerCommentLikes(): HasMany
+    {
+        return $this->hasMany(SauceAnswerCommentLike::class);
+    }
+
+    /**
      * Whether the user is a moderator or admin (i.e. not a regular member).
      */
     public function isStaff(): bool
