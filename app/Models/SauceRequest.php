@@ -152,34 +152,48 @@ class SauceRequest extends Model
     {
         $words = [];
 
-        if (preg_match_all('/"([^"]*)"|(\S+)/', $search, $matches, PREG_SET_ORDER) === false) {
+        // Match, in order of precedence:
+        //   1. A typed prefix followed by a quoted phrase, e.g. tag:"coconut doggy"
+        //      or -text:"coconut doggy" (the prefix may carry an exclusion hyphen).
+        //   2. A bare quoted phrase, e.g. "coconut doggy".
+        //   3. Any other whitespace-delimited token, e.g. kitty, -kitty, tag:kitty.
+        if (preg_match_all('/(-?(?:tag|text|since|until|within):"[^"]*")|("[^"]*")|(\S+)/', $search, $matches, PREG_SET_ORDER) === false) {
             return $words;
         }
 
         foreach ($matches as $match) {
-            $raw = $match[1] !== '' ? $match[1] : $match[2];
-
-            if ($raw === '') {
-                continue;
-            }
-
-            $exclude = str_starts_with($raw, '-');
+            $exclude = false;
             $field = null;
 
-            // Strip a leading hyphen (the exclusion marker) before matching
-            // typed prefixes, so `-tag:kitty` and `-text:"kitty"` parse as
-            // scoped exclusions rather than general exclusions for the
-            // literal `tag:kitty` / `text:"kitty"` strings.
-            if ($exclude) {
-                $raw = ltrim($raw, '-');
-            }
+            if ($match[1] !== '') {
+                // Typed prefix followed by a quoted phrase: tag:"coconut doggy".
+                $field = strtolower(ltrim($match[1], '-'));
+                $exclude = str_starts_with($match[1], '-');
+                $raw = preg_replace('/^.*?:"([^"]*)"$/', '$1', $match[1]) ?? '';
+            } else {
+                $raw = $match[2] !== '' ? $match[2] : $match[3];
 
-            if (preg_match('/^(tag|text|since|until|within):"([^"]*)"$/i', $raw, $typed) === 1) {
-                $field = strtolower($typed[1]);
-                $raw = $typed[2];
-            } elseif (preg_match('/^(tag|text|since|until|within):(\S+)$/i', $raw, $typed) === 1) {
-                $field = strtolower($typed[1]);
-                $raw = $typed[2];
+                if ($raw === '') {
+                    continue;
+                }
+
+                $exclude = str_starts_with($raw, '-');
+
+                // Strip a leading hyphen (the exclusion marker) before matching
+                // typed prefixes, so `-tag:kitty` and `-text:"kitty"` parse as
+                // scoped exclusions rather than general exclusions for the
+                // literal `tag:kitty` / `text:"kitty"` strings.
+                if ($exclude) {
+                    $raw = ltrim($raw, '-');
+                }
+
+                if (preg_match('/^(tag|text|since|until|within):"([^"]*)"$/i', $raw, $typed) === 1) {
+                    $field = strtolower($typed[1]);
+                    $raw = $typed[2];
+                } elseif (preg_match('/^(tag|text|since|until|within):(\S+)$/i', $raw, $typed) === 1) {
+                    $field = strtolower($typed[1]);
+                    $raw = $typed[2];
+                }
             }
 
             if ($raw === '') {
