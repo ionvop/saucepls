@@ -105,6 +105,24 @@ Alpine.data('explicitContentDialog', () => ({
  * user toggles the switch. Uses the same cookie format as the first-visit
  * dialog so the feed's guest filtering picks it up immediately.
  */
+
+/**
+ * Populates the search form's hidden `tz` input with the visitor's IANA
+ * timezone so date prefixes (since:/until:) can be converted from the
+ * visitor's timezone to UTC on the server. When JavaScript is disabled the
+ * input stays empty and the server falls back to UTC.
+ */
+Alpine.data('searchTimezone', () => ({
+    init() {
+        try {
+            const timeZone = new Intl.DateTimeFormat().resolvedOptions().timeZone;
+            this.$refs.tz.value = timeZone;
+        } catch {
+            // Leave empty; the server defaults to UTC.
+        }
+    },
+}));
+
 /**
  * Reusable confirmation dialog.
  *
