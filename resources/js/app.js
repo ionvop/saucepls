@@ -190,6 +190,12 @@ Alpine.data('tagSuggestions', ({ endpoint }) => ({
     controller: null,
 
     init() {
+        // Preserve the server-rendered query (from ?q=...) so the field
+        // retains the search term on page load. Without this, Alpine's
+        // x-model binding would overwrite the input value with the initial
+        // empty string.
+        this.value = this.$refs.input.value;
+
         // Re-run the last word/caret logic and debounced fetch on every
         // keystroke, including when no actual value change occurs.
         this.$watch('value', () => this.scheduleLookup());
