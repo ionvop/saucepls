@@ -122,6 +122,29 @@ it('excludes results containing a hyphen-prefixed word', function () {
         ->assertDontSee('girl with cat');
 });
 
+it('excludes requests carrying a tag with a -tag: prefix', function () {
+    $owner = User::factory()->create();
+    $tagged = makeSauceRequest($owner, ['title' => 'Tagged image', 'description' => '', 'text' => '']);
+    $untagged = makeSauceRequest($owner, ['title' => 'Plain image', 'description' => '', 'text' => '']);
+    attachTag($tagged, '1girl');
+
+    $this->get(route('search', ['q' => '-tag:1girl']))
+        ->assertOk()
+        ->assertSee('Plain image')
+        ->assertDontSee('Tagged image');
+});
+
+it('excludes requests whose text contains a word with a -text: prefix', function () {
+    $owner = User::factory()->create();
+    makeSauceRequest($owner, ['title' => 'Has text', 'text' => 'the sign says coconut']);
+    makeSauceRequest($owner, ['title' => 'No text', 'text' => 'nothing relevant']);
+
+    $this->get(route('search', ['q' => '-text:coconut']))
+        ->assertOk()
+        ->assertSee('No text')
+        ->assertDontSee('Has text');
+});
+
 it('narrows a word to the tags field with a tag: prefix', function () {
     $owner = User::factory()->create();
     $tagged = makeSauceRequest($owner, ['title' => 'Has the tag', 'description' => '', 'text' => '']);
