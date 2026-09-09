@@ -12,7 +12,17 @@
         </div>
 
         {{-- Search controls --}}
-        <form method="GET" action="{{ route('search') }}" class="mt-6 space-y-4">
+        <form
+            method="GET"
+            action="{{ route('search') }}"
+            class="mt-6 space-y-4"
+            x-data="searchTimezone"
+        >
+            {{-- Browser timezone, sent so date prefixes (since:/until:) can be
+                 converted from the visitor's timezone to UTC. Falls back to UTC
+                 on the server when JavaScript is disabled. --}}
+            <input type="hidden" name="tz" x-ref="tz">
+
             {{-- Keyword with tag autocomplete --}}
             <div
                 class="relative"
@@ -87,7 +97,7 @@
 
         {{-- Search hint --}}
         <p class="mt-3 text-xs text-gray-500">
-            Tip: use <code class="text-gray-400">tag:1girl</code> to match a tag only, <code class="text-gray-400">text:"coconut doggy"</code> for an exact phrase, and <code class="text-gray-400">-kitty</code> to exclude a word.
+            Tip: use <code class="text-gray-400">tag:1girl</code> to match a tag only, <code class="text-gray-400">text:"coconut doggy"</code> for an exact phrase, <code class="text-gray-400">-kitty</code> to exclude a word, and <code class="text-gray-400">since:2026-04-20</code>, <code class="text-gray-400">until:2026-09-11</code>, or <code class="text-gray-400">within:5d</code> to filter by published date.
         </p>
 
         {{-- Results --}}
