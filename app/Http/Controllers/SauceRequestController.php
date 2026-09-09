@@ -20,6 +20,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
+use DateTimeZone;
 
 class SauceRequestController extends Controller
 {
@@ -52,12 +53,17 @@ class SauceRequestController extends Controller
         $sort = $request->query('sort', 'recent');
         $sort = in_array($sort, ['recent', 'popular', 'trending'], true) ? $sort : 'recent';
 
+        // timezone: IANA identifier sent by the browser for date prefixes.
+        // Defaults to UTC when absent or invalid.
+        $timezone = (string) $request->query('tz', 'UTC');
+        $timezone = in_array($timezone, DateTimeZone::listIdentifiers(), true) ? $timezone : 'UTC';
+
         $sauceRequests = SauceRequest::query()
             ->with('user')
             ->withCount('bookmarks as bookmarks_count')
             ->published()
             ->when($hideNsfw, fn ($query) => $query->where('is_explicit', false))
-            ->when(trim((string) $request->query('q')), fn ($query, $q) => $query->search($q))
+            ->when(trim((string) $request->query('q')), fn ($query, $q) => $query->search($q, $timezone))
             ->when($filter === 'solved', fn ($query) => $query->solved())
             ->when($filter === 'unsolved', fn ($query) => $query->unsolved())
             ->when(
