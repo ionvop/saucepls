@@ -166,15 +166,20 @@ class SauceRequest extends Model
             $exclude = str_starts_with($raw, '-');
             $field = null;
 
+            // Strip a leading hyphen (the exclusion marker) before matching
+            // typed prefixes, so `-tag:kitty` and `-text:"kitty"` parse as
+            // scoped exclusions rather than general exclusions for the
+            // literal `tag:kitty` / `text:"kitty"` strings.
+            if ($exclude) {
+                $raw = ltrim($raw, '-');
+            }
+
             if (preg_match('/^(tag|text|since|until|within):"([^"]*)"$/i', $raw, $typed) === 1) {
                 $field = strtolower($typed[1]);
                 $raw = $typed[2];
-                $exclude = false;
             } elseif (preg_match('/^(tag|text|since|until|within):(\S+)$/i', $raw, $typed) === 1) {
                 $field = strtolower($typed[1]);
                 $raw = $typed[2];
-            } elseif ($exclude) {
-                $raw = ltrim($raw, '-');
             }
 
             if ($raw === '') {
