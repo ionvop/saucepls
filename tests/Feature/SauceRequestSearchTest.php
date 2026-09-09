@@ -341,6 +341,25 @@ it('supports weeks and hours for the within: prefix', function () {
         ->assertDontSee('Older than hours');
 });
 
+it('supports months and years for the within: prefix', function () {
+    $owner = User::factory()->create();
+    makeSauceRequest($owner, ['title' => 'Within a month', 'published_at' => now()->subDays(20)]);
+    makeSauceRequest($owner, ['title' => 'Older than a month', 'published_at' => now()->subDays(45)]);
+
+    $this->get(route('search', ['q' => 'within:1m']))
+        ->assertOk()
+        ->assertSee('Within a month')
+        ->assertDontSee('Older than a month');
+
+    makeSauceRequest($owner, ['title' => 'Within a year', 'published_at' => now()->subMonths(6)]);
+    makeSauceRequest($owner, ['title' => 'Older than a year', 'published_at' => now()->subMonths(14)]);
+
+    $this->get(route('search', ['q' => 'within:1y']))
+        ->assertOk()
+        ->assertSee('Within a year')
+        ->assertDontSee('Older than a year');
+});
+
 it('converts a since: date from the browser timezone to UTC', function () {
     $owner = User::factory()->create();
 
