@@ -134,12 +134,12 @@ it('excludes requests carrying a tag with a -tag: prefix', function () {
         ->assertDontSee('Tagged image');
 });
 
-it('excludes requests whose text contains a word with a -text: prefix', function () {
+it('excludes requests whose text contains a phrase with a -text: prefix', function () {
     $owner = User::factory()->create();
-    makeSauceRequest($owner, ['title' => 'Has text', 'text' => 'the sign says coconut']);
+    makeSauceRequest($owner, ['title' => 'Has text', 'text' => 'the sign says coconut doggy']);
     makeSauceRequest($owner, ['title' => 'No text', 'text' => 'nothing relevant']);
 
-    $this->get(route('search', ['q' => '-text:coconut']))
+    $this->get(route('search', ['q' => '-text:"coconut doggy"']))
         ->assertOk()
         ->assertSee('No text')
         ->assertDontSee('Has text');
@@ -152,6 +152,18 @@ it('narrows a word to the tags field with a tag: prefix', function () {
     attachTag($tagged, '1girl');
 
     $this->get(route('search', ['q' => 'tag:1girl']))
+        ->assertOk()
+        ->assertSee('Has the tag')
+        ->assertDontSee('has the tag nowhere');
+});
+
+it('narrows a quoted phrase to the tags field with a tag: prefix', function () {
+    $owner = User::factory()->create();
+    $tagged = makeSauceRequest($owner, ['title' => 'Has the tag', 'description' => '', 'text' => '']);
+    $onlyInTitle = makeSauceRequest($owner, ['title' => 'has the tag nowhere', 'description' => '', 'text' => '']);
+    attachTag($tagged, 'long hair');
+
+    $this->get(route('search', ['q' => 'tag:"long hair"']))
         ->assertOk()
         ->assertSee('Has the tag')
         ->assertDontSee('has the tag nowhere');
