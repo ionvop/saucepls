@@ -10,7 +10,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
+use Carbon\CarbonInterval;
 
 #[Fillable([
     'user_id',
@@ -87,12 +89,17 @@ class SauceRequest extends Model
      *  - Quoted phrases: "coconut doggy" matches the exact phrase.
      *  - Typed prefixes: tag:1girl text:"coconut doggy" narrow a word to a
      *    single field.
+     *  - Date prefixes: since:2026-04-20 until:2026-09-11 within:5d filter by
+     *    the published date. since/until dates are interpreted in the given
+     *    timezone and converted to UTC to align with the stored naive UTC
+     *    datetimes.
      *  - Exclusions: a leading hyphen (e.g. -kitty) excludes requests that
      *    contain the word anywhere.
      *
      * @param  string|null  $search
+     * @param  string|null  $timezone  IANA timezone for date prefixes (defaults to UTC).
      */
-    public function scopeSearch(Builder $query, ?string $search): Builder
+    public function scopeSearch(Builder $query, ?string $search, ?string $timezone = null): Builder
     {
         $search = trim((string) $search);
 
@@ -101,8 +108,8 @@ class SauceRequest extends Model
         }
 
         foreach ($this->tokenizeSearch($search) as $word) {
-            $query->where(function (Builder $sub) use ($word) {
-                $this->applyWordMatches($sub, $word);
+            $query->where(function (Builder $sub) use ($word, $timezone) {
+                $this->applyWordMatches($sub, $word, $timezone);
             });
         }
 
@@ -158,11 +165,11 @@ class SauceRequest extends Model
             $exclude = str_starts_with($raw, '-');
             $field = null;
 
-            if (preg_match('/^(tag|text):"([^"]*)"$/i', $raw, $typed) === 1) {
+            if (preg_match('/^(tag|text|since|until|within):"([^"]*)"$/i', $raw, $typed) === 1) {
                 $field = strtolower($typed[1]);
                 $raw = $typed[2];
                 $exclude = false;
-            } elseif (preg_match('/^(tag|text):(\S+)$/i', $raw, $typed) === 1) {
+            } elseif (preg_match('/^(tag|text|since|until|within):(\S+)$/i', $raw, $typed) === 1) {
                 $field = strtolower($typed[1]);
                 $raw = $typed[2];
             } elseif ($exclude) {
@@ -187,8 +194,9 @@ class SauceRequest extends Model
      * Apply a single search word's filters inside a shared where group.
      *
      * @param  array{field: string|null, exclude: bool, term: string}  $word
+     * @param  string|null  $timezone  IANA timezone for date prefixes.
      */
-    private function applyWordMatches(Builder $query, array $word): void
+    private function applyWordMatches(Builder $query, array $word, ?string $timezone = null): void
     {
         $term = $this->normalizeSearchTerm($word['term']);
 
@@ -200,6 +208,12 @@ class SauceRequest extends Model
 
         if ($word['field'] === 'text') {
             $this->applyTextMatch($query, $term, $word['exclude']);
+
+            return;
+        }
+
+        if (in_array($word['field'], ['since', 'until', 'within'], true)) {
+            $this->applyDateMatch($query, $word['field'], $term, $timezone);
 
             return;
         }
@@ -233,6 +247,84 @@ class SauceRequest extends Model
         }
 
         $query->whereLike('text', '%'.$term.'%');
+    }
+
+    /**
+     * Apply a date filter (since, until, or within) against the published
+     * date. since/until dates are interpreted in the user's timezone and
+     * converted to UTC to align with the stored naive UTC datetimes. Invalid
+     * values are ignored so the rest of the search still applies.
+     *
+     * @param  string  $field     since | until | within
+     * @param  string  $term      the raw date or duration value.
+     * @param  string|null  $timezone  IANA timezone for since/until.
+     */
+    private function applyDateMatch(Builder $query, string $field, string $term, ?string $timezone = null): void
+    {
+        if ($field === 'within') {
+            $duration = $this->parseDuration($term);
+
+            if ($duration === null) {
+                return;
+            }
+
+            $query->where('published_at', '>=', now()->sub($duration));
+
+            return;
+        }
+
+        $date = $this->parseDate($term, $timezone);
+
+        if ($date === null) {
+            return;
+        }
+
+        if ($field === 'since') {
+            $query->where('published_at', '>=', $date->startOfDay()->setTimezone('UTC'));
+
+            return;
+        }
+
+        $query->where('published_at', '<=', $date->endOfDay()->setTimezone('UTC'));
+    }
+
+    /**
+     * Parse a Y-m-d date string in the given IANA timezone, or null when the
+     * value is not a valid date. The timezone defaults to UTC.
+     *
+     * @return \Illuminate\Support\Carbon|null
+     */
+    private function parseDate(string $term, ?string $timezone = null): ?Carbon
+    {
+        $timezone = $timezone ?: 'UTC';
+
+        try {
+            return Carbon::createFromFormat('Y-m-d', $term, $timezone);
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+
+    /**
+     * Parse a relative duration such as "5d", "2w", or "12h" into a Carbon
+     * interval, or null when the value is not a valid duration.
+     *
+     * @return \Carbon\CarbonInterval|null
+     */
+    private function parseDuration(string $term): ?CarbonInterval
+    {
+        if (preg_match('/^(\d+)([dwh])$/i', $term, $match) !== 1) {
+            return null;
+        }
+
+        $amount = (int) $match[1];
+        $unit = strtolower($match[2]);
+
+        return match ($unit) {
+            'd' => CarbonInterval::days($amount),
+            'w' => CarbonInterval::weeks($amount),
+            'h' => CarbonInterval::hours($amount),
+        };
     }
 
     /**
