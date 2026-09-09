@@ -6,6 +6,7 @@ use App\Models\SauceRequestBookmark;
 use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 
 uses(RefreshDatabase::class);
 
@@ -282,4 +283,95 @@ it('honors the authenticated user hide_nsfw preference', function () {
         ->get(route('search'))
         ->assertOk()
         ->assertDontSee('Explicit one');
+});
+
+// ---------------------------------------------------------------------------
+// Date prefixes (since / until / within)
+// ---------------------------------------------------------------------------
+
+it('filters to requests published on or after a since: date (UTC)', function () {
+    $owner = User::factory()->create();
+    makeSauceRequest($owner, ['title' => 'On the boundary', 'published_at' => Carbon::createFromFormat('Y-m-d H:i:s', '2026-04-20 00:00:00', 'UTC')]);
+    makeSauceRequest($owner, ['title' => 'Before the boundary', 'published_at' => Carbon::createFromFormat('Y-m-d H:i:s', '2026-04-19 23:59:59', 'UTC')]);
+
+    $this->get(route('search', ['q' => 'since:2026-04-20']))
+        ->assertOk()
+        ->assertSee('On the boundary')
+        ->assertDontSee('Before the boundary');
+});
+
+it('filters to requests published on or before an until: date (UTC)', function () {
+    $owner = User::factory()->create();
+    makeSauceRequest($owner, ['title' => 'On the boundary', 'published_at' => Carbon::createFromFormat('Y-m-d H:i:s', '2026-09-11 23:59:59', 'UTC')]);
+    makeSauceRequest($owner, ['title' => 'After the boundary', 'published_at' => Carbon::createFromFormat('Y-m-d H:i:s', '2026-09-12 00:00:00', 'UTC')]);
+
+    $this->get(route('search', ['q' => 'until:2026-09-11']))
+        ->assertOk()
+        ->assertSee('On the boundary')
+        ->assertDontSee('After the boundary');
+});
+
+it('filters to requests published within the last N days', function () {
+    $owner = User::factory()->create();
+    makeSauceRequest($owner, ['title' => 'Recent', 'published_at' => now()->subDays(4)]);
+    makeSauceRequest($owner, ['title' => 'Too old', 'published_at' => now()->subDays(6)]);
+
+    $this->get(route('search', ['q' => 'within:5d']))
+        ->assertOk()
+        ->assertSee('Recent')
+        ->assertDontSee('Too old');
+});
+
+it('supports weeks and hours for the within: prefix', function () {
+    $owner = User::factory()->create();
+    makeSauceRequest($owner, ['title' => 'Within a week', 'published_at' => now()->subDays(6)]);
+    makeSauceRequest($owner, ['title' => 'Older than a week', 'published_at' => now()->subDays(15)]);
+
+    $this->get(route('search', ['q' => 'within:2w']))
+        ->assertOk()
+        ->assertSee('Within a week')
+        ->assertDontSee('Older than a week');
+
+    makeSauceRequest($owner, ['title' => 'Within hours', 'published_at' => now()->subHours(10)]);
+    makeSauceRequest($owner, ['title' => 'Older than hours', 'published_at' => now()->subHours(14)]);
+
+    $this->get(route('search', ['q' => 'within:12h']))
+        ->assertOk()
+        ->assertSee('Within hours')
+        ->assertDontSee('Older than hours');
+});
+
+it('converts a since: date from the browser timezone to UTC', function () {
+    $owner = User::factory()->create();
+
+    // 2026-04-20 00:00:00 in America/New_York (-04:00) is 2026-04-20 04:00:00 UTC.
+    makeSauceRequest($owner, ['title' => 'After NY midnight', 'published_at' => Carbon::createFromFormat('Y-m-d H:i:s', '2026-04-20 04:00:00', 'UTC')]);
+    makeSauceRequest($owner, ['title' => 'Before NY midnight', 'published_at' => Carbon::createFromFormat('Y-m-d H:i:s', '2026-04-20 03:59:59', 'UTC')]);
+
+    $this->get(route('search', ['q' => 'since:2026-04-20', 'tz' => 'America/New_York']))
+        ->assertOk()
+        ->assertSee('After NY midnight')
+        ->assertDontSee('Before NY midnight');
+});
+
+it('ignores invalid date and duration values', function () {
+    $owner = User::factory()->create();
+    makeSauceRequest($owner, ['title' => 'Original title']);
+
+    $this->get(route('search', ['q' => 'since:not-a-date until:also-bad within:xyz']))
+        ->assertOk()
+        ->assertSee('Original title');
+});
+
+it('combines date prefixes with other search words', function () {
+    $owner = User::factory()->create();
+    $matching = makeSauceRequest($owner, ['title' => 'coconut doggy', 'published_at' => now()->subDays(2)]);
+    attachTag($matching, '1girl');
+    makeSauceRequest($owner, ['title' => 'coconut doggy', 'published_at' => now()->subDays(10)]);
+    makeSauceRequest($owner, ['title' => 'coconut kitty', 'published_at' => now()->subDays(2)]);
+
+    $this->get(route('search', ['q' => 'coconut tag:1girl within:5d']))
+        ->assertOk()
+        ->assertSee('coconut doggy')
+        ->assertDontSee('coconut kitty');
 });
