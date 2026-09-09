@@ -90,9 +90,10 @@ class SauceRequest extends Model
      *  - Typed prefixes: tag:1girl text:"coconut doggy" narrow a word to a
      *    single field.
      *  - Date prefixes: since:2026-04-20 until:2026-09-11 within:5d filter by
-     *    the published date. since/until dates are interpreted in the given
-     *    timezone and converted to UTC to align with the stored naive UTC
-     *    datetimes.
+     *    the published date. within accepts durations in hours (h), days (d),
+     *    weeks (w), months (m), or years (y). since/until dates are interpreted
+     *    in the given timezone and converted to UTC to align with the stored
+     *    naive UTC datetimes.
      *  - Exclusions: a leading hyphen (e.g. -kitty) excludes requests that
      *    contain the word anywhere.
      *
@@ -306,14 +307,14 @@ class SauceRequest extends Model
     }
 
     /**
-     * Parse a relative duration such as "5d", "2w", or "12h" into a Carbon
-     * interval, or null when the value is not a valid duration.
+     * Parse a relative duration such as "5d", "2w", "12h", "3m", or "2y"
+     * into a Carbon interval, or null when the value is not a valid duration.
      *
      * @return \Carbon\CarbonInterval|null
      */
     private function parseDuration(string $term): ?CarbonInterval
     {
-        if (preg_match('/^(\d+)([dwh])$/i', $term, $match) !== 1) {
+        if (preg_match('/^(\d+)([dwhmy])$/i', $term, $match) !== 1) {
             return null;
         }
 
@@ -324,6 +325,8 @@ class SauceRequest extends Model
             'd' => CarbonInterval::days($amount),
             'w' => CarbonInterval::weeks($amount),
             'h' => CarbonInterval::hours($amount),
+            'm' => CarbonInterval::months($amount),
+            'y' => CarbonInterval::years($amount),
         };
     }
 
