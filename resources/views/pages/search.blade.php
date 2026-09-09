@@ -97,7 +97,7 @@
 
         {{-- Search hint --}}
         <p class="mt-3 text-xs text-gray-500">
-            Tip: use <code class="text-gray-400">tag:1girl</code> to match a tag only, <code class="text-gray-400">text:"coconut doggy"</code> for an exact phrase, <code class="text-gray-400">-kitty</code> to exclude a word, and <code class="text-gray-400">since:2026-04-20</code>, <code class="text-gray-400">until:2026-09-11</code>, or <code class="text-gray-400">within:5d</code> (hours, days, weeks, months, or years) to filter by published date.
+            Tip: use <code class="text-gray-400">tag:1girl</code> to match a tag only, <code class="text-gray-400">text:"coconut doggy"</code> for an exact phrase, and <code class="text-gray-400">-kitty</code> to exclude a word.
         </p>
 
         {{-- Results --}}
