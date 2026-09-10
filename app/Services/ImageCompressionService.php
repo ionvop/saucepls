@@ -81,6 +81,12 @@ class ImageCompressionService
             file_put_contents($temp, $compressed);
             rename($temp, $path);
 
+            // tempnam() creates the temp file with 0600 permissions, and
+            // rename() carries those over to the final path. Restore
+            // world-readable permissions so the web server can serve the
+            // image (otherwise it returns HTTP 403).
+            chmod($path, 0644);
+
             return true;
         } finally {
             imagedestroy($image);
