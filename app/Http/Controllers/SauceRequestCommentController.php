@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\SauceRequest;
 use App\Models\SauceRequestComment;
+use App\Notifications\NewRequestCommentNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -40,12 +41,22 @@ class SauceRequestCommentController extends Controller
             );
         }
 
-        SauceRequestComment::create([
+        $comment = SauceRequestComment::create([
             'sauce_request_id' => $sauceRequest->id,
             'user_id' => $request->user()->id,
             'parent_id' => $parentId,
             'content' => $validated['content'],
         ]);
+
+        // Notify the request author that their request received a comment.
+        if (! $sauceRequest->user->is($request->user())) {
+            $sauceRequest->user->notifyNow(new NewRequestCommentNotification($comment));
+        }
+
+        // Notify the parent comment author when this is a reply.
+        if ($parentId !== null && ! $parent->user->is($request->user())) {
+            $parent->user->notifyNow(new NewRequestCommentNotification($comment));
+        }
 
         return back()->with('status', 'Your comment has been posted.');
     }
