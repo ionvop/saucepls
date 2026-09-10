@@ -302,3 +302,18 @@ Alpine.data('tagSuggestions', ({ endpoint }) => ({
 }));
 
 Alpine.start();
+
+/**
+ * Register the service worker for offline support (PWA).
+ *
+ * Only registered in a service-worker-capable environment and when the page is
+ * served over http(s). Skipped automatically by `vite dev` in development
+ * (import.meta.env.DEV), preventing stale caches during local iteration.
+ */
+if ('serviceWorker' in navigator && !import.meta.env.DEV) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {
+            // Swallow registration errors (e.g. file:// or sandboxed contexts).
+        });
+    });
+}
