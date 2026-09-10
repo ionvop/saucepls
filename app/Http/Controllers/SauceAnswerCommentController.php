@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\SauceAnswer;
 use App\Models\SauceAnswerComment;
 use App\Models\SauceRequest;
+use App\Notifications\NewAnswerCommentNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -29,11 +30,22 @@ class SauceAnswerCommentController extends Controller
             'content' => ['required', 'string', 'max:5000'],
         ]);
 
-        SauceAnswerComment::create([
+        $comment = SauceAnswerComment::create([
             'sauce_answer_id' => $answer->id,
             'user_id' => $request->user()->id,
             'content' => $validated['content'],
         ]);
+
+        // Notify the answer author that their answer received a comment.
+        if (! $answer->user->is($request->user())) {
+            $answer->user->notifyNow(new NewAnswerCommentNotification($comment));
+        }
+
+        // Notify the request author that an answer on their request received
+        // a comment.
+        if (! $sauceRequest->user->is($request->user())) {
+            $sauceRequest->user->notifyNow(new NewAnswerCommentNotification($comment));
+        }
 
         return back()->with('status', 'Your comment has been posted.');
     }
