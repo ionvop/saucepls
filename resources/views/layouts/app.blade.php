@@ -175,6 +175,13 @@
                                 </template>
                             </div>
                         @else
+                            <a
+                                href="{{ route('settings') }}"
+                                title="Settings"
+                                class="flex h-9 w-9 items-center justify-center rounded-full text-gray-400 transition hover:bg-white/5 hover:text-gray-200"
+                            >
+                                <x-lucide-settings class="h-5 w-5" />
+                            </a>
                             <a href="{{ route('login') }}" class="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-1.5 text-sm font-medium text-gray-200 transition hover:border-white/20 hover:text-white">
                                 <x-lucide-log-in class="h-4 w-4" />
                                 <span>Log in</span>
