@@ -28,9 +28,9 @@
                     <div class="rounded-xl border border-green-500/40 bg-green-500/[0.06] p-4">
                         {{-- Answer header --}}
                         <div class="flex items-center gap-2 text-sm text-gray-400">
-                            <span class="inline-flex items-center gap-1 rounded-full bg-green-500/20 px-2.5 py-0.5 text-xs font-semibold text-green-300">
+                            <span title="Accepted" class="inline-flex items-center gap-1 rounded-full bg-green-500/20 px-2.5 py-0.5 text-xs font-semibold text-green-300">
                                 <x-lucide-check class="h-3.5 w-3.5" />
-                                Accepted
+                                <span class="hidden sm:inline">Accepted</span>
                             </span>
 
                             @if ($answer->user?->avatar_url)
