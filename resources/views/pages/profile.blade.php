@@ -167,6 +167,7 @@
                                             <x-lucide-bookmark class="inline-block h-3.5 w-3.5" />
                                             <span class="align-middle">{{ $request->bookmarks_count }}</span>
                                         </span>
+                                        <span class="text-gray-400">·</span>
                                         <span data-time="{{ $request->created_at?->toIso8601String() }}" data-format="relative">{{ $request->created_at?->diffForHumans() }}</span>
                                     </span>
                                 </div>
@@ -245,6 +246,7 @@
                                             <x-lucide-bookmark class="inline-block h-3.5 w-3.5" />
                                             <span class="align-middle">{{ $bookmark->request->bookmarks_count }}</span>
                                         </span>
+                                        <span class="text-gray-400">·</span>
                                         <span data-time="{{ $bookmark->request->created_at?->toIso8601String() }}" data-format="relative">{{ $bookmark->request->created_at?->diffForHumans() }}</span>
                                     </span>
                                 </div>
