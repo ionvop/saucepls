@@ -244,35 +244,35 @@
         {{-- Bottom navigation (mobile) --}}
         <nav class="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-[#111111]/95 backdrop-blur lg:hidden">
             <div class="mx-auto flex max-w-7xl items-center justify-around px-2 py-1">
-                <a href="{{ route('home') }}" class="flex flex-col items-center gap-0.5 rounded-lg px-3 py-2 text-xs text-gray-400 transition hover:text-white {{ request()->routeIs('home') ? 'text-[#5555AA]' : '' }}">
+                <a href="{{ route('home') }}" class="flex flex-col items-center gap-0.5 rounded-lg px-3 py-2 text-xs text-gray-400 transition hover:text-white {{ request()->routeIs('home') ? 'text-[#5555AA]!' : '' }}">
                     <x-lucide-home class="h-5 w-5" />
                     <span>Home</span>
                 </a>
 
-                <a href="{{ route('search') }}" class="flex flex-col items-center gap-0.5 rounded-lg px-3 py-2 text-xs text-gray-400 transition hover:text-white {{ request()->routeIs('search') ? 'text-[#5555AA]' : '' }}">
+                <a href="{{ route('search') }}" class="flex flex-col items-center gap-0.5 rounded-lg px-3 py-2 text-xs text-gray-400 transition hover:text-white {{ request()->routeIs('search') ? 'text-[#5555AA]!' : '' }}">
                     <x-lucide-search class="h-5 w-5" />
                     <span>Search</span>
                 </a>
 
-                <a href="{{ route('create') }}" class="flex flex-col items-center gap-0.5 rounded-lg px-3 py-2 text-xs text-gray-400 transition hover:text-white {{ request()->routeIs('create') ? 'text-[#5555AA]' : '' }}">
+                <a href="{{ route('create') }}" class="flex flex-col items-center gap-0.5 rounded-lg px-3 py-2 text-xs text-gray-400 transition hover:text-white {{ request()->routeIs('create') ? 'text-[#5555AA]!' : '' }}">
                     <x-lucide-plus class="h-5 w-5" />
                     <span>New</span>
                 </a>
 
-                <a href="{{ route('notifications') }}" class="flex flex-col items-center gap-0.5 rounded-lg px-3 py-2 text-xs text-gray-400 transition hover:text-white {{ request()->routeIs('notifications') ? 'text-[#5555AA]' : '' }}">
+                <a href="{{ route('notifications') }}" class="flex flex-col items-center gap-0.5 rounded-lg px-3 py-2 text-xs text-gray-400 transition hover:text-white {{ request()->routeIs('notifications') ? 'text-[#5555AA]!' : '' }}">
                     <x-lucide-bell class="h-5 w-5" />
                     <span>Alerts</span>
                 </a>
 
                 @auth
-                    <a href="{{ route('profile') }}" class="flex flex-col items-center gap-0.5 rounded-lg px-3 py-2 text-xs text-gray-400 transition hover:text-white {{ request()->routeIs('profile') ? 'text-[#5555AA]' : '' }}">
+                    <a href="{{ route('profile') }}" class="flex flex-col items-center gap-0.5 rounded-lg px-3 py-2 text-xs text-gray-400 transition hover:text-white {{ request()->routeIs('profile') ? 'text-[#5555AA]!' : '' }}">
                         <x-lucide-user class="h-5 w-5" />
                         <span>Profile</span>
                     </a>
                 @endauth
 
                 @guest
-                    <a href="{{ route('login') }}" class="flex flex-col items-center gap-0.5 rounded-lg px-3 py-2 text-xs text-gray-400 transition hover:text-white {{ request()->routeIs('login') ? 'text-[#5555AA]' : '' }}">
+                    <a href="{{ route('login') }}" class="flex flex-col items-center gap-0.5 rounded-lg px-3 py-2 text-xs text-gray-400 transition hover:text-white {{ request()->routeIs('login') ? 'text-[#5555AA]!' : '' }}">
                         <x-lucide-log-in class="h-5 w-5" />
                         <span>Login</span>
                     </a>
