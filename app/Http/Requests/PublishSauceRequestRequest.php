@@ -15,7 +15,7 @@ class PublishSauceRequestRequest extends FormRequest
     {
         return [
             'text' => ['nullable', 'string', 'max:5000'],
-            'tags' => ['nullable', 'string', 'max:1000'],
+            'tags' => ['nullable', 'string', 'max:10000'],
             'is_explicit' => ['sometimes', 'boolean'],
         ];
     }
