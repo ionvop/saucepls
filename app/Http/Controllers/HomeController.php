@@ -29,20 +29,20 @@ class HomeController extends Controller
         $popularThisMonth = $this->baseQuery($hideNsfw)
             ->where('published_at', '>=', now()->subMonth())
             ->popular()
-            ->limit(8)
+            ->limit(4)
             ->get();
 
         // Trending: most bookmarked within the past week.
         $trending = $this->baseQuery($hideNsfw)
             ->trending()
-            ->limit(8)
+            ->limit(4)
             ->get();
 
         // Recent: newest published requests first.
         $recent = $this->baseQuery($hideNsfw)
             ->latest('published_at')
             ->orderByDesc('id')
-            ->limit(8)
+            ->limit(4)
             ->get();
 
         // Subscription feed: published requests from the people the user
@@ -52,7 +52,7 @@ class HomeController extends Controller
                 ->whereIn('user_id', auth()->user()->following()->select('followed_id'))
                 ->latest('published_at')
                 ->orderByDesc('id')
-                ->limit(8)
+                ->limit(4)
                 ->get()
             : collect();
 
