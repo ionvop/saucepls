@@ -283,7 +283,7 @@
                             $isAccepted = $answer->sauceRequest?->accepted_sauce === $answer->id;
                         @endphp
                         <div class="rounded-xl border p-4 {{ $isAccepted ? 'border-green-500/40 bg-green-500/[0.06]' : 'border-white/10 bg-white/[0.03]' }}">
-                            <p class="whitespace-pre-line text-sm text-gray-300">{{ $answer->content }}</p>
+                            <div class="text-sm text-gray-300 markdown-body">{!! $answer->content_html !!}</div>
                             @if ($answer->sauceRequest)
                                 <a href="{{ route('sauce-requests.show', $answer->sauceRequest) }}"
                                     class="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-[#8888CC] transition hover:text-white">
