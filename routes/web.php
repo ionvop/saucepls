@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\FollowController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SauceAnswerController;
 use App\Http\Controllers\SauceAnswerCommentController;
@@ -19,9 +20,12 @@ use App\Http\Controllers\TagController;
 use App\Http\Controllers\UserCommentController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('pages.home');
-})->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
+
+// --- Subscription feed (dedicated page to be implemented later) ---
+Route::get('/subscriptions', function () {
+    return view('pages.subscriptions');
+})->name('subscriptions');
 
 // --- Guest auth routes ---
 Route::middleware('guest')->group(function () {
