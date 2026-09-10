@@ -409,20 +409,20 @@
                                                         action="{{ route('sauce-requests.answers.unaccept', [$sauceRequest, $answer]) }}">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit"
+                                                        <button type="submit" title="Un-accept"
                                                             class="inline-flex items-center gap-1 text-xs font-medium text-green-300 transition hover:text-green-200">
                                                             <x-lucide-undo-2 class="h-3.5 w-3.5" />
-                                                            Un-accept
+                                                            <span class="hidden sm:inline">Un-accept</span>
                                                         </button>
                                                     </form>
                                                 @else
                                                     <form method="POST"
                                                         action="{{ route('sauce-requests.answers.accept', [$sauceRequest, $answer]) }}">
                                                         @csrf
-                                                        <button type="submit"
+                                                        <button type="submit" title="Accept"
                                                             class="inline-flex items-center gap-1 text-xs font-medium text-gray-400 transition hover:text-green-300">
                                                             <x-lucide-check class="h-3.5 w-3.5" />
-                                                            Accept
+                                                            <span class="hidden sm:inline">Accept</span>
                                                         </button>
                                                     </form>
                                                 @endif
@@ -442,7 +442,7 @@
                                                         })"
                                                         class="inline-flex items-center gap-1 text-xs font-medium text-gray-500 transition hover:text-red-400">
                                                         <x-lucide-trash-2 class="h-3.5 w-3.5" />
-                                                        Delete
+                                                        <span class="hidden sm:inline">Delete</span>
                                                     </button>
                                                 @endif
                                             </div>
@@ -467,7 +467,7 @@
                                                 @click="showAnswerCommentForm = !showAnswerCommentForm"
                                                 class="inline-flex items-center gap-1.5 text-sm font-medium text-[#8888CC] transition hover:text-white">
                                                 <x-lucide-message-circle-plus class="h-4 w-4" />
-                                                <span x-text="showAnswerCommentForm ? 'Close' : 'Comment'"></span>
+                                                <span class="hidden sm:inline" x-text="showAnswerCommentForm ? 'Close' : 'Comment'"></span>
                                             </button>
 
                                             <form method="POST"
@@ -671,7 +671,7 @@
                                                 })"
                                                 class="ml-auto inline-flex items-center gap-1 text-xs font-medium text-gray-500 transition hover:text-red-400">
                                                 <x-lucide-trash-2 class="h-3.5 w-3.5" />
-                                                Delete
+                                                <span class="hidden sm:inline">Delete</span>
                                             </button>
                                         @endif
                                     </div>
@@ -740,7 +740,7 @@
                                                                 })"
                                                                 class="ml-auto inline-flex items-center gap-1 text-xs font-medium text-gray-500 transition hover:text-red-400">
                                                                 <x-lucide-trash-2 class="h-3.5 w-3.5" />
-                                                                Delete
+                                                                <span class="hidden sm:inline">Delete</span>
                                                             </button>
                                                         @endif
                                                     </div>
@@ -756,7 +756,7 @@
                                             @click="showReplyForm = !showReplyForm"
                                             class="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-[#8888CC] transition hover:text-white">
                                             <x-lucide-message-circle-plus class="h-4 w-4" />
-                                            <span x-text="showReplyForm ? 'Close' : 'Reply'"></span>
+                                            <span class="hidden sm:inline" x-text="showReplyForm ? 'Close' : 'Reply'"></span>
                                         </button>
 
                                         <form method="POST"
