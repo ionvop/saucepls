@@ -259,12 +259,12 @@
                     <span>New</span>
                 </a>
 
-                @auth
-                    <a href="{{ route('subscriptions') }}" class="flex flex-col items-center gap-0.5 rounded-lg px-3 py-2 text-xs text-gray-400 transition hover:text-white {{ request()->routeIs('subscriptions') ? 'text-[#5555AA]!' : '' }}">
-                        <x-lucide-rss class="h-5 w-5" />
-                        <span>Subscriptions</span>
-                    </a>
+                <a href="{{ route('subscriptions') }}" class="flex flex-col items-center gap-0.5 rounded-lg px-3 py-2 text-xs text-gray-400 transition hover:text-white {{ request()->routeIs('subscriptions') ? 'text-[#5555AA]!' : '' }}">
+                    <x-lucide-rss class="h-5 w-5" />
+                    <span>Feed</span>
+                </a>
 
+                @auth
                     <a href="{{ route('profile') }}" class="flex flex-col items-center gap-0.5 rounded-lg px-3 py-2 text-xs text-gray-400 transition hover:text-white {{ request()->routeIs('profile') ? 'text-[#5555AA]!' : '' }}">
                         <x-lucide-user class="h-5 w-5" />
                         <span>Profile</span>
