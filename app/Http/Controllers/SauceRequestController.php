@@ -9,6 +9,7 @@ use App\Models\SauceRequest;
 use App\Models\User;
 use App\Services\DuplicateDetectionService;
 use App\Services\ImageCompressionService;
+use App\Services\MarkdownService;
 use App\Services\OcrService;
 use App\Services\PerceptualHashService;
 use App\Services\SauceNaoService;
@@ -368,6 +369,13 @@ class SauceRequestController extends Controller
             );
         }
 
+        // Pre-render the description and each answer's content as safe Markdown
+        // HTML so the views can echo them with {!! !!}.
+        $descriptionHtml = MarkdownService::render($sauceRequest->description ?? '');
+        $sauceRequest->answers->each(function ($answer) {
+            $answer->content_html = MarkdownService::render($answer->content ?? '');
+        });
+
         // Bookmark stats for the request: bookmarked_by_me so the view can
         // render the toggle state, and bookmarks_count for the total count.
         $sauceRequest->loadCount([
@@ -377,6 +385,7 @@ class SauceRequestController extends Controller
 
         return view('pages.sauce-requests.show', [
             'sauceRequest' => $sauceRequest,
+            'descriptionHtml' => $descriptionHtml,
             'isOwner' => $request->user()?->is($sauceRequest->user) ?? false,
             'isStaff' => $request->user()?->isStaff() ?? false,
             'sort' => $sort,
