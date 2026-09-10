@@ -22,7 +22,7 @@
     <body class="bg-[#111111] text-gray-100 antialiased min-h-screen">
         <div class="flex min-h-screen flex-col items-center justify-center px-4 py-12">
             <a href="{{ route('home') }}" class="mb-8 flex items-center gap-2">
-                <x-lucide-flame class="h-8 w-8 text-[#5555AA]" />
+                <img src="/favicon.svg" alt="{{ config('app.name', 'SaucePls') }}" class="h-10 w-10" />
                 <span class="text-2xl font-bold tracking-tight text-white">{{ config('app.name', 'SaucePls') }}</span>
             </a>
 
