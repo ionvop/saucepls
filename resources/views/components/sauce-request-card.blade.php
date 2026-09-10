@@ -56,6 +56,7 @@
                     <x-lucide-bookmark class="inline-block h-3.5 w-3.5" />
                     <span class="align-middle">{{ $sauceRequest->bookmarks_count }}</span>
                 </span>
+                <span class="text-gray-400">·</span>
                 <span data-time="{{ $sauceRequest->created_at?->toIso8601String() }}" data-format="relative">{{ $sauceRequest->created_at?->diffForHumans() }}</span>
             </span>
         </div>
