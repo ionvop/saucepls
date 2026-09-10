@@ -270,6 +270,13 @@
                         <span>Profile</span>
                     </a>
                 @endauth
+
+                @guest
+                    <a href="{{ route('login') }}" class="flex flex-col items-center gap-0.5 rounded-lg px-3 py-2 text-xs text-gray-400 transition hover:text-white {{ request()->routeIs('login') ? 'text-[#5555AA]' : '' }}">
+                        <x-lucide-log-in class="h-5 w-5" />
+                        <span>Login</span>
+                    </a>
+                @endguest
             </div>
         </nav>
 
