@@ -27,7 +27,7 @@
                 <div class="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
                     {{-- Brand --}}
                     <a href="{{ route('home') }}" class="flex items-center gap-2">
-                        <x-lucide-flame class="h-7 w-7 text-[#5555AA]" />
+                        <img src="/favicon.svg" alt="" class="h-7 w-7" />
                         <span class="text-lg font-bold tracking-tight text-white">{{ config('app.name', 'SaucePls') }}</span>
                     </a>
 
