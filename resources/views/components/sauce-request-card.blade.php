@@ -1,7 +1,7 @@
 @props(['sauceRequest'])
 
 <a href="{{ route('sauce-requests.show', $sauceRequest) }}"
-    class="group block overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] transition hover:border-[#5555AA]/40 hover:bg-white/[0.05]">
+    class="group flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] transition hover:border-[#5555AA]/40 hover:bg-white/[0.05]">
     {{-- Image --}}
     <div class="relative aspect-[4/3] overflow-hidden bg-[#1a1a1a]">
         @if ($sauceRequest->image_url)
@@ -30,7 +30,7 @@
     </div>
 
     {{-- Body --}}
-    <div class="p-4">
+    <div class="flex flex-1 flex-col p-4">
         <h3 class="truncate text-sm font-semibold text-white group-hover:text-[#8888CC]">
             {{ $sauceRequest->title }}
         </h3>
@@ -39,7 +39,7 @@
             <p class="mt-1 line-clamp-2 text-sm text-gray-400">{{ $sauceRequest->description }}</p>
         @endif
 
-        <div class="mt-3 flex items-center justify-between text-xs text-gray-500">
+        <div class="mt-auto flex items-center justify-between text-xs text-gray-500">
             <span class="inline-flex items-center gap-1.5">
                 @if ($sauceRequest->user?->avatar_url)
                     <img src="{{ $sauceRequest->user->avatar_url }}" alt="{{ $sauceRequest->user->username }}"
