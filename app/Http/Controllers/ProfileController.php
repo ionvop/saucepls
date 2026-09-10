@@ -86,7 +86,7 @@ class ProfileController extends Controller
             ->with('user')
             ->withCount('bookmarks as bookmarks_count')
             ->latest()
-            ->limit(5)
+            ->limit(4)
             ->get();
 
         $bookmarks = $user->bookmarks()
@@ -97,14 +97,14 @@ class ProfileController extends Controller
                 'request' => fn ($query) => $query->withCount('bookmarks as bookmarks_count'),
             ])
             ->latest('sauce_request_bookmarks.id')
-            ->limit(5)
+            ->limit(4)
             ->get();
 
         $answers = $user->sauceAnswers()
             ->with(['user', 'sauceRequest'])
             ->withCount('likes as likes_count')
             ->latest('sauce_answers.id')
-            ->limit(5)
+            ->limit(4)
             ->get()
             ->map(fn ($answer) => $this->withContentHtml($answer));
 
@@ -113,7 +113,7 @@ class ProfileController extends Controller
             ->with(['sauceRequest', 'user'])
             ->withCount('likes as likes_count')
             ->latest('sauce_request_comments.id')
-            ->limit(5)
+            ->limit(4)
             ->get();
 
         return view('pages.profile', [
