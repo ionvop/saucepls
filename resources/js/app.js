@@ -1,5 +1,6 @@
 import Alpine from 'alpinejs';
 import './time';
+import './scroll-restore';
 
 window.Alpine = Alpine;
 
