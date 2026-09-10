@@ -197,12 +197,12 @@
                         Search
                     </x-nav-link>
 
-                    <x-nav-link :href="route('notifications')" :active="request()->routeIs('notifications')">
-                        <x-slot:icon><x-lucide-bell class="h-5 w-5" /></x-slot:icon>
-                        Notifications
-                    </x-nav-link>
-
                     @auth
+                        <x-nav-link :href="route('subscriptions')" :active="request()->routeIs('subscriptions')">
+                            <x-slot:icon><x-lucide-rss class="h-5 w-5" /></x-slot:icon>
+                            Subscriptions
+                        </x-nav-link>
+
                         <x-nav-link :href="route('profile')" :active="request()->routeIs('profile')">
                             <x-slot:icon><x-lucide-user class="h-5 w-5" /></x-slot:icon>
                             Profile
@@ -259,12 +259,12 @@
                     <span>New</span>
                 </a>
 
-                <a href="{{ route('notifications') }}" class="flex flex-col items-center gap-0.5 rounded-lg px-3 py-2 text-xs text-gray-400 transition hover:text-white {{ request()->routeIs('notifications') ? 'text-[#5555AA]!' : '' }}">
-                    <x-lucide-bell class="h-5 w-5" />
-                    <span>Alerts</span>
-                </a>
-
                 @auth
+                    <a href="{{ route('subscriptions') }}" class="flex flex-col items-center gap-0.5 rounded-lg px-3 py-2 text-xs text-gray-400 transition hover:text-white {{ request()->routeIs('subscriptions') ? 'text-[#5555AA]!' : '' }}">
+                        <x-lucide-rss class="h-5 w-5" />
+                        <span>Subscriptions</span>
+                    </a>
+
                     <a href="{{ route('profile') }}" class="flex flex-col items-center gap-0.5 rounded-lg px-3 py-2 text-xs text-gray-400 transition hover:text-white {{ request()->routeIs('profile') ? 'text-[#5555AA]!' : '' }}">
                         <x-lucide-user class="h-5 w-5" />
                         <span>Profile</span>
