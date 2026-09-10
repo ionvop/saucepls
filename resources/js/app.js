@@ -81,20 +81,25 @@ Alpine.data('explicitContentDialog', () => ({
     show: true,
 
     /**
-     * Persist the visitor's choice and close the dialog.
+     * Persist the visitor's choice and reload the page.
+     *
+     * The feed is rendered server-side from the `hide_nsfw` cookie, which was
+     * null when this page was served (that's why the dialog showed). Reloading
+     * re-renders the feed with the chosen filter applied.
      */
     choose(hide) {
         document.cookie = `hide_nsfw=${hide ? 1 : 0}; path=/; max-age=31536000; SameSite=Lax`;
-        this.show = false;
+        window.location.reload();
     },
 
     /**
      * Close without choosing. A `hide_nsfw=0` cookie is set so the dialog
-     * does not reappear on every page load.
+     * does not reappear on every page load, then the page reloads so the
+     * server re-renders the feed with explicit content shown.
      */
     dismiss() {
         document.cookie = 'hide_nsfw=0; path=/; max-age=31536000; SameSite=Lax';
-        this.show = false;
+        window.location.reload();
     },
 }));
 
