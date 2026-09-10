@@ -99,7 +99,7 @@
                 </div>
 
                 {{-- Title --}}
-                <h1 class="mt-4 text-2xl font-bold text-white">{{ $sauceRequest->title }}</h1>
+                <h1 class="mt-4 break-words text-2xl font-bold text-white">{{ $sauceRequest->title }}</h1>
 
                 {{-- Author --}}
                 <div class="mt-3 flex items-center gap-2 text-sm text-gray-400">
@@ -123,7 +123,7 @@
                 @if ($sauceRequest->description)
                     <div class="mt-6 border-t border-white/10 pt-6">
                         <h2 class="text-sm font-semibold uppercase tracking-wide text-gray-400">Description</h2>
-                        <p class="mt-2 whitespace-pre-line text-gray-300">{{ $sauceRequest->description }}</p>
+                        <p class="mt-2 whitespace-pre-line break-words text-gray-300">{{ $sauceRequest->description }}</p>
                     </div>
                 @endif
 
@@ -136,7 +136,7 @@
                             {{-- Display mode: plain text + edit button --}}
                             <div x-show="!editing" x-cloak>
                                 @if ($sauceRequest->text)
-                                    <p class="mt-2 whitespace-pre-line text-gray-300">{{ $sauceRequest->text }}</p>
+                                    <p class="mt-2 whitespace-pre-line break-words text-gray-300">{{ $sauceRequest->text }}</p>
                                 @else
                                     <p class="mt-2 text-sm text-gray-500">No text detected.</p>
                                 @endif
@@ -189,7 +189,7 @@
                     @else
                         {{-- Guest: read-only text --}}
                         @if ($sauceRequest->text)
-                            <p class="mt-2 whitespace-pre-line text-gray-300">{{ $sauceRequest->text }}</p>
+                            <p class="mt-2 whitespace-pre-line break-words text-gray-300">{{ $sauceRequest->text }}</p>
                         @else
                             <p class="mt-2 text-sm text-gray-500">No text detected.</p>
                         @endif
