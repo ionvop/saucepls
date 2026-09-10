@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\FollowController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SauceAnswerController;
 use App\Http\Controllers\SauceAnswerCommentController;
@@ -50,6 +51,9 @@ Route::middleware('auth')->group(function () {
 
     // --- Subscription feed ---
     Route::get('/subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions');
+
+    // --- Notifications ---
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications');
 
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -209,7 +213,3 @@ Route::get('/search', [SauceRequestController::class, 'search'])->name('search')
 Route::get('/tags/autocomplete', [TagController::class, 'autocomplete'])
     ->middleware('throttle:60,1')
     ->name('tags.autocomplete');
-
-Route::get('/notifications', function () {
-    return view('pages.notifications');
-})->name('notifications');
