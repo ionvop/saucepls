@@ -407,7 +407,7 @@ class SauceRequestController extends Controller
         $sauceRequest->update([
             'title' => $validated['title'] ?? 'Sauce pls',
             'description' => $validated['description'] ?? '',
-            'is_explicit' => $validated['is_explicit'] ?? true,
+            'is_explicit' => $validated['is_explicit'] ?? false,
         ]);
 
         return redirect()
