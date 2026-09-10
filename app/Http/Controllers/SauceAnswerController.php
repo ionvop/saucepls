@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\SauceAnswer;
 use App\Models\SauceRequest;
+use App\Notifications\AnswerAcceptedNotification;
+use App\Notifications\BookmarkedRequestAcceptedNotification;
+use App\Notifications\NewAnswerNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -27,12 +30,17 @@ class SauceAnswerController extends Controller
             'url' => ['nullable', 'string', 'url', 'max:2048'],
         ]);
 
-        SauceAnswer::create([
+        $answer = SauceAnswer::create([
             'sauce_request_id' => $sauceRequest->id,
             'user_id' => $request->user()->id,
             'content' => $validated['content'],
             'url' => $validated['url'] ?? null,
         ]);
+
+        // Notify the request author that their request received an answer.
+        if (! $sauceRequest->user->is($request->user())) {
+            $sauceRequest->user->notifyNow(new NewAnswerNotification($answer));
+        }
 
         return back()->with('status', 'Your answer has been posted.');
     }
@@ -125,6 +133,22 @@ class SauceAnswerController extends Controller
         abort_unless($answer->sauce_request_id === $sauceRequest->id, 422);
 
         $sauceRequest->update(['accepted_sauce' => $answer->id]);
+
+        // Notify the answer author that their answer was accepted.
+        if (! $answer->user->is($request->user())) {
+            $answer->user->notifyNow(new AnswerAcceptedNotification($answer));
+        }
+
+        // Notify everyone who bookmarked the request that it now has an
+        // accepted answer.
+        $sauceRequest->bookmarks()
+            ->with('user')
+            ->get()
+            ->each(function ($bookmark) use ($request, $sauceRequest, $answer) {
+                if (! $bookmark->user->is($request->user())) {
+                    $bookmark->user->notifyNow(new BookmarkedRequestAcceptedNotification($sauceRequest, $answer));
+                }
+            });
 
         return back()->with('status', 'You accepted this answer.');
     }
