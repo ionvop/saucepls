@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\UserComment;
+use App\Notifications\NewProfileCommentNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -34,12 +35,22 @@ class UserCommentController extends Controller
             );
         }
 
-        UserComment::create([
+        $comment = UserComment::create([
             'profile_user_id' => $user->id,
             'user_id' => $request->user()->id,
             'parent_id' => $parentId,
             'content' => $validated['content'],
         ]);
+
+        // Notify the profile owner that their profile received a comment.
+        if (! $user->is($request->user())) {
+            $user->notifyNow(new NewProfileCommentNotification($comment));
+        }
+
+        // Notify the parent comment author when this is a reply.
+        if ($parentId !== null && ! $parent->user->is($request->user())) {
+            $parent->user->notifyNow(new NewProfileCommentNotification($comment));
+        }
 
         return back()->with('status', 'Your comment has been posted.');
     }
