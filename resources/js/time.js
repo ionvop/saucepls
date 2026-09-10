@@ -11,7 +11,7 @@
  *   - `date`       -> "M j, Y"            (e.g. "Aug 31, 2026")
  *   - `datetime`   -> "M j, Y g:i A"      (e.g. "Aug 31, 2026 3:45 PM")
  *   - `month-year` -> "F Y"               (e.g. "August 2026")
- *   - `relative`   -> "3 hours ago"       (replaces diffForHumans())
+ *   - `relative`   -> "4d"                (compact, replaces diffForHumans())
  */
 
 const FORMATS = {
@@ -38,7 +38,9 @@ function formatDate(date, format) {
 }
 
 /**
- * Human-friendly relative time, e.g. "just now", "5 minutes ago", "2 days ago".
+ * Compact human-friendly relative time, e.g. "just now", "5m", "4h", "4d",
+ * "2w", "3mo", "2y". The absolute datetime is exposed as a tooltip via the
+ * `title` attribute set in `render()`.
  *
  * @param {Date} date
  * @returns {string}
@@ -48,18 +50,18 @@ function relativeTime(date) {
     const abs = Math.abs(seconds);
 
     const units = [
-        ['year', 31536000],
-        ['month', 2592000],
-        ['week', 604800],
-        ['day', 86400],
-        ['hour', 3600],
-        ['minute', 60],
+        ['y', 31536000],
+        ['mo', 2592000],
+        ['w', 604800],
+        ['d', 86400],
+        ['h', 3600],
+        ['m', 60],
     ];
 
     for (const [unit, secondsInUnit] of units) {
         if (abs >= secondsInUnit) {
             const value = Math.round(abs / secondsInUnit);
-            return `${value} ${unit}${value === 1 ? '' : 's'} ago`;
+            return `${value}${unit}`;
         }
     }
 
