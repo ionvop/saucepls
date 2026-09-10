@@ -57,7 +57,7 @@
                         </div>
 
                         {{-- Answer body --}}
-                        <p class="mt-2 whitespace-pre-line text-sm text-gray-300">{{ $answer->content }}</p>
+                        <div class="mt-2 text-sm text-gray-300 markdown-body">{!! $answer->content_html !!}</div>
 
                         @if ($answer->url)
                             <a href="{{ $answer->url }}" target="_blank" rel="noopener noreferrer"
