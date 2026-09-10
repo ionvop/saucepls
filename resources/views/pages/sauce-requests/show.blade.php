@@ -123,7 +123,7 @@
                 @if ($sauceRequest->description)
                     <div class="mt-6 border-t border-white/10 pt-6">
                         <h2 class="text-sm font-semibold uppercase tracking-wide text-gray-400">Description</h2>
-                        <p class="mt-2 whitespace-pre-line break-words text-gray-300">{{ $sauceRequest->description }}</p>
+                        <div class="prose prose-invert mt-2 max-w-none break-words text-gray-300 markdown-body">{!! $descriptionHtml !!}</div>
                     </div>
                 @endif
 
@@ -450,7 +450,7 @@
                                     </div>
 
                                     {{-- Answer body --}}
-                                    <p class="mt-2 whitespace-pre-line text-sm text-gray-300">{{ $answer->content }}</p>
+                                    <div class="mt-2 text-sm text-gray-300 markdown-body">{!! $answer->content_html !!}</div>
 
                                     @if ($answer->url)
                                         <a href="{{ $answer->url }}" target="_blank" rel="noopener noreferrer"
