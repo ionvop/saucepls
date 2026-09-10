@@ -20,7 +20,7 @@ class SauceRequestTagController extends Controller
     public function update(Request $request, SauceRequest $sauceRequest): RedirectResponse
     {
         $request->validate([
-            'tags' => ['nullable', 'string', 'max:1000'],
+            'tags' => ['nullable', 'string', 'max:10000'],
         ]);
 
         $this->tags->sync($sauceRequest, (string) $request->input('tags', ''), $request->user());
