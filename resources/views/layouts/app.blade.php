@@ -38,6 +38,21 @@
                                 <span class="hidden sm:inline">New Request</span>
                             </a>
 
+                            {{-- Notifications bell --}}
+                            <a
+                                href="{{ route('notifications') }}"
+                                title="Notifications"
+                                class="relative flex h-9 w-9 items-center justify-center rounded-full text-gray-400 transition hover:bg-white/5 hover:text-gray-200"
+                            >
+                                <x-lucide-bell class="h-5 w-5" />
+                                @php $unreadCount = auth()->user()->unreadNotifications()->count(); @endphp
+                                @if ($unreadCount > 0)
+                                    <span class="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#5555AA] px-1 text-[10px] font-bold text-white">
+                                        {{ $unreadCount > 99 ? '99+' : $unreadCount }}
+                                    </span>
+                                @endif
+                            </a>
+
                             {{-- Avatar dropdown / profile card --}}
                             <div class="relative" x-data="{ open: false, showLogout: false }">
                                 <button
