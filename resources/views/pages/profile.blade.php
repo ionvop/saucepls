@@ -454,7 +454,7 @@
                                         })"
                                         class="ml-auto inline-flex items-center gap-1 text-xs font-medium text-gray-500 transition hover:text-red-400">
                                         <x-lucide-trash-2 class="h-3.5 w-3.5" />
-                                        Delete
+                                        <span class="hidden sm:inline">Delete</span>
                                     </button>
                                 @endif
                             </div>
@@ -522,7 +522,7 @@
                                                     })"
                                                     class="ml-auto inline-flex items-center gap-1 text-xs font-medium text-gray-500 transition hover:text-red-400">
                                                     <x-lucide-trash-2 class="h-3.5 w-3.5" />
-                                                    Delete
+                                                    <span class="hidden sm:inline">Delete</span>
                                                 </button>
                                             @endif
                                         </div>
@@ -537,7 +537,7 @@
                                     @click="showReplyForm = !showReplyForm"
                                     class="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-[#8888CC] transition hover:text-white">
                                     <x-lucide-message-circle-plus class="h-3.5 w-3.5" />
-                                    <span x-text="showReplyForm ? 'Close' : 'Reply'"></span>
+                                    <span class="hidden sm:inline" x-text="showReplyForm ? 'Close' : 'Reply'"></span>
                                 </button>
 
                                 <form method="POST"
