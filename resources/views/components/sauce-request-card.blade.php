@@ -36,7 +36,7 @@
         </h3>
 
         @if ($sauceRequest->description)
-            <p class="mb-3 mt-1 line-clamp-2 text-sm text-gray-400">{{ $sauceRequest->description }}</p>
+            <p class="mb-3 mt-1 line-clamp-2 break-words text-sm text-gray-400">{{ $sauceRequest->description }}</p>
         @endif
 
         <div class="mt-auto flex items-center justify-between text-xs text-gray-500">
