@@ -17,7 +17,7 @@ class StoreSauceRequestRequest extends FormRequest
             'title' => ['nullable', 'string', 'max:120'],
             'description' => ['nullable', 'string', 'max:5000'],
             'image' => ['required', 'image', 'mimes:jpeg,png,webp,gif', 'max:10240'],
-            'tags' => ['nullable', 'string', 'max:1000'],
+            'tags' => ['nullable', 'string', 'max:10000'],
         ];
     }
 
