@@ -3,14 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UpdateProfileRequest;
+use App\Models\SauceAnswer;
 use App\Models\SauceRequest;
 use App\Models\User;
+use App\Services\MarkdownService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
-use League\CommonMark\CommonMarkConverter;
-use League\CommonMark\Exception\CommonMarkException;
 
 class ProfileController extends Controller
 {
@@ -105,7 +105,8 @@ class ProfileController extends Controller
             ->withCount('likes as likes_count')
             ->latest('sauce_answers.id')
             ->limit(5)
-            ->get();
+            ->get()
+            ->map(fn ($answer) => $this->withContentHtml($answer));
 
         $comments = $user->comments()
             ->whereNull('parent_id')
@@ -120,7 +121,7 @@ class ProfileController extends Controller
             'isOwner' => $isOwner,
             'isFollowing' => $isFollowing,
             'isStaff' => $request->user()?->isStaff() ?? false,
-            'bioHtml' => $this->renderMarkdown($user->description),
+            'bioHtml' => MarkdownService::render($user->description),
             'requests' => $requests,
             'bookmarks' => $bookmarks,
             'answers' => $answers,
@@ -176,6 +177,8 @@ class ProfileController extends Controller
             ->withCount('likes as likes_count')
             ->latest('sauce_answers.id')
             ->paginate(12);
+
+        $answers->getCollection()->transform(fn ($answer) => $this->withContentHtml($answer));
 
         return view('pages.profile-accepted-answers', [
             'user' => $user,
@@ -237,6 +240,8 @@ class ProfileController extends Controller
             ->withCount('likes as likes_count')
             ->latest('sauce_answers.id')
             ->paginate(12);
+
+        $answers->getCollection()->transform(fn ($answer) => $this->withContentHtml($answer));
 
         return view('pages.profile-answers', [
             'user' => $user,
@@ -318,19 +323,15 @@ class ProfileController extends Controller
     }
 
     /**
-     * Render a Markdown string to safe HTML.
+     * Attach a pre-rendered Markdown HTML version of an answer's content.
+     *
+     * The original `content` attribute is left untouched so database-level
+     * assertions and raw text remain intact.
      */
-    private function renderMarkdown(string $markdown): string
+    private function withContentHtml(SauceAnswer $answer): SauceAnswer
     {
-        try {
-            $converter = new CommonMarkConverter([
-                'html_input' => 'escape',
-                'allow_unsafe_links' => false,
-            ]);
+        $answer->content_html = MarkdownService::render($answer->content ?? '');
 
-            return $converter->convert($markdown)->getContent();
-        } catch (CommonMarkException) {
-            return e($markdown);
-        }
+        return $answer;
     }
 }
