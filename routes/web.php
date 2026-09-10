@@ -12,6 +12,7 @@ use App\Http\Controllers\SauceAnswerCommentController;
 use App\Http\Controllers\SauceRequestCommentController;
 use App\Http\Controllers\SauceRequestController;
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\SauceRequestTagController;
 use App\Http\Controllers\SauceRequestTagHistoryController;
 use App\Http\Controllers\SauceRequestTextController;
@@ -21,11 +22,6 @@ use App\Http\Controllers\UserCommentController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
-
-// --- Subscription feed (dedicated page to be implemented later) ---
-Route::get('/subscriptions', function () {
-    return view('pages.subscriptions');
-})->name('subscriptions');
 
 // --- Guest auth routes ---
 Route::middleware('guest')->group(function () {
@@ -51,6 +47,9 @@ Route::middleware('guest')->group(function () {
 // --- Authenticated routes ---
 Route::middleware('auth')->group(function () {
     Route::post('/logout', LogoutController::class)->name('logout');
+
+    // --- Subscription feed ---
+    Route::get('/subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions');
 
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
