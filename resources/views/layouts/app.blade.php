@@ -258,10 +258,10 @@
             {{-- Footer --}}
             <footer class="border-t border-white/10 bg-[#111111] pb-16 lg:pb-6">
                 <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-6 gap-y-2 px-4 py-6 sm:px-6 lg:px-8">
-                    <a href="{{ route('about') }}" class="text-sm text-gray-400 transition hover:text-white">About</a>
+                    <a href="{{ route('page.show', ['page' => 'about']) }}" class="text-sm text-gray-400 transition hover:text-white">About</a>
                     <a href="{{ route('contact') }}" class="text-sm text-gray-400 transition hover:text-white">Contact</a>
-                    <a href="{{ route('terms') }}" class="text-sm text-gray-400 transition hover:text-white">Terms of Service</a>
-                    <a href="{{ route('privacy') }}" class="text-sm text-gray-400 transition hover:text-white">Privacy Policy</a>
+                    <a href="{{ route('page.show', ['page' => 'terms']) }}" class="text-sm text-gray-400 transition hover:text-white">Terms of Service</a>
+                    <a href="{{ route('page.show', ['page' => 'privacy']) }}" class="text-sm text-gray-400 transition hover:text-white">Privacy Policy</a>
                 </div>
             </footer>
         </div>
