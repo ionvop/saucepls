@@ -1,58 +1,120 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
-
 <p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+  <strong>SaucePls</strong>
 </p>
 
-## About Laravel
+<p align="center">
+  A community-driven platform for finding the source (<em>"sauce"</em>) of animanga images — artwork, cropped manga panels, and anime screenshots.
+</p>
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+**SaucePls** is a social platform where people ask for the source of images they've found. Users post unknown images as *sauce requests*, and the community helps identify them by adding tags, commenting, and providing answers. The original poster (or a moderator) can then accept the correct sauce.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Features
 
-## Learning Laravel
+- **Passwordless authentication** — Sign in with an email one-time password (OTP) or Google OAuth. No passwords required.
+- **Sauce requests** — Upload an unknown image and publish it as a request. Before posting, every image runs a four-step pipeline:
+  1. **Perceptual hashing** — checks whether the image is a duplicate of an existing request.
+  2. **SauceNAO reverse image search** — checks whether the image is easily identifiable.
+  3. **OCR** — automatically extracts text from the image.
+  4. **Tag inference** — a DeepDanbooru-style model auto-suggests tags.
+- **Community tagging** — Add or remove tags on any request. Every change is logged and attributed to the user, with full history and restore support.
+- **Editable extracted text** — The community can correct the OCR text, with history and restore support.
+- **Answers** — Provide the sauce, like/unlike answers, and accept the correct one (accepted answers are pinned; sortable by likes or recency).
+- **Comments** — Discuss on requests (one-level nesting), answers, and user profiles, each with like/unlike.
+- **Bookmarks & follows** — Bookmark requests and follow users.
+- **Subscription feed** — A feed of posts from the users you follow.
+- **Notifications** — Six notification types: new answer, new answer comment, new request comment, new profile comment, answer accepted, and bookmarked request accepted.
+- **Profiles** — Markdown bio, avatar, online status, accepted-answers score, and activity sections (requests, answers, bookmarks, comments).
+- **NSFW handling** — Per-user `hide_nsfw` setting to filter explicit content.
+- **Search** — Word-by-word matching with hyphen exclusion (`-kitty`) and type prefixes (`tag:`, `text:`).
+- **Moderation** — Moderator and admin roles with timeouts, soft-deletes, and moderation logs.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Tech Stack
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- **PHP** ^8.3
+- **Laravel** ^13.8
+- **Blade** templates + Blade components
+- **Tailwind CSS** v4
+- **Alpine.js** ^3.15
+- **Vite** ^8 (via `laravel-vite-plugin`)
+- **SQLite** (default database)
+- **Pest** ^5 for testing
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+## Requirements
 
-## Agentic Development
+- PHP ^8.3
+- [Composer](https://getcomposer.org/)
+- Node.js & npm
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Installation
+
+1. Clone the repository and enter the project directory.
+2. Run the setup script, which installs dependencies, copies `.env`, generates an app key, runs migrations, installs npm packages, and builds assets:
+
+   ```bash
+   composer setup
+   ```
+
+3. Configure the required environment variables in `.env` (see [Environment Variables](#environment-variables) below).
+
+## Development
+
+Run the development servers (Laravel dev server, queue worker, and Vite) concurrently:
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+composer dev
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+This runs `php artisan serve`, `php artisan queue:listen --tries=1`, and `npm run dev` together.
 
-## Contributing
+## Testing
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Run the test suite (Pest):
 
-## Code of Conduct
+```bash
+composer test
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Tests live in `tests/Feature/` and `tests/Unit/`.
 
-## Security Vulnerabilities
+## Environment Variables
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+| Variable | Description |
+| --- | --- |
+| `APP_NAME` | Application name (default `SaucePls`). |
+| `APP_URL` | Application URL. |
+| `DB_CONNECTION` | Database connection (default `sqlite`). |
+| `BREVO_API_KEY` | Brevo transactional email API key, used to send email OTP codes. |
+| `BREVO_FROM_ADDRESS` / `BREVO_FROM_NAME` | Sender address/name for OTP emails. |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google OAuth credentials for "Sign in with Google". |
+| `GOOGLE_REDIRECT_URI` | Must be `{APP_URL}/auth/google/callback`. |
+| `SAUCENAO_API_KEY` | SauceNAO API key for reverse image search. |
+| `SAUCENAO_MIN_SIMILARITY` | Minimum similarity threshold for SauceNAO matches (default `60`). |
+| `OCR_SPACE_API_KEY` | OCR.space API key for text extraction. |
+| `TAG_INFERENCE_ENDPOINT` | DeepDanbooru-style tag inference endpoint. |
+| `TAG_INFERENCE_THRESHOLD` | Confidence threshold for suggested tags (default `0.5`). |
+| `TAG_INFERENCE_MAX_TAGS` | Maximum number of auto-suggested tags. |
+| `DRAFTS_TTL_HOURS` | Hours before an unpublished draft is purged (default `1`). |
+
+## External Services
+
+- **[Brevo](https://www.brevo.com/)** — transactional email for OTP codes.
+- **[Google OAuth](https://console.cloud.google.com/apis/credentials)** — social login.
+- **[SauceNAO](https://saucenao.com/)** — reverse image search.
+- **[OCR.space](https://ocr.space/)** — cloud OCR for text extraction.
+- **DeepDanbooru-style endpoint** — tag inference for auto-suggesting tags.
+
+## Documentation
+
+Additional design and reference documentation is available in the [`docs/`](docs/) directory:
+
+- [`proposal.md`](docs/proposal.md) — project overview and concept.
+- [`tech-stack.md`](docs/tech-stack.md) — technology guidelines.
+- [`database-schema.md`](docs/database-schema.md) — database schema.
+- [`saucenao-example.md`](docs/saucenao-example.md) — SauceNAO example.
+- [`deepdanbooru-example.md`](docs/deepdanbooru-example.md) — tag inference example.
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+SaucePls is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
