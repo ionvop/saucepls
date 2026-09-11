@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\FollowController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\PageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SauceAnswerController;
 use App\Http\Controllers\SauceAnswerCommentController;
@@ -215,7 +216,7 @@ Route::get('/tags/autocomplete', [TagController::class, 'autocomplete'])
     ->name('tags.autocomplete');
 
 // --- Static / informational pages ---
-Route::view('/about', 'pages.about')->name('about');
+Route::get('/{page}', [PageController::class, 'show'])
+    ->whereIn('page', ['about', 'terms', 'privacy'])
+    ->name('page.show');
 Route::view('/contact', 'pages.contact')->name('contact');
-Route::view('/terms', 'pages.terms')->name('terms');
-Route::view('/privacy', 'pages.privacy')->name('privacy');
