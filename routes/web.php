@@ -213,3 +213,9 @@ Route::get('/search', [SauceRequestController::class, 'search'])->name('search')
 Route::get('/tags/autocomplete', [TagController::class, 'autocomplete'])
     ->middleware('throttle:60,1')
     ->name('tags.autocomplete');
+
+// --- Static / informational pages ---
+Route::view('/about', 'pages.about')->name('about');
+Route::view('/contact', 'pages.contact')->name('contact');
+Route::view('/terms', 'pages.terms')->name('terms');
+Route::view('/privacy', 'pages.privacy')->name('privacy');
