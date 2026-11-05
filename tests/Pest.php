@@ -78,6 +78,7 @@ function makeSauceRequest(
         'phash64' => 'aaaaaaaaaaaaaaaa',
         'is_explicit' => true,
         'published_at' => now(),
+        'enriched_at' => now(),
     ], $attributes));
 }
 
