@@ -9,9 +9,15 @@ uses(RefreshDatabase::class);
 // ---------------------------------------------------------------------------
 
 it('serves the About page', function () {
-    $this->get(route('about'))
+    $this->get(route('page.show', ['page' => 'about']))
         ->assertOk()
-        ->assertSee('About');
+    ->assertSee('About Saucepls')
+    ->assertSee('100 requests per day')
+    ->assertSee('hosted live demo API')
+    ->assertSee('href="https://github.com/Nanoskript/deepdanbooru-docker"', false)
+    ->assertSee('href="https://deepdanbooru.nsk.sh/deepdanbooru"', false)
+    ->assertSee('href="https://ocr.space/"', false)
+    ->assertSee('href="https://ko-fi.com/ionvop"', false);
 });
 
 it('serves the Contact page', function () {
