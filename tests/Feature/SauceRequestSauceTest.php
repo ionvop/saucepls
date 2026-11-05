@@ -2,6 +2,7 @@
 
 use App\Models\SauceRequest;
 use App\Models\User;
+use App\Services\DuplicateDetectionService;
 use App\Services\OcrService;
 use App\Services\SauceNaoService;
 use App\Services\TagInferenceService;
@@ -25,6 +26,7 @@ function makeSauceRequestForSauce(User $user, array $attributes = []): SauceRequ
         'phash64' => 'aaaaaaaaaaaaaaaa',
         'is_explicit' => true,
         'published_at' => now(),
+        'enriched_at' => now(),
     ], $attributes));
 }
 
@@ -35,15 +37,8 @@ function makeSauceRequestForSauce(User $user, array $attributes = []): SauceRequ
 it('redirects to the sauce page when SauceNAO finds a match', function () {
     $user = User::factory()->create();
 
-    $this->mock(OcrService::class)
-        ->shouldReceive('extractText')
-        ->once()
-        ->andReturn('');
-
-    $this->mock(TagInferenceService::class)
-        ->shouldReceive('inferWithRating')
-        ->once()
-        ->andReturn(emptyInferenceResult());
+    $this->mock(OcrService::class)->shouldNotReceive('extractText');
+    $this->mock(TagInferenceService::class)->shouldNotReceive('inferWithRating');
 
     $this->mock(SauceNaoService::class)
         ->shouldReceive('lookup')
@@ -143,4 +138,43 @@ it('redirects guests away from the sauce page', function () {
 
     $this->get(route('sauce-requests.sauce', $sauceRequest))
         ->assertRedirect(route('login'));
+});
+
+it('runs enrichment after continuing past a SauceNAO match', function () {
+    $user = User::factory()->create();
+
+    $this->mock(DuplicateDetectionService::class)
+        ->shouldReceive('findDuplicate')
+        ->once()
+        ->andReturn(null);
+
+    $this->mock(SauceNaoService::class)
+        ->shouldReceive('lookup')
+        ->once()
+        ->andReturn([['similarity' => 92.77]]);
+
+    $this->mock(OcrService::class)
+        ->shouldReceive('extractText')
+        ->once()
+        ->andReturn('Detected words');
+
+    $this->mock(TagInferenceService::class)
+        ->shouldReceive('inferWithRating')
+        ->once()
+        ->andReturn(emptyInferenceResult());
+
+    $this->actingAs($user)
+        ->post(route('sauce-requests.upload'), [
+            'title' => 'Who drew this?',
+            'image' => UploadedFile::fake()->image('art.png'),
+        ])
+        ->assertRedirect();
+
+    $draft = SauceRequest::firstOrFail();
+
+    $this->post(route('sauce-requests.continue-sauce', $draft))
+        ->assertRedirect(route('sauce-requests.details', $draft));
+
+    expect($draft->fresh()->enriched_at)->not->toBeNull()
+        ->and($draft->fresh()->text)->toBe('Detected words');
 });
