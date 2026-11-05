@@ -96,9 +96,8 @@ class SauceRequestController extends Controller
     }
 
     /**
-     * Store the uploaded image as a draft sauce request and run the
-     * pre-post pipeline (steps 3 and 4: OCR text + tag inference) to
-     * supply the initial values for the details page.
+        * Store the uploaded image as a draft, check for duplicates and run
+        * SauceNAO before deferring OCR and tag inference until continuation.
      */
     public function upload(StoreSauceRequestRequest $request): RedirectResponse
     {
@@ -125,6 +124,7 @@ class SauceRequestController extends Controller
                 'image_path' => $imagePath,
                 'phash64' => null,
                 'is_explicit' => $validated['is_explicit'] ?? true,
+                'enriched_at' => now(),
             ]);
 
             return redirect()->route('sauce-requests.details', $sauceRequest);
@@ -136,52 +136,19 @@ class SauceRequestController extends Controller
         // below runs against the compressed image.
         $this->imageCompression->compressToWebpUnder($absolutePath);
 
-        // Run the pre-post pipeline. Each step is currently stubbed and
-        // will be replaced with real implementations later.
         $phash = $this->perceptualHash->hash($absolutePath);
-        $text = $this->ocr->extractText($absolutePath);
-        $inference = $this->tagInference->inferWithRating($absolutePath);
-        $suggestedTags = $inference['tags'];
-
-        // The explicit flag is on by default and is only turned off when
-        // tag inference is confidently "safe" (the user can still override
-        // it on the details page before publishing).
-        $isExplicit = true;
-
-        if ($inference['rating'] === 'safe'
-            && $inference['rating_confidence'] !== null
-            && $inference['rating_confidence'] >= (float) config('services.tag_inference.threshold', 0.2)) {
-            $isExplicit = false;
-        }
-
-        // The flag is on by default and is only turned off when tag
-        // inference is confidently "safe" (the user can override it on the
-        // details page before publishing).
-        if ($inference['rating'] === 'safe'
-            && $inference['rating_confidence'] !== null
-            && $inference['rating_confidence'] >= (float) config('services.tag_inference.threshold', 0.2)) {
-            $isExplicit = false;
-        }
 
         $sauceRequest = SauceRequest::create([
             'user_id' => $request->user()->id,
             'title' => $validated['title'] ?? 'Sauce pls',
             'description' => $validated['description'] ?? '',
-            'text' => $text,
+            'text' => '',
             'image_path' => $imagePath,
             'phash64' => $phash,
-            'is_explicit' => $isExplicit,
+            'is_explicit' => true,
         ]);
 
-        // Persist the tags suggested by the model inference pipeline so
-        // they can be reviewed and edited on the details page.
-        $this->tags->sync($sauceRequest, (array) $suggestedTags, $request->user());
-
-        // Step 1 of the pre-post pipeline: reverse image search. If the
-        // image is a near-duplicate of an existing sauce request, send
-        // the user to an intermediate page where they can view the
-        // existing request or continue anyway. The draft just created is
-        // excluded so the upload is not flagged as a duplicate of itself.
+        // Check for near-duplicates before making the slower external lookups.
         $duplicate = $this->duplicateDetection->findDuplicate($phash, $sauceRequest->id);
 
         if ($duplicate !== null) {
@@ -189,26 +156,47 @@ class SauceRequestController extends Controller
                 ->route('sauce-requests.duplicate', [$sauceRequest, 'duplicate' => $duplicate]);
         }
 
-        // Step 2 of the pre-post pipeline: SauceNAO reverse image search.
-        // If the image is easily identifiable, send the user to an
-        // intermediate page where they can view the result or continue
-        // anyway. The result is cached so the intermediate page does not
-        // need to re-hit the SauceNAO API.
-        $matches = $this->sauceNao->lookup($absolutePath);
+        $matches = $this->lookupSauceNao($sauceRequest);
 
         if ($matches !== []) {
-            Cache::put(
-                $this->sauceCacheKey($sauceRequest),
-                $matches,
-                now()->addMinutes((int) config('services.saucenao.cache_ttl', 10)),
-            );
-
             return redirect()
                 ->route('sauce-requests.sauce', $sauceRequest);
         }
 
+        $this->enrichDraft($sauceRequest);
+
         return redirect()
             ->route('sauce-requests.details', $sauceRequest);
+    }
+
+    /**
+     * Continue past a possible duplicate and run SauceNAO before enrichment.
+     */
+    public function continueAfterDuplicate(Request $request, SauceRequest $sauceRequest): RedirectResponse
+    {
+        abort_unless($request->user()?->is($sauceRequest->user), 403);
+
+        $matches = $this->lookupSauceNao($sauceRequest);
+
+        if ($matches !== []) {
+            return redirect()->route('sauce-requests.sauce', $sauceRequest);
+        }
+
+        $this->enrichDraft($sauceRequest);
+
+        return redirect()->route('sauce-requests.details', $sauceRequest);
+    }
+
+    /**
+     * Continue past a SauceNAO match and prepare the details page.
+     */
+    public function continueAfterSauce(Request $request, SauceRequest $sauceRequest): RedirectResponse
+    {
+        abort_unless($request->user()?->is($sauceRequest->user), 403);
+
+        $this->enrichDraft($sauceRequest);
+
+        return redirect()->route('sauce-requests.details', $sauceRequest);
     }
 
     /**
@@ -238,15 +226,10 @@ class SauceRequestController extends Controller
 
         $sauceRequest->load(['user', 'tags']);
 
-        // The lookup result is cached during upload. If it is missing
-        // (e.g. the cache was cleared), re-run the lookup against the
-        // stored image so the page still has something to show.
-        $matches = Cache::get($this->sauceCacheKey($sauceRequest));
-
-        if ($matches === null && $sauceRequest->image_path) {
-            $absolutePath = Storage::disk('public')->path($sauceRequest->image_path);
-            $matches = $this->sauceNao->lookup($absolutePath);
-        }
+        // The lookup result is cached when the image is searched. If it is
+        // missing (e.g. the cache was cleared), re-run the lookup so the
+        // page still has something to show.
+        $matches = $this->lookupSauceNao($sauceRequest, retryOnCacheMiss: true);
 
         return view('pages.sauce-requests.sauce', [
             'sauceRequest' => $sauceRequest,
@@ -261,6 +244,11 @@ class SauceRequestController extends Controller
     public function details(Request $request, SauceRequest $sauceRequest): View
     {
         abort_unless($request->user()?->is($sauceRequest->user), 403);
+
+        if ($sauceRequest->published_at === null) {
+            $this->enrichDraft($sauceRequest);
+            $sauceRequest->refresh();
+        }
 
         $sauceRequest->load(['user', 'tags']);
 
@@ -491,6 +479,89 @@ class SauceRequestController extends Controller
     private function sauceCacheKey(SauceRequest $sauceRequest): string
     {
         return "sauce-requests.{$sauceRequest->id}.saucenao";
+    }
+
+    /**
+     * Run SauceNAO once for a draft and cache its results for the result page.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function lookupSauceNao(SauceRequest $sauceRequest, bool $retryOnCacheMiss = false): array
+    {
+        $cacheKey = $this->sauceCacheKey($sauceRequest);
+        $cached = Cache::get($cacheKey);
+
+        if (is_array($cached)) {
+            return $cached;
+        }
+
+        if ($sauceRequest->saucenao_checked_at !== null && ! $retryOnCacheMiss) {
+            return [];
+        }
+
+        if (! $sauceRequest->image_path) {
+            return [];
+        }
+
+        $absolutePath = Storage::disk('public')->path($sauceRequest->image_path);
+        $matches = $this->sauceNao->lookup($absolutePath);
+
+        Cache::put(
+            $cacheKey,
+            $matches,
+            now()->addMinutes((int) config('services.saucenao.cache_ttl', 10)),
+        );
+
+        $sauceRequest->forceFill(['saucenao_checked_at' => now()])->save();
+
+        return $matches;
+    }
+
+    /**
+     * Populate OCR text and inferred tags once, after the user continues.
+     */
+    private function enrichDraft(SauceRequest $sauceRequest): void
+    {
+        if ($sauceRequest->enriched_at !== null || ! $sauceRequest->image_path) {
+            return;
+        }
+
+        $lock = Cache::lock("sauce-requests.{$sauceRequest->id}.enrichment", 120);
+
+        $lock->block(120, function () use ($sauceRequest): void {
+            $draft = SauceRequest::query()->findOrFail($sauceRequest->id);
+
+            if ($draft->enriched_at !== null) {
+                return;
+            }
+
+            $absolutePath = Storage::disk('public')->path($draft->image_path);
+
+            if ($this->imageCompression->isGif($absolutePath)) {
+                $draft->forceFill(['enriched_at' => now()])->save();
+
+                return;
+            }
+
+            $text = $this->ocr->extractText($absolutePath);
+            $inference = $this->tagInference->inferWithRating($absolutePath);
+
+            $this->tags->addInferred($draft, (array) $inference['tags']);
+
+            $updates = ['enriched_at' => now()];
+
+            if ($draft->text === '' || $draft->text === null) {
+                $updates['text'] = $text;
+            }
+
+            if ($inference['rating'] === 'safe'
+                && $inference['rating_confidence'] !== null
+                && $inference['rating_confidence'] >= (float) config('services.tag_inference.threshold', 0.2)) {
+                $updates['is_explicit'] = false;
+            }
+
+            $draft->forceFill($updates)->save();
+        });
     }
 
     /**
