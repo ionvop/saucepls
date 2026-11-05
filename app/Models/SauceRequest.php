@@ -24,6 +24,8 @@ use Carbon\CarbonInterval;
     'phash64',
     'is_explicit',
     'published_at',
+    'saucenao_checked_at',
+    'enriched_at',
 ])]
 class SauceRequest extends Model
 {
@@ -41,6 +43,8 @@ class SauceRequest extends Model
             'accepted_sauce' => 'integer',
             'deleted_at' => 'datetime',
             'published_at' => 'datetime',
+            'saucenao_checked_at' => 'datetime',
+            'enriched_at' => 'datetime',
         ];
     }
 
