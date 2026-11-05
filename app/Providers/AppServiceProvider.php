@@ -88,9 +88,8 @@ class AppServiceProvider extends ServiceProvider
     }
 
     /**
-     * Rate limit sauce request uploads to prevent abuse of the pre-post
-     * pipeline (perceptual hashing, SauceNAO, OCR, and tag inference),
-     * which all run within the upload request.
+        * Rate limit uploads and continuation steps to prevent abuse of the
+        * image processing pipeline. Each route has a separate per-user budget.
      *
      * Staff (moderators/admins) are exempt.
      */
@@ -103,7 +102,9 @@ class AppServiceProvider extends ServiceProvider
                 return Limit::none();
             }
 
-            return Limit::perMinute(3)->by($user?->id ?? $request->ip());
+            $key = $user?->id ?? $request->ip();
+
+            return Limit::perMinute(3)->by($key.':'.$request->route()?->getName());
         });
     }
 
