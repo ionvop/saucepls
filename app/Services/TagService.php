@@ -126,6 +126,22 @@ class TagService
     }
 
     /**
+     * Add machine-suggested tags without recording them as a user edit.
+     *
+     * @param  string|array<int, string>  $names
+     */
+    public function addInferred(SauceRequest $sauceRequest, string|array $names): void
+    {
+        $names = $this->normalize($names);
+        $existing = $sauceRequest->tags()->pluck('tags.name')->all();
+
+        foreach (array_diff($names, $existing) as $name) {
+            $tag = Tag::firstOrCreate(['name' => $name]);
+            $sauceRequest->tags()->attach($tag);
+        }
+    }
+
+    /**
      * Detach the given tag names from the sauce request and record the
      * change in the history.
      *
