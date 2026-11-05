@@ -8,6 +8,7 @@ use App\Services\TagInferenceService;
 use App\Services\TagService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
 
@@ -224,6 +225,34 @@ it('shows the details page to the owner with prefilled text and tags', function 
         ->assertOk()
         ->assertSee('Hello world')
         ->assertSee('1girl smile');
+});
+
+it('renders newly enriched text when an unprocessed draft is opened directly', function () {
+    Storage::fake('public');
+    $owner = User::factory()->create();
+    $imagePath = UploadedFile::fake()->image('draft.png')->store('sauce-requests', 'public');
+    $sauceRequest = makeSauceRequest($owner, [
+        'image_path' => $imagePath,
+        'published_at' => null,
+        'enriched_at' => null,
+    ]);
+
+    $this->mock(OcrService::class)
+        ->shouldReceive('extractText')
+        ->once()
+        ->andReturn('Detected directly');
+
+    $this->mock(TagInferenceService::class)
+        ->shouldReceive('inferWithRating')
+        ->once()
+        ->andReturn(emptyInferenceResult());
+
+    $this->actingAs($owner)
+        ->get(route('sauce-requests.details', $sauceRequest))
+        ->assertOk()
+        ->assertSee('Detected directly');
+
+    expect($sauceRequest->fresh()->text)->toBe('Detected directly');
 });
 
 // ---------------------------------------------------------------------------
