@@ -67,7 +67,13 @@ Route::middleware('auth')->group(function () {
         ->name('sauce-requests.upload');
     Route::get('/sauce-requests/{sauceRequest}/details', [SauceRequestController::class, 'details'])->name('sauce-requests.details');
     Route::get('/sauce-requests/{sauceRequest}/duplicate/{duplicate}', [SauceRequestController::class, 'duplicate'])->name('sauce-requests.duplicate');
+    Route::post('/sauce-requests/{sauceRequest}/duplicate/continue', [SauceRequestController::class, 'continueAfterDuplicate'])
+        ->middleware('throttle:upload')
+        ->name('sauce-requests.continue-duplicate');
     Route::get('/sauce-requests/{sauceRequest}/sauce', [SauceRequestController::class, 'sauce'])->name('sauce-requests.sauce');
+    Route::post('/sauce-requests/{sauceRequest}/sauce/continue', [SauceRequestController::class, 'continueAfterSauce'])
+        ->middleware('throttle:upload')
+        ->name('sauce-requests.continue-sauce');
     Route::post('/sauce-requests/{sauceRequest}/publish', [SauceRequestController::class, 'publish'])->name('sauce-requests.publish');
     Route::post('/sauce-requests/{sauceRequest}/cancel', [SauceRequestController::class, 'cancel'])->name('sauce-requests.cancel');
 
