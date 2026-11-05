@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\SauceRequest;
+use App\Models\SauceRequestTaggingHistory;
 use App\Models\User;
 use App\Services\DuplicateDetectionService;
 use App\Services\OcrService;
@@ -25,6 +26,7 @@ function makeDuplicateSauceRequest(User $user, array $attributes = []): SauceReq
         'phash64' => 'aaaaaaaaaaaaaaaa',
         'is_explicit' => true,
         'published_at' => now(),
+        'enriched_at' => now(),
     ], $attributes));
 }
 
@@ -36,15 +38,9 @@ it('redirects to the duplicate page when a near-duplicate is found', function ()
     $user = User::factory()->create();
     $existing = makeDuplicateSauceRequest($user);
 
-    $this->mock(OcrService::class)
-        ->shouldReceive('extractText')
-        ->once()
-        ->andReturn('');
-
-    $this->mock(TagInferenceService::class)
-        ->shouldReceive('inferWithRating')
-        ->once()
-        ->andReturn(emptyInferenceResult());
+    $this->mock(OcrService::class)->shouldNotReceive('extractText');
+    $this->mock(TagInferenceService::class)->shouldNotReceive('inferWithRating');
+    $this->mock(SauceNaoService::class)->shouldNotReceive('lookup');
 
     $this->mock(DuplicateDetectionService::class)
         ->shouldReceive('findDuplicate')
@@ -60,6 +56,100 @@ it('redirects to the duplicate page when a near-duplicate is found', function ()
             SauceRequest::where('id', '!=', $existing->id)->firstOrFail(),
             'duplicate' => $existing,
         ]));
+});
+
+it('runs SauceNAO and then enriches after continuing past a duplicate', function () {
+    $user = User::factory()->create();
+    $existing = makeDuplicateSauceRequest($user);
+
+    $this->mock(DuplicateDetectionService::class)
+        ->shouldReceive('findDuplicate')
+        ->once()
+        ->andReturn($existing);
+
+    $this->mock(SauceNaoService::class)
+        ->shouldReceive('lookup')
+        ->once()
+        ->andReturn([]);
+
+    $this->mock(OcrService::class)
+        ->shouldReceive('extractText')
+        ->once()
+        ->andReturn('Detected words');
+
+    $this->mock(TagInferenceService::class)
+        ->shouldReceive('inferWithRating')
+        ->once()
+        ->andReturn([
+            'tags' => ['inferred_tag'],
+            'rating' => null,
+            'rating_confidence' => null,
+        ]);
+
+    $this->actingAs($user)
+        ->post(route('sauce-requests.upload'), [
+            'title' => 'Who drew this?',
+            'image' => UploadedFile::fake()->image('art.png'),
+        ])
+        ->assertRedirect();
+
+    $draft = SauceRequest::whereNull('published_at')->firstOrFail();
+
+    $this->post(route('sauce-requests.continue-duplicate', $draft))
+        ->assertRedirect(route('sauce-requests.details', $draft));
+
+    expect($draft->fresh()->enriched_at)->not->toBeNull()
+        ->and($draft->fresh()->text)->toBe('Detected words')
+        ->and($draft->fresh()->tags->pluck('name')->all())->toBe(['inferred_tag'])
+        ->and(SauceRequestTaggingHistory::where('sauce_request_id', $draft->id)->count())->toBe(0);
+
+    $this->post(route('sauce-requests.continue-duplicate', $draft))
+        ->assertRedirect(route('sauce-requests.details', $draft));
+});
+
+it('defers enrichment through both prompts when a duplicate has a SauceNAO match', function () {
+    $user = User::factory()->create();
+    $existing = makeDuplicateSauceRequest($user);
+
+    $this->mock(DuplicateDetectionService::class)
+        ->shouldReceive('findDuplicate')
+        ->once()
+        ->andReturn($existing);
+
+    $this->mock(SauceNaoService::class)
+        ->shouldReceive('lookup')
+        ->once()
+        ->andReturn([['similarity' => 92.77]]);
+
+    $this->mock(OcrService::class)
+        ->shouldReceive('extractText')
+        ->once()
+        ->andReturn('Detected words');
+
+    $this->mock(TagInferenceService::class)
+        ->shouldReceive('inferWithRating')
+        ->once()
+        ->andReturn(emptyInferenceResult());
+
+    $this->actingAs($user)
+        ->post(route('sauce-requests.upload'), [
+            'title' => 'Who drew this?',
+            'image' => UploadedFile::fake()->image('art.png'),
+        ])
+        ->assertRedirect();
+
+    $draft = SauceRequest::whereNull('published_at')->firstOrFail();
+
+    $this->post(route('sauce-requests.continue-duplicate', $draft))
+        ->assertRedirect(route('sauce-requests.sauce', $draft));
+
+    expect($draft->fresh()->enriched_at)->toBeNull();
+
+    $this->post(route('sauce-requests.continue-sauce', $draft))
+        ->assertRedirect(route('sauce-requests.details', $draft));
+
+    expect($draft->fresh()->enriched_at)->not->toBeNull()
+        ->and($draft->fresh()->text)->toBe('Detected words');
 });
 
 it('redirects to the details page when no duplicate is found', function () {
@@ -120,6 +210,23 @@ it('forbids a non-owner from viewing the duplicate page', function () {
 
     $this->actingAs($other)
         ->get(route('sauce-requests.duplicate', [$sauceRequest, 'duplicate' => $existing]))
+        ->assertForbidden();
+});
+
+it('forbids a non-owner from continuing either processing step', function () {
+    $owner = User::factory()->create();
+    $other = User::factory()->create();
+    $sauceRequest = makeDuplicateSauceRequest($owner, ['enriched_at' => null]);
+
+    $this->mock(SauceNaoService::class)->shouldNotReceive('lookup');
+    $this->mock(OcrService::class)->shouldNotReceive('extractText');
+    $this->mock(TagInferenceService::class)->shouldNotReceive('inferWithRating');
+
+    $this->actingAs($other)
+        ->post(route('sauce-requests.continue-duplicate', $sauceRequest))
+        ->assertForbidden();
+
+    $this->post(route('sauce-requests.continue-sauce', $sauceRequest))
         ->assertForbidden();
 });
 
