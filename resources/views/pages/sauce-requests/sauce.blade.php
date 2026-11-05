@@ -85,11 +85,14 @@
                         Cancel
                     </button>
                 </form>
-                <a href="{{ route('sauce-requests.details', $sauceRequest) }}" @click="allowLeave()"
-                    class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#5555AA] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#6666BB]">
-                    Continue anyway
-                    <x-lucide-arrow-right class="h-4 w-4" />
-                </a>
+                <form method="POST" action="{{ route('sauce-requests.continue-sauce', $sauceRequest) }}">
+                    @csrf
+                    <button type="submit" @click="allowLeave()"
+                        class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#5555AA] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#6666BB]">
+                        Continue anyway
+                        <x-lucide-arrow-right class="h-4 w-4" />
+                    </button>
+                </form>
             </div>
         </div>
     </div>
