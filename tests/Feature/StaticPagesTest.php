@@ -11,7 +11,7 @@ uses(RefreshDatabase::class);
 it('serves the About page', function () {
     $this->get(route('page.show', ['page' => 'about']))
         ->assertOk()
-    ->assertSee('About Saucepls')
+    ->assertSee('About SaucePls')
     ->assertSee('100 requests per day')
     ->assertSee('hosted live demo API')
     ->assertSee('href="https://github.com/Nanoskript/deepdanbooru-docker"', false)
