@@ -1,7 +1,5 @@
 # Terms of Service
 
-**Effective date: [insert date]**
-
 These Terms of Service (the "Terms") apply to your access to and use of SaucePls, including its website, accounts, and community features (the "Service"). By accessing or using the Service, you agree to these Terms. If you do not agree, do not use the Service.
 
 ## 1. Eligibility
@@ -30,7 +28,7 @@ You agree not to use the Service to:
 
 - violate the law or another person's rights, including intellectual-property, privacy, or publicity rights;
 - post unlawful, exploitative, threatening, harassing, deceptive, or otherwise abusive material;
-- submit sexual content involving anyone under 18, non-consensual intimate imagery, or content that depicts or promotes exploitation or abuse;
+- submit realistic sexual content involving anyone under 18, non-consensual intimate imagery, or content that depicts or promotes exploitation or abuse;
 - distribute malware, spam, or content intended to disrupt or compromise the Service or its users;
 - interfere with the Service, evade reasonable usage limits, or access accounts or systems without authorization; or
 - misrepresent the source, ownership, or accuracy of content or information you submit.
@@ -53,9 +51,9 @@ SaucePls may review, restrict, or remove User Content, or limit or end access to
 
 ## 7. Copyright and other rights complaints
 
-If you believe material on SaucePls infringes your copyright or other rights, contact **[insert designated reporting email or link]**. Include enough information for us to identify the material and understand your claim, such as the location of the material, a description of the work or right involved, your contact details, and why you believe the use is unauthorized. Do not include sensitive personal information that is not needed to review the report.
+If you believe material on SaucePls infringes your copyright or other rights, contact **ionvop@gmail.com**. Include enough information for us to identify the material and understand your claim, such as the location of the material, a description of the work or right involved, your contact details, and why you believe the use is unauthorized. Do not include sensitive personal information that is not needed to review the report.
 
-We may request additional information and may remove or restrict access to material in response to a report. A report does not guarantee removal, and we may share relevant information with the person who submitted the material where appropriate. Add the operator's required notice-and-action procedure and any legally required statements before publishing these Terms.
+We may request additional information and may remove or restrict access to material in response to a report. A report does not guarantee removal, and we may share relevant information with the person who submitted the material where appropriate.
 
 ## 8. Third-party links and optional support
 
@@ -71,8 +69,8 @@ To the fullest extent permitted by applicable law, SaucePls and the people opera
 
 ## 11. Changes or discontinuation
 
-The Service or any feature may change, be suspended, or be discontinued. We may update these Terms by posting a revised version on this page and changing the effective date above. Your continued use after updated Terms are posted means you accept them, to the extent permitted by law. If you do not agree to a change, stop using the Service.
+The Service or any feature may change, be suspended, or be discontinued. We may update these Terms by posting a revised version on this page. Your continued use after updated Terms are posted means you accept them, to the extent permitted by law. If you do not agree to a change, stop using the Service.
 
 ## 12. Contact
 
-For questions about these Terms or the Service, contact **[insert operator contact details]**.
+For questions about these Terms or the Service, contact **ionvop@gmail.com**.
