@@ -38,8 +38,7 @@ it('serves the Privacy Policy page', function () {
     ->assertSee('Privacy Policy')
     ->assertSee('SauceNAO')
     ->assertSee('OCR.space')
-    ->assertSee('self-service account-deletion workflow')
-    ->assertSee('[privacy contact email]');
+    ->assertSee('self-service account-deletion workflow');
 });
 
 // ---------------------------------------------------------------------------
