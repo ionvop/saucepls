@@ -33,9 +33,13 @@ it('serves the Terms of Service page', function () {
 });
 
 it('serves the Privacy Policy page', function () {
-    $this->get(route('privacy'))
+    $this->get(route('page.show', ['page' => 'privacy']))
         ->assertOk()
-        ->assertSee('Privacy Policy');
+    ->assertSee('Privacy Policy')
+    ->assertSee('SauceNAO')
+    ->assertSee('OCR.space')
+    ->assertSee('self-service account-deletion workflow')
+    ->assertSee('[privacy contact email]');
 });
 
 // ---------------------------------------------------------------------------
