@@ -27,7 +27,7 @@ it('serves the Contact page', function () {
 });
 
 it('serves the Terms of Service page', function () {
-    $this->get(route('terms'))
+    $this->get(route('page.show', ['page' => 'terms']))
         ->assertOk()
         ->assertSee('Terms of Service');
 });
